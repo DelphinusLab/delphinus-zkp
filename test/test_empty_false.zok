@@ -1,0 +1,15 @@
+import "../sha512/sha512" as sha512
+
+def main() -> bool:
+    u64[1][16] msg = [[0x8000000000000000, ...[0x0000000000000000; 15]]]
+    u64[8] unexpect = [
+        0xcf83e1357eefb8bd,
+        0xf1542850d66d8007,
+        0xd620e4050b5715dc,
+        0x83f4a921d36ce9ce,
+        0x47d0d13c5d85f2b0,
+        0xff8318d2877eec2f,
+        0x63b931bd47417a81,
+        0xa538327af927da3f
+    ]
+    return sha512(msg) == unexpect

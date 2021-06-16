@@ -1,0 +1,14 @@
+import "./IVconstants" as IVconstants
+import "./sha512core" as sha512core
+
+def main(u64[3][16] a) -> u64[8]:
+	u64[8] current = IVconstants()
+
+    // padding: [0b1, 0b000000..., 3072];
+    u64[16] padding = [
+        0x8000000000000000,
+        ...[0x0000000000000000; 14],
+        0x0000000000000c00
+        ]
+
+	return sha512core([...a, padding])
