@@ -1,0 +1,17 @@
+from "../BN128Field/field" import BN128Field as BN128Field
+import "utils/casts/u32_8_to_bool_256" as u32_8_to_bool_256
+import "./zero" as zero
+import "./add" as add
+
+def main(BN128Field[2] p1, u32[8] c) -> BN128Field[2]:
+    BN128Field[2] base = p1
+    BN128Field[2] acc = zero()
+
+    bool[256] cbits= u32_8_to_bool_256(c)
+
+    for u32 i in 0..256 do
+        acc = if cbits[i] then add(acc, base) else acc fi
+        base = add(base, base)
+	endfor
+
+    return acc
