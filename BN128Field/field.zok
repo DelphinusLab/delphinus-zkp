@@ -1,0 +1,8 @@
+struct BN128Field {
+    field placeholder
+}
+
+def main() -> BN128Field:
+    return BN128Field {
+        placeholder: 1
+    }

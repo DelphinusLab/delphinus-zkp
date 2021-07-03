@@ -1,0 +1,6 @@
+from "./field" import BN128Field as BN128Field
+import "./field" as defaultBN128Field
+
+def main (u64 u) -> BN128Field:
+    // TODO
+    return defaultBN128Field()

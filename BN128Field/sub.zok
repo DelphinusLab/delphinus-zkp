@@ -1,0 +1,5 @@
+from "./field" import BN128Field as BN128Field
+
+def main (BN128Field a, BN128Field b) -> BN128Field:
+    // TODO
+    return a
