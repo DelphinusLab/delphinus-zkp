@@ -55,7 +55,14 @@ def getValueDefault(LeafInfo leafInfo) -> field:
 	bool[32] selector = u32_to_bits(leafInfo.index)
 	return lookup2bit(selector[30..32], leafInfo.leafValues)
 
+def getValueBySelector(LeafInfo leafInfo, bool[2] selector) -> field:
+	return lookup2bit(selector, leafInfo.leafValues)
+
 def getRootHashAfterUpdate(LeafInfo leafInfo, field v) -> field:
 	bool[32] selector = u32_to_bits(leafInfo.index)
 	leafInfo.leafValues[u32_from_2bits(selector[30..32])] = v
+	return getRootHash(leafInfo)
+
+def getRootHashAfterUpdateBySelector(LeafInfo leafInfo, field v, bool[2] selector) -> field:
+	leafInfo.leafValues[u32_from_2bits(selector)] = v
 	return getRootHash(leafInfo)

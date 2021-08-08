@@ -1,30 +1,77 @@
 import "./markle-tree" as markleTreeCheck
-from "./markle-tree" import getAccountIndex, getAssetIndex, getValueDefault, LeafInfo, getRootHashAfterUpdate
+from "./markle-tree" import getAccountIndex, getAssetIndex, getValueDefault, LeafInfo, getRootHashAfterUpdate, getValueBySelector, getRootHashAfterUpdateBySelector
+from "./sign.zok" import signcheck
 
 struct Command {
     field op
-    field[5] args
+    field[7] args
 }
+
+def setAmountBySelector(field root, LeafInfo leafInfo, field v, bool[2] selector) -> field:
+    return getRootHashAfterUpdateBySelector(leafInfo, v, selector)
+
+def addAmount(field root, LeafInfo leafInfo, field amount) -> field:
+    field valueIn = getValueDefault(leafInfo)
+    field valueOut = valueIn + amount
+    assert(valueIn < valueOut)
+    return getRootHashAfterUpdate(leafInfo, valueOut)
+
+def subAmount(field root, LeafInfo leafInfo, field amount) -> field:
+    field valueIn = getValueDefault(leafInfo)
+    field valueOut = valueIn - amount
+    assert(valueOut < valueIn)
+    return getRootHashAfterUpdate(leafInfo, valueOut)
+
+def checkAccount(LeafInfo leafInfo, field account) -> bool:
+    return getAccountIndex(leafInfo) == account
+
+def checkAsset(LeafInfo leafInfo, field asset) -> bool:
+    return getAssetIndex(leafInfo) == asset
 
 def handleDeposit(Command command, field root, LeafInfo leafInfo) -> field:
     field account = command.args[0]
     field token = command.args[1]
     field amount = command.args[2]
-
-    for u32 i in 3..5 do
+    for u32 i in 3..7 do
         assert(command.args[i] == 0)
     endfor
 
     assert(markleTreeCheck(root, leafInfo))
-    assert(getAccountIndex(leafInfo) == account)
-    // 0 ~ 3 reserved for nonce, public key
-    assert(getAssetIndex(leafInfo) == token + 4)
+    assert(token >= 4)
+    assert(checkAsset(leafInfo, token))
+    assert(checkAccount(leafInfo, account))
+    return addAmount(root, leafInfo, amount)
 
-    field valueIn = getValueDefault(leafInfo)
-    field valueOut = valueIn + amount
-    assert(valueIn < valueOut)
+def handleWithdraw(Command command, field root, LeafInfo[2] leafInfos) -> field:
+    field account = command.args[0]
+    field token = command.args[1]
+    field amount = command.args[2]
+    field nonce = command.args[3]
+    field[2] r = command.args[4..6]
+    field s = command.args[6]
 
-    return getRootHashAfterUpdate(leafInfo, valueOut)
+    LeafInfo leafInfo = leafInfos[0]
 
-def main(Command command, field root, private LeafInfo leafInfo) -> field:
-    return handleDeposit(command, root, leafInfo)
+    // check sign
+    field[2] a = [
+        getValueBySelector(leafInfo, [false, false]),
+        getValueBySelector(leafInfo, [false, true])
+    ]
+    assert(checkAccount(leafInfo, account))
+    assert(checkAsset(leafInfo, 0))
+    assert(signcheck([[account, token], [amount, nonce]], r, s, a))
+
+    // check and update nonce
+    field old_nonce = getValueBySelector(leafInfo, [true, false])
+    assert(old_nonce + 1 == nonce)
+    root = setAmountBySelector(root, leafInfo, nonce, [true, false])
+
+    leafInfo = leafInfos[1]
+    assert(checkAccount(leafInfo, account))
+    assert(token >= 4)
+    assert(checkAsset(leafInfo, token))
+    return subAmount(root, leafInfo, amount)
+
+def main(Command command, field root, private LeafInfo[2] leafInfos) -> field:
+    //return handleDeposit(command, root, leafInfo)
+    return handleWithdraw(command, root, leafInfos)
