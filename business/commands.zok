@@ -42,6 +42,11 @@ def handleDeposit(Command command, field root, LeafInfo leafInfo) -> field:
     assert(checkAccount(leafInfo, account))
     return addAmount(root, leafInfo, amount)
 
+const bool[2] axSelector = [false, false]
+const bool[2] aySelector = [false, true]
+const bool[2] nonceSelector = [true, false]
+const field metaAsset = 0
+
 def handleWithdraw(Command command, field root, LeafInfo[2] leafInfos) -> field:
     field account = command.args[0]
     field token = command.args[1]
@@ -54,18 +59,19 @@ def handleWithdraw(Command command, field root, LeafInfo[2] leafInfos) -> field:
 
     // check sign
     field[2] a = [
-        getValueBySelector(leafInfo, [false, false]),
-        getValueBySelector(leafInfo, [false, true])
+        getValueBySelector(leafInfo, axSelector),
+        getValueBySelector(leafInfo, aySelector)
     ]
     assert(checkAccount(leafInfo, account))
-    assert(checkAsset(leafInfo, 0))
+    assert(checkAsset(leafInfo, metaAsset))
     assert(signcheck([[account, token], [amount, nonce]], r, s, a))
 
     // check and update nonce
-    field old_nonce = getValueBySelector(leafInfo, [true, false])
+    field old_nonce = getValueBySelector(leafInfo, nonceSelector)
     assert(old_nonce + 1 == nonce)
-    root = setAmountBySelector(root, leafInfo, nonce, [true, false])
+    root = setAmountBySelector(root, leafInfo, nonce, nonceSelector)
 
+    // sub amount
     leafInfo = leafInfos[1]
     assert(checkAccount(leafInfo, account))
     assert(token >= 4)
