@@ -1,0 +1,30 @@
+import "./markle-tree" as markleTreeCheck
+from "./markle-tree" import getAccountIndex, getAssetIndex, getValueDefault, LeafInfo, getRootHashAfterUpdate
+
+struct Command {
+    field op
+    field[5] args
+}
+
+def handleDeposit(Command command, field root, LeafInfo leafInfo) -> field:
+    field account = command.args[0]
+    field token = command.args[1]
+    field amount = command.args[2]
+
+    for u32 i in 3..5 do
+        assert(command.args[i] == 0)
+    endfor
+
+    assert(markleTreeCheck(root, leafInfo))
+    assert(getAccountIndex(leafInfo) == account)
+    // 0 ~ 3 reserved for nonce, public key
+    assert(getAssetIndex(leafInfo) == token + 4)
+
+    field valueIn = getValueDefault(leafInfo)
+    field valueOut = valueIn + amount
+    assert(valueIn < valueOut)
+
+    return getRootHashAfterUpdate(leafInfo, valueOut)
+
+def main(Command command, field root, private LeafInfo leafInfo) -> field:
+    return handleDeposit(command, root, leafInfo)
