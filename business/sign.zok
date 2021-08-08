@@ -28,7 +28,7 @@ def hash<N>(field[N][2] content) -> u32[8]:
 
     return sha256(data)
 
-def signcheck<N>(field[N][2] msg, field[2] R, field S, field[2] A) -> bool:
+def checkSign<N>(field[N][2] msg, field[2] R, field S, field[2] A) -> bool:
     BabyJubJubParams context = babyjubjubContext()
     field[2] G = [context.Gu, context.Gv]
 

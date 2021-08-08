@@ -19,7 +19,7 @@ def checkTarget(bool[2] selector, field value, field[4] values) -> bool:
 def u32_from_2bits(bool[2] selector) -> u32:
 	return u32_from_bits([...[false; 30], ...selector])
 
-def main(field rootDigest, LeafInfo leafInfo) -> bool:
+def checkLeafInfo(field rootDigest, LeafInfo leafInfo) -> bool:
 	bool[32] selector = u32_to_bits(leafInfo.index)
 
 	bool ret = true
