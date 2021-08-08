@@ -7,26 +7,7 @@ import "ecc/edwardsOrderCheck" as orderCheck
 from "ecc/babyjubjubParams" import BabyJubJubParams
 import "ecc/babyjubjubParams" as babyjubjubContext
 import "utils/casts/u32_8_to_bool_256"
-import "hashes/sha256/sha256" as sha256
-
-def hash<N>(field[N][2] content) -> u32[8]:
-    u32[N + 1][16] data = [
-        ...[[0u32; 16]; N],
-        [
-            0x80000000,
-            ...[0u32; 14],
-            N * 512
-        ]
-    ]
-
-    for u32 i in 0..N do
-        data[i] = [
-            ...unpack256u(content[i][0]),
-            ...unpack256u(content[i][1])
-        ]
-    endfor
-
-    return sha256(data)
+import "./sha256" as sha256
 
 def checkSign<N>(field[N][2] msg, field[2] R, field S, field[2] A) -> bool:
     BabyJubJubParams context = babyjubjubContext()
@@ -35,7 +16,7 @@ def checkSign<N>(field[N][2] msg, field[2] R, field S, field[2] A) -> bool:
     assert(onCurve(R, context))
     assert(orderCheck(R, context))
 
-    bool[256] hRAM = u32_8_to_bool_256(hash([[R[0], A[0]], ...msg]))
+    bool[256] hRAM = u32_8_to_bool_256(sha256([[R[0], A[0]], ...msg]))
 
     bool[256] sBits = unpack256bool(S)
     field[2] lhs = scalarMult(sBits, G, context)
