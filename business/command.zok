@@ -1,9 +1,11 @@
 from "../utils/markle-tree" import getBalanceAccountIndex, getBalanceAssetIndex, LeafInfo, getValueBySelector, setAmountBySelector
 from "../utils/sign.zok" import checkSign
 
+const u32 COMMAND_ARGS = 8
+
 struct Command {
     field op
-    field[7] args
+    field[8] args
 }
 
 const bool[2] AX_SELECTOR = [false, false]
@@ -35,3 +37,13 @@ def checkCommandSign<N>(Command command, LeafInfo leafInfo, field[N][2] msg) -> 
     ]
     assert(checkAsset(leafInfo, META_ASSET_INDEX))
     return checkSign(msg, r, s, a)
+
+def checkedAdd(field x, field y) -> field:
+    field z = x + y
+    assert(z >= x)
+    return z
+
+def checkedSub(field x, field y) -> field:
+    field z = x - y
+    assert(z <= x)
+    return z

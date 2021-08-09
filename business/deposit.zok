@@ -1,11 +1,11 @@
-from "./command" import Command, checkToken, checkAsset, checkAccount
+from "./command" import Command, checkToken, checkAsset, checkAccount, COMMAND_ARGS
 from "../utils/markle-tree" import LeafInfo, checkLeafInfo, addAmount
 
 def main(Command command, field root, LeafInfo leafInfo) -> field:
     field account = command.args[0]
     field token = command.args[1]
     field amount = command.args[2]
-    for u32 i in 3..7 do
+    for u32 i in 3..COMMAND_ARGS do
         assert(command.args[i] == 0)
     endfor
 

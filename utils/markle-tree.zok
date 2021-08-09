@@ -10,16 +10,14 @@ import "utils/multiplexer/lookup2bit" as lookup2bit
 const u32 TOTAL_BITS = 32
 const u32 CLASS_BITS = 2
 const u32 LEAF_BITS = 2
+
+const u32 CLASS_START_BIT = 0
+const u32 CLASS_END_BIT = CLASS_START_BIT + CLASS_BITS
 const u32 LEAF_STATR_BIT = TOTAL_BITS - LEAF_BITS
 
 const bool[2] BALANCE_SELECTOR = [false, false]
 const bool[2] POOL_SELECTOR = [false, true]
 const bool[2] SHARE_SELECTOR = [true, false]
-
-const u32 BALANCE_ACCOUNT_BITS = 20
-const u32 BALANCE_ASSET_BITS = 10
-const u32 BALANCE_ACCOUNT_START_BIT = CLASS_BITS
-const u32 BALANCE_ASSET_START_BIT = BALANCE_ACCOUNT_START_BIT + BALANCE_ACCOUNT_BITS
 
 struct LeafInfo {
 	field[4] leafValues
@@ -46,24 +44,6 @@ def getRootHash(LeafInfo leafInfo) -> field:
 
 def checkLeafInfo(field root, LeafInfo leafInfo) -> bool:
 	return root == getRootHash(leafInfo)
-
-/* balance index */
-
-def getBalanceAccountIndex(LeafInfo leafInfo) -> field:
-	bool[32] selector = leafInfo.index
-	assert(selector[0..CLASS_BITS] == BALANCE_SELECTOR)
-	return u32_to_field(u32_from_bits([
-		...[false; TOTAL_BITS - BALANCE_ACCOUNT_BITS],
-		...selector[BALANCE_ACCOUNT_START_BIT..BALANCE_ASSET_START_BIT]
-	]))
-
-def getBalanceAssetIndex(LeafInfo leafInfo) -> field:
-	bool[32] selector = leafInfo.index
-	assert(selector[0..CLASS_BITS] == BALANCE_SELECTOR)
-	return u32_to_field(u32_from_bits([
-		...[false; TOTAL_BITS - BALANCE_ASSET_BITS],
-		...selector[BALANCE_ASSET_START_BIT..TOTAL_BITS]
-	]))
 
 def getLeafSelector(LeafInfo leafInfo) -> bool[2]:
 	return leafInfo.index[30..TOTAL_BITS]
@@ -99,3 +79,76 @@ def subAmount(LeafInfo leafInfo, field amount) -> field:
 
 def setAmountBySelector(LeafInfo leafInfo, field v, bool[2] selector) -> field:
     return getRootHashAfterUpdateBySelector(leafInfo, v, selector)
+
+def setAmountAllLeaves(LeafInfo leafInfo, field[4] v) -> field:
+	leafInfo.leafValues = v
+    return getRootHash(leafInfo)
+
+/* balance index */
+
+const u32 BALANCE_ACCOUNT_BITS = 20
+const u32 BALANCE_ASSET_BITS = 10
+
+const u32 BALANCE_ACCOUNT_START_BIT = CLASS_END_BIT
+const u32 BALANCE_ACCOUNT_END_BIT = BALANCE_ACCOUNT_START_BIT + BALANCE_ACCOUNT_BITS
+const u32 BALANCE_ASSET_START_BIT = BALANCE_ACCOUNT_END_BIT
+const u32 BALANCE_ASSET_END_BIT = BALANCE_ASSET_START_BIT + BALANCE_ASSET_BITS
+
+def getBalanceAccountIndex(LeafInfo leafInfo) -> field:
+	bool[32] selector = leafInfo.index
+	assert(selector[CLASS_START_BIT..CLASS_END_BIT] == BALANCE_SELECTOR)
+	return u32_to_field(u32_from_bits([
+		...[false; TOTAL_BITS - BALANCE_ACCOUNT_BITS],
+		...selector[BALANCE_ACCOUNT_START_BIT..BALANCE_ACCOUNT_END_BIT]
+	]))
+
+def getBalanceAssetIndex(LeafInfo leafInfo) -> field:
+	bool[32] selector = leafInfo.index
+	assert(selector[CLASS_START_BIT..CLASS_END_BIT] == BALANCE_SELECTOR)
+	return u32_to_field(u32_from_bits([
+		...[false; TOTAL_BITS - BALANCE_ASSET_BITS],
+		...selector[BALANCE_ASSET_START_BIT..BALANCE_ASSET_END_BIT]
+	]))
+
+/* pool index */
+
+const u32 POOL_INDEX_BITS = 10
+const u32 POOL_RESERVED_BITS = 18
+const u32 POOL_DATA_BITS = 2
+
+const u32 POOL_INDEX_START_BIT = CLASS_END_BIT
+const u32 POOL_INDEX_END_BIT = POOL_INDEX_START_BIT + POOL_INDEX_BITS
+const u32 POOL_RESERVED_START_BIT = POOL_INDEX_END_BIT
+const u32 POOL_RESERVED_END_BIT = POOL_RESERVED_START_BIT + POOL_RESERVED_BITS
+const u32 POOL_DATA_START_BIT = POOL_RESERVED_END_BIT
+const u32 POOL_DATA_END_BIT = POOL_DATA_START_BIT + POOL_DATA_BITS
+
+def checkPoolLeaf(LeafInfo leafInfo):
+	bool[32] selector = leafInfo.index
+	assert(selector[0..CLASS_BITS] == POOL_SELECTOR)
+	assert(selector[POOL_RESERVED_START_BIT..POOL_RESERVED_END_BIT] == [false; POOL_RESERVED_BITS])
+	return
+
+def getPoolIndex(LeafInfo leafInfo) -> field:
+	bool[32] selector = leafInfo.index
+	return u32_to_field(u32_from_bits([
+		...[false; TOTAL_BITS - POOL_INDEX_BITS],
+		...selector[POOL_INDEX_START_BIT..POOL_INDEX_END_BIT]
+	]))
+
+const bool[2] TOKEN0_INFO_SELECTOR = [false, false]
+const bool[2] TOKEN1_INFO_SELECTOR = [false, true]
+const bool[2] TOKEN0_AMOUNT_SELECTOR = [true, false]
+const bool[2] TOKEN1_AMOUNT_SELECTOR = [true, true]
+
+def getPoolToken0Info(LeafInfo leafInfo) -> field:
+	return getValueBySelector(leafInfo, TOKEN0_INFO_SELECTOR)
+
+def getPoolToken1Info(LeafInfo leafInfo) -> field:
+	return getValueBySelector(leafInfo, TOKEN1_INFO_SELECTOR)
+
+def getPoolToken0Amount(LeafInfo leafInfo) -> field:
+	return getValueBySelector(leafInfo, TOKEN0_AMOUNT_SELECTOR)
+
+def getPoolToken1Amount(LeafInfo leafInfo) -> field:
+	return getValueBySelector(leafInfo, TOKEN1_AMOUNT_SELECTOR)

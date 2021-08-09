@@ -1,4 +1,4 @@
-from "./command" import Command, checkToken, checkAsset, checkAccount, getValueBySelector, checkNonceAndUpdate, checkCommandSign
+from "./command" import Command, checkToken, checkAsset, checkAccount, getValueBySelector, checkNonceAndUpdate, checkCommandSign, COMMAND_ARGS
 from "../utils/markle-tree" import LeafInfo, checkLeafInfo, setAmountBySelector, subAmount
 
 def main(Command command, field root, LeafInfo[2] leafInfos) -> field:
@@ -6,6 +6,9 @@ def main(Command command, field root, LeafInfo[2] leafInfos) -> field:
     field token = command.args[4]
     field amount = command.args[5]
     field nonce = command.args[6]
+    for u32 i in 7..COMMAND_ARGS do
+        assert(command.args[i] == 0)
+    endfor
 
     LeafInfo leafInfo = leafInfos[0]
     assert(checkLeafInfo(root, leafInfo))
