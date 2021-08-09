@@ -4,6 +4,8 @@ import "./swap" as swap
 import "./supply" as supply
 import "./retrieve" as retrieve
 import "./deposit" as deposit
+import "./addpool" as addpool
+import "./setkey" as setkey
 import "../utils/sha256" as sha256
 from "./command" import Command
 from "../utils/markle-tree" import LeafInfo
@@ -28,9 +30,17 @@ const field OP_WITHDRAW = 1
 const field OP_SWAP = 2
 const field OP_SUPPLY = 3
 const field OP_RETRIEVE = 4
+const field OP_ADDPOOL = 5
+const field OP_SETKEY = 6
+
+def op6(Command command, field root, private LeafInfo[5] leafInfos) -> field:
+    return setkey(command, root, leafInfos)
+
+def op5(Command command, field root, private LeafInfo[5] leafInfos) -> field:
+    return if command.op == OP_ADDPOOL then addpool(command, root, leafInfos) else op6(command, root, leafInfos) fi
 
 def op4(Command command, field root, private LeafInfo[5] leafInfos) -> field:
-    return retrieve(command, root, leafInfos)
+    return if command.op == OP_RETRIEVE then retrieve(command, root, leafInfos) else op5(command, root, leafInfos) fi
 
 def op3(Command command, field root, private LeafInfo[5] leafInfos) -> field:
     return if command.op == OP_SUPPLY then supply(command, root, leafInfos) else op4(command, root, leafInfos) fi

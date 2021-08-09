@@ -1,0 +1,24 @@
+from "./command" import Command, checkToken, checkAsset, checkAccount, COMMAND_ARGS, LEAF_INFOS, checkCommandSign, checkNonceAndUpdateWithKey
+from "../utils/markle-tree" import LeafInfo, checkLeafInfo, addAmount, checkEmptyLeafInfo, setAmountAllLeaves
+from "../utils/sign" import checkKey
+
+def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
+    field account = command.args[0]
+    field key0 = command.args[1]
+    field key1 = command.args[2]
+    field nonce = command.args[3]
+    for u32 i in 4..COMMAND_ARGS do
+        assert(command.args[i] == 0)
+    endfor
+
+    for u32 i in 1..LEAF_INFOS do
+        assert(checkEmptyLeafInfo(leafInfos[i]))
+    endfor
+
+    assert(checkKey([key0, key1]))
+
+    LeafInfo leafInfo = leafInfos[0]
+    assert(checkLeafInfo(root, leafInfo))
+    assert(checkAccount(leafInfo, account))
+    assert(checkCommandSign(command, leafInfo, [[command.op, account], [key0, key1], [nonce, 0]]))
+    return checkNonceAndUpdateWithKey(leafInfo, nonce, [key0, key1])

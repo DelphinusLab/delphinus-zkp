@@ -1,0 +1,31 @@
+from "./command" import Command, checkToken, checkAsset, checkAccount, COMMAND_ARGS, LEAF_INFOS, checkPool
+from "../utils/markle-tree" import LeafInfo, checkLeafInfo, addAmount, checkEmptyLeafInfo, setAmountAllLeaves, getPoolToken0Info, getPoolToken1Info, getPoolToken0Amount, getPoolToken1Amount
+
+def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
+    field account = command.args[0]
+    field pool = command.args[1]
+    field token0 = command.args[2]
+    field token1 = command.args[3]
+    for u32 i in 3..COMMAND_ARGS do
+        assert(command.args[i] == 0)
+    endfor
+
+    for u32 i in 1..LEAF_INFOS do
+        assert(checkEmptyLeafInfo(leafInfos[i]))
+    endfor
+
+    LeafInfo leafInfo = leafInfos[0]
+    assert(checkLeafInfo(root, leafInfo))
+    assert(checkPool(leafInfo, pool))
+
+    field token0Info = getPoolToken0Info(leafInfo)
+    field token1Info = getPoolToken1Info(leafInfo)
+    field token0Amount = getPoolToken0Amount(leafInfo)
+    field token1Amount = getPoolToken1Amount(leafInfo)
+
+    assert(token0Info == 0)
+    assert(token1Info == 0)
+    assert(token0 != token1)
+
+    field[4] leaves = [token0, token1, 0, 0]
+    return setAmountAllLeaves(leafInfo, leaves)

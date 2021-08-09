@@ -1,4 +1,4 @@
-from "../utils/markle-tree" import getBalanceAccountIndex, getBalanceAssetIndex, LeafInfo, getValueBySelector, setAmountBySelector, getShareAccountIndex, getSharePoolIndex, getPoolIndex
+from "../utils/markle-tree" import getBalanceAccountIndex, getBalanceAssetIndex, LeafInfo, getValueBySelector, setAmountBySelector, getShareAccountIndex, getSharePoolIndex, getPoolIndex, setAmountAllLeaves
 from "../utils/sign.zok" import checkSign
 
 const u32 COMMAND_ARGS = 8
@@ -37,6 +37,12 @@ def checkNonceAndUpdate(LeafInfo leafInfo, field nonce) -> field:
     field old_nonce = getValueBySelector(leafInfo, NONCE_SELECTOR)
     assert(old_nonce + 1 == nonce)
     return setAmountBySelector(leafInfo, nonce, NONCE_SELECTOR)
+
+def checkNonceAndUpdateWithKey(LeafInfo leafInfo, field nonce, field[2] key) -> field:
+    // check and update nonce
+    field old_nonce = getValueBySelector(leafInfo, NONCE_SELECTOR)
+    assert(old_nonce + 1 == nonce)
+    return setAmountAllLeaves(leafInfo, [nonce, key[0], key[1], 0])
 
 def checkCommandSign<N>(Command command, LeafInfo leafInfo, field[N][2] msg) -> bool:
     field[2] r = command.args[0..2]

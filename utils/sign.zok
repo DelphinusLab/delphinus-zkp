@@ -8,6 +8,10 @@ import "ecc/babyjubjubParams" as babyjubjubContext
 import "utils/casts/u32_8_to_bool_256"
 import "./sha256" as sha256
 
+def checkKey(field[2] A) -> bool:
+    BabyJubJubParams context = babyjubjubContext()
+    return onCurve(A, context) && orderCheck(A, context)
+
 def checkSign<N>(field[N][2] msg, field[2] R, field S, field[2] A) -> bool:
     BabyJubJubParams context = babyjubjubContext()
     field[2] G = [context.Gu, context.Gv]
