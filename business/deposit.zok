@@ -1,0 +1,16 @@
+from "./command" import Command, checkToken, checkAsset, checkAccount
+from "../utils/markle-tree" import LeafInfo, checkLeafInfo, addAmount
+
+def main(Command command, field root, LeafInfo leafInfo) -> field:
+    field account = command.args[0]
+    field token = command.args[1]
+    field amount = command.args[2]
+    for u32 i in 3..7 do
+        assert(command.args[i] == 0)
+    endfor
+
+    assert(checkLeafInfo(root, leafInfo))
+    assert(checkToken(token))
+    assert(checkAsset(leafInfo, token))
+    assert(checkAccount(leafInfo, account))
+    return addAmount(root, leafInfo, amount)

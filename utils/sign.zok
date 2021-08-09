@@ -1,7 +1,6 @@
 import "ecc/edwardsScalarMult" as scalarMult
 import "ecc/edwardsAdd" as add
 import "utils/pack/bool/nonStrictUnpack256" as unpack256bool
-import "utils/pack/u32/nonStrictUnpack256" as unpack256u
 import "ecc/edwardsOnCurve" as onCurve
 import "ecc/edwardsOrderCheck" as orderCheck
 from "ecc/babyjubjubParams" import BabyJubJubParams

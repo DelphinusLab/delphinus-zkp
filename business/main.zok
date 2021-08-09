@@ -1,0 +1,26 @@
+import "utils/pack/u32/pack128" as pack128
+import "./withdraw" as withdraw
+import "../utils/sha256" as sha256
+from "./command" import Command
+from "../utils/markle-tree" import LeafInfo
+
+def shaCommands<N>(Command[N] commands) -> field[2]:
+    field[N * 4][2] data = [[0; 2]; N * 4]
+    for u32 i in 0..N do
+        Command command = commands[i]
+        data[i * 4] = [command.op, command.args[0]]
+        data[i * 4 + 1] = [command.args[1], command.args[2]]
+        data[i * 4 + 2] = [command.args[3], command.args[4]]
+        data[i * 4 + 3] = [command.args[5], command.args[6]]
+    endfor
+    u32[8] hash = sha256(data)
+    return [
+        pack128(hash[0..4]),
+        pack128(hash[4..8])
+    ]
+
+def main(private Command command, field root, private LeafInfo[2] leafInfos, field[2] hash, field root_new):
+    //return handleDeposit(command, root, leafInfo)
+    assert(hash == shaCommands([command]))
+    assert(root_new == withdraw(command, root, leafInfos))
+    return
