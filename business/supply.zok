@@ -1,30 +1,30 @@
-from "./command" import Command, checkToken, checkAsset, checkAccount, getValueBySelector, checkNonceAndUpdate, checkCommandSign, checkedAdd, checkedSub, checkPool
+from "./command" import Command, checkToken, checkAsset, checkAccount, getValueBySelector, checkNonceAndUpdate, checkCommandSign, checkedAdd, checkedSub, checkPool, checkShareAccount, checkSharePool
 from "../utils/markle-tree" import LeafInfo, checkLeafInfo, setAmountBySelector, getPoolToken0Info, getPoolToken1Info, getPoolToken0Amount, getPoolToken1Amount, setAmountAllLeaves, getPoolIndex, addAmount, subAmount
 
-def main(Command command, field root, LeafInfo[4] leafInfos) -> field:
+def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
     field account = command.args[3]
     field pool = command.args[4]
-    field amount = command.args[5]
-    field direction = command.args[6]
+    field amount0 = command.args[5]
+    field amount1 = command.args[6]
     field nonce = command.args[7]
 
     LeafInfo leafInfo = leafInfos[0]
     assert(checkLeafInfo(root, leafInfo))
     assert(checkAccount(leafInfo, account))
-    assert(checkCommandSign(command, leafInfo, [[account, pool], [amount, direction], [nonce, 0]]))
+    assert(checkCommandSign(command, leafInfo, [[account, pool], [amount0, amount1], [nonce, 0]]))
     root = checkNonceAndUpdate(leafInfo, nonce)
 
     // change pool data
     leafInfo = leafInfos[1]
     assert(checkLeafInfo(root, leafInfo))
-    assert(checkPool(leafInfo, pool))
+    assert(getPoolIndex(leafInfo) == pool)
 
     field token0Info = getPoolToken0Info(leafInfo)
     field token1Info = getPoolToken1Info(leafInfo)
     field token0Amount = getPoolToken0Amount(leafInfo)
     field token1Amount = getPoolToken1Amount(leafInfo)
 
-    field[4] leaves = if direction == 0 then [token0Info, token1Info, checkedAdd(token0Amount, amount), checkedSub(token1Amount, amount)] else [token0Info, token1Info, checkedSub(token0Amount, amount), checkedAdd(token1Amount, amount)] fi
+    field[4] leaves = [token0Info, token1Info, checkedAdd(token0Amount, amount0), checkedAdd(token1Amount, amount1)]
     root = setAmountAllLeaves(leafInfo, leaves)
 
     // change token0 balance
@@ -33,7 +33,7 @@ def main(Command command, field root, LeafInfo[4] leafInfos) -> field:
     assert(checkAccount(leafInfo, account))
     assert(checkAsset(leafInfo, token0Info))
     assert(checkToken(token0Info))
-    root = if direction == 0 then subAmount(leafInfo, amount) else addAmount(leafInfo, amount) fi
+    root = subAmount(leafInfo, amount0)
 
     // change token1 balance
     leafInfo = leafInfos[3]
@@ -41,6 +41,13 @@ def main(Command command, field root, LeafInfo[4] leafInfos) -> field:
     assert(checkAccount(leafInfo, account))
     assert(checkAsset(leafInfo, token1Info))
     assert(checkToken(token1Info))
-    root = if direction == 0 then addAmount(leafInfo, amount) else subAmount(leafInfo, amount) fi
+    root = subAmount(leafInfo, amount1)
+
+    // add share
+    leafInfo = leafInfos[4]
+    assert(checkLeafInfo(root, leafInfo))
+    assert(checkShareAccount(leafInfo, account))
+    assert(checkSharePool(leafInfo, pool))
+    root = addAmount(leafInfo, checkedAdd(amount0, amount1))
 
     return root

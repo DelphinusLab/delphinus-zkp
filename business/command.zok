@@ -1,4 +1,4 @@
-from "../utils/markle-tree" import getBalanceAccountIndex, getBalanceAssetIndex, LeafInfo, getValueBySelector, setAmountBySelector
+from "../utils/markle-tree" import getBalanceAccountIndex, getBalanceAssetIndex, LeafInfo, getValueBySelector, setAmountBySelector, getShareAccountIndex, getSharePoolIndex, getPoolIndex
 from "../utils/sign.zok" import checkSign
 
 const u32 COMMAND_ARGS = 8
@@ -18,6 +18,15 @@ def checkAccount(LeafInfo leafInfo, field account) -> bool:
 
 def checkAsset(LeafInfo leafInfo, field asset) -> bool:
     return getBalanceAssetIndex(leafInfo) == asset
+
+def checkPool(LeafInfo leafInfo, field pool) -> bool:
+    return getPoolIndex(leafInfo) == pool
+
+def checkShareAccount(LeafInfo leafInfo, field account) -> bool:
+    return getShareAccountIndex(leafInfo) == account
+
+def checkSharePool(LeafInfo leafInfo, field account) -> bool:
+    return getSharePoolIndex(leafInfo) == account
 
 def checkToken(field token) -> bool:
     return token >= 4 && token < 1024

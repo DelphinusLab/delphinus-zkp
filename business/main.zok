@@ -1,6 +1,8 @@
 import "utils/pack/u32/pack128" as pack128
 import "./withdraw" as withdraw
 import "./swap" as swap
+import "./supply" as supply
+import "./retrieve" as retrieve
 import "../utils/sha256" as sha256
 from "./command" import Command
 from "../utils/markle-tree" import LeafInfo
@@ -20,8 +22,8 @@ def shaCommands<N>(Command[N] commands) -> field[2]:
         pack128(hash[4..8])
     ]
 
-def main(private Command command, field root, private LeafInfo[4] leafInfos, field[2] hash, field root_new):
+def main(private Command command, field root, private LeafInfo[5] leafInfos, field[2] hash, field root_new):
     //return handleDeposit(command, root, leafInfo)
     assert(hash == shaCommands([command]))
-    assert(root_new == swap(command, root, leafInfos))
+    assert(root_new == retrieve(command, root, leafInfos))
     return

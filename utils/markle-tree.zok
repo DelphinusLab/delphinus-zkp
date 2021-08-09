@@ -152,3 +152,30 @@ def getPoolToken0Amount(LeafInfo leafInfo) -> field:
 
 def getPoolToken1Amount(LeafInfo leafInfo) -> field:
 	return getValueBySelector(leafInfo, TOKEN1_AMOUNT_SELECTOR)
+
+
+/* share index */
+
+const u32 SHARE_ACCOUNT_BITS = 20
+const u32 SHARE_POOL_BITS = 10
+
+const u32 SHARE_ACCOUNT_START_BIT = CLASS_END_BIT
+const u32 SHARE_ACCOUNT_END_BIT = SHARE_ACCOUNT_START_BIT + SHARE_ACCOUNT_BITS
+const u32 SHARE_POOL_START_BIT = SHARE_ACCOUNT_END_BIT
+const u32 SHARE_POOL_END_BIT = SHARE_POOL_START_BIT + SHARE_POOL_BITS
+
+def getShareAccountIndex(LeafInfo leafInfo) -> field:
+	bool[32] selector = leafInfo.index
+	assert(selector[0..CLASS_BITS] == SHARE_SELECTOR)
+	return u32_to_field(u32_from_bits([
+		...[false; TOTAL_BITS - SHARE_ACCOUNT_BITS],
+		...selector[SHARE_ACCOUNT_START_BIT..SHARE_ACCOUNT_END_BIT]
+	]))
+
+def getSharePoolIndex(LeafInfo leafInfo) -> field:
+	bool[32] selector = leafInfo.index
+	assert(selector[0..CLASS_BITS] == SHARE_SELECTOR)
+	return u32_to_field(u32_from_bits([
+		...[false; TOTAL_BITS - SHARE_POOL_BITS],
+		...selector[SHARE_POOL_START_BIT..SHARE_POOL_END_BIT]
+	]))
