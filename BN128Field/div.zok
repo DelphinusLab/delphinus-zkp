@@ -1,7 +1,0 @@
-from "./field" import BN128Field as BN128Field
-import "./mul" as mul
-import "./inv" as inv
-
-def main (BN128Field a, BN128Field b) -> BN128Field:
-    // TODO
-    return mul(a, inv(b))

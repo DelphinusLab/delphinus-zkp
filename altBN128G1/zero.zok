@@ -1,6 +1,0 @@
-from "../BN128Field/field" import BN128Field as BN128Field
-
-import "../BN128Field/u8ToField" as u8ToField
-
-def main() -> BN128Field[2]:
-    return [u8ToField(0), u8ToField(0)]

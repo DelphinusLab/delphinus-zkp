@@ -1,5 +1,0 @@
-from "./field" import BN128Field as BN128Field
-
-def main (BN128Field a, BN128Field b) -> bool:
-    // TODO
-    return a.placeholder == b.placeholder
