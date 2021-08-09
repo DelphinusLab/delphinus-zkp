@@ -48,6 +48,9 @@ def checkLeafInfo(field root, LeafInfo leafInfo) -> bool:
 def getLeafSelector(LeafInfo leafInfo) -> bool[2]:
 	return leafInfo.index[30..TOTAL_BITS]
 
+def checkEmptyLeafInfo(LeafInfo leafInfo) -> bool:
+    return leafInfo.leafValues == [0; 4] && leafInfo.index == [false; 32] && leafInfo.pathDigests == [[0; 4]; 15]
+
 /* getter */
 
 def getValueBySelector(LeafInfo leafInfo, bool[2] selector) -> field:

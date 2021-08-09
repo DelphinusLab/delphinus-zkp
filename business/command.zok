@@ -2,6 +2,7 @@ from "../utils/markle-tree" import getBalanceAccountIndex, getBalanceAssetIndex,
 from "../utils/sign.zok" import checkSign
 
 const u32 COMMAND_ARGS = 8
+const u32 LEAF_INFOS = 5
 
 struct Command {
     field op

@@ -1,4 +1,4 @@
-from "./command" import Command, checkToken, checkAsset, checkAccount, getValueBySelector, checkNonceAndUpdate, checkCommandSign, checkedAdd, checkedSub, checkPool, checkShareAccount, checkSharePool
+from "./command" import Command, checkToken, checkAsset, checkAccount, getValueBySelector, checkNonceAndUpdate, checkCommandSign, checkedAdd, checkedSub, checkPool, checkShareAccount, checkSharePool, LEAF_INFOS
 from "../utils/markle-tree" import LeafInfo, checkLeafInfo, setAmountBySelector, getPoolToken0Info, getPoolToken1Info, getPoolToken0Amount, getPoolToken1Amount, setAmountAllLeaves, getPoolIndex, addAmount, subAmount
 
 def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
@@ -11,7 +11,7 @@ def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
     LeafInfo leafInfo = leafInfos[0]
     assert(checkLeafInfo(root, leafInfo))
     assert(checkAccount(leafInfo, account))
-    assert(checkCommandSign(command, leafInfo, [[account, pool], [amount0, amount1], [nonce, 0]]))
+    assert(checkCommandSign(command, leafInfo, [[command.op, account], [pool, amount0], [amount1, nonce]]))
     root = checkNonceAndUpdate(leafInfo, nonce)
 
     // change pool data

@@ -1,7 +1,7 @@
-from "./command" import Command, checkToken, checkAsset, checkAccount, getValueBySelector, checkNonceAndUpdate, checkCommandSign, COMMAND_ARGS
-from "../utils/markle-tree" import LeafInfo, checkLeafInfo, setAmountBySelector, subAmount
+from "./command" import Command, checkToken, checkAsset, checkAccount, getValueBySelector, checkNonceAndUpdate, checkCommandSign, COMMAND_ARGS, LEAF_INFOS
+from "../utils/markle-tree" import LeafInfo, checkLeafInfo, setAmountBySelector, subAmount, checkEmptyLeafInfo
 
-def main(Command command, field root, LeafInfo[2] leafInfos) -> field:
+def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
     field account = command.args[3]
     field token = command.args[4]
     field amount = command.args[5]
@@ -10,10 +10,14 @@ def main(Command command, field root, LeafInfo[2] leafInfos) -> field:
         assert(command.args[i] == 0)
     endfor
 
+    for u32 i in 2..LEAF_INFOS do
+        assert(checkEmptyLeafInfo(leafInfos[i]))
+    endfor
+
     LeafInfo leafInfo = leafInfos[0]
     assert(checkLeafInfo(root, leafInfo))
     assert(checkAccount(leafInfo, account))
-    assert(checkCommandSign(command, leafInfo, [[account, token], [amount, nonce]]))
+    assert(checkCommandSign(command, leafInfo, [[command.op, account], [token, amount], [nonce, 0]]))
     root = checkNonceAndUpdate(leafInfo, nonce)
 
     // sub amount
