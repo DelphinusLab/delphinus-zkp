@@ -11,13 +11,14 @@ from "./command" import Command
 from "../utils/markle-tree" import LeafInfo
 
 def shaCommands<N>(Command[N] commands) -> field[2]:
-    field[N * 4][2] data = [[0; 2]; N * 4]
+    field[N * 5][2] data = [[0; 2]; N * 5]
     for u32 i in 0..N do
         Command command = commands[i]
         data[i * 4] = [command.op, command.args[0]]
         data[i * 4 + 1] = [command.args[1], command.args[2]]
         data[i * 4 + 2] = [command.args[3], command.args[4]]
         data[i * 4 + 3] = [command.args[5], command.args[6]]
+        data[i * 4 + 4] = [command.args[7], 0]
     endfor
     u32[8] hash = sha256(data)
     return [

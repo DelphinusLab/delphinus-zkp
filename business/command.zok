@@ -47,12 +47,17 @@ def checkNonceAndUpdateWithKey(LeafInfo leafInfo, field nonce, field[2] key) -> 
 def checkCommandSign<N>(Command command, LeafInfo leafInfo, field[N][2] msg) -> bool:
     field[2] r = command.args[0..2]
     field s = command.args[2]
+    // no sign at this stage
+    return r == [0, 0] && s == 0
+/*
+
     field[2] a = [
         getValueBySelector(leafInfo, AX_SELECTOR),
         getValueBySelector(leafInfo, AY_SELECTOR)
     ]
     assert(checkAsset(leafInfo, META_ASSET_INDEX))
     return checkSign(msg, r, s, a)
+*/
 
 def checkedAdd(field x, field y) -> field:
     field z = x + y

@@ -20,9 +20,9 @@ const bool[2] POOL_SELECTOR = [false, true]
 const bool[2] SHARE_SELECTOR = [true, false]
 
 struct LeafInfo {
-	field[4] leafValues
 	bool[32] index
 	field[15][4] pathDigests
+	field[4] leafValues
 }
 
 def u32_from_2bits(bool[2] selector) -> u32:
