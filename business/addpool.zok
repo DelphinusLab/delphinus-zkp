@@ -6,7 +6,7 @@ def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
     field pool = command.args[1]
     field token0 = command.args[2]
     field token1 = command.args[3]
-    for u32 i in 3..COMMAND_ARGS do
+    for u32 i in 4..COMMAND_ARGS do
         assert(command.args[i] == 0)
     endfor
 
@@ -16,6 +16,7 @@ def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
 
     LeafInfo leafInfo = leafInfos[0]
     assert(checkLeafInfo(root, leafInfo))
+
     assert(checkPool(leafInfo, pool))
 
     field token0Info = getPoolToken0Info(leafInfo)

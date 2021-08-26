@@ -20,33 +20,33 @@ const bool[2] POOL_SELECTOR = [false, true]
 const bool[2] SHARE_SELECTOR = [true, false]
 
 struct LeafInfo {
-	bool[32] index
-	field[15][4] pathDigests
-	field[4] leafValues
+  bool[32] index
+  field[15][4] pathDigests
+  field[4] leafValues
 }
 
 def u32_from_2bits(bool[2] selector) -> u32:
-	return u32_from_bits([...[false; 30], ...selector])
+  return u32_from_bits([...[false; 30], ...selector])
 
 def checkTarget(bool[2] selector, field value, field[4] values) -> bool:
-	return value == lookup2bit(selector, values)
+  return value == lookup2bit(selector, values)
 
 def getRootHash(LeafInfo leafInfo) -> field:
-	bool[32] selector = leafInfo.index
-	bool ret = true
-	field currentValue = hash(leafInfo.leafValues)
+  bool[32] selector = leafInfo.index
+  bool ret = true
+  field currentValue = hash(leafInfo.leafValues)
     for u32 i in 0..15 do
-		u32 layer = 15 - i - 1
-		leafInfo.pathDigests[layer][u32_from_2bits(selector[layer * 2..layer * 2 + 2])] = currentValue
-		currentValue = hash(leafInfo.pathDigests[layer])
+    u32 layer = 15 - i - 1
+    leafInfo.pathDigests[layer][u32_from_2bits(selector[layer * 2..layer * 2 + 2])] = currentValue
+    currentValue = hash(leafInfo.pathDigests[layer])
     endfor
-	return currentValue
+  return currentValue
 
 def checkLeafInfo(field root, LeafInfo leafInfo) -> bool:
-	return root == getRootHash(leafInfo)
+  return root == getRootHash(leafInfo)
 
 def getLeafSelector(LeafInfo leafInfo) -> bool[2]:
-	return leafInfo.index[30..TOTAL_BITS]
+  return leafInfo.index[30..TOTAL_BITS]
 
 def checkEmptyLeafInfo(LeafInfo leafInfo) -> bool:
     return leafInfo.leafValues == [0; 4] && leafInfo.index == [false; 32] && leafInfo.pathDigests == [[0; 4]; 15]
@@ -54,38 +54,38 @@ def checkEmptyLeafInfo(LeafInfo leafInfo) -> bool:
 /* getter */
 
 def getValueBySelector(LeafInfo leafInfo, bool[2] selector) -> field:
-	return lookup2bit(selector, leafInfo.leafValues)
+  return lookup2bit(selector, leafInfo.leafValues)
 
 def getValueDefault(LeafInfo leafInfo) -> field:
-	return getValueBySelector(leafInfo, getLeafSelector(leafInfo))
+  return getValueBySelector(leafInfo, getLeafSelector(leafInfo))
 
 /* setter */
 
 def getRootHashAfterUpdateBySelector(LeafInfo leafInfo, field v, bool[2] selector) -> field:
-	leafInfo.leafValues[u32_from_2bits(selector)] = v
-	return getRootHash(leafInfo)
+  leafInfo.leafValues[u32_from_2bits(selector)] = v
+  return getRootHash(leafInfo)
 
 def getRootHashAfterUpdate(LeafInfo leafInfo, field v) -> field:
-	return getRootHashAfterUpdateBySelector(leafInfo, v, getLeafSelector(leafInfo))
+  return getRootHashAfterUpdateBySelector(leafInfo, v, getLeafSelector(leafInfo))
 
 def addAmount(LeafInfo leafInfo, field amount) -> field:
-    field valueIn = getValueDefault(leafInfo)
-    field valueOut = valueIn + amount
-    assert(valueIn < valueOut)
-    return getRootHashAfterUpdate(leafInfo, valueOut)
+  field valueIn = getValueDefault(leafInfo)
+  field valueOut = valueIn + amount
+  assert(valueIn < valueOut)
+  return getRootHashAfterUpdate(leafInfo, valueOut)
 
 def subAmount(LeafInfo leafInfo, field amount) -> field:
-    field valueIn = getValueDefault(leafInfo)
-    field valueOut = valueIn - amount
-    assert(valueOut < valueIn)
-    return getRootHashAfterUpdate(leafInfo, valueOut)
+  field valueIn = getValueDefault(leafInfo)
+  field valueOut = valueIn - amount
+  assert(valueOut < valueIn)
+  return getRootHashAfterUpdate(leafInfo, valueOut)
 
 def setAmountBySelector(LeafInfo leafInfo, field v, bool[2] selector) -> field:
-    return getRootHashAfterUpdateBySelector(leafInfo, v, selector)
+  return getRootHashAfterUpdateBySelector(leafInfo, v, selector)
 
 def setAmountAllLeaves(LeafInfo leafInfo, field[4] v) -> field:
-	leafInfo.leafValues = v
-    return getRootHash(leafInfo)
+  leafInfo.leafValues = v
+  return getRootHash(leafInfo)
 
 /* balance index */
 
@@ -98,20 +98,20 @@ const u32 BALANCE_ASSET_START_BIT = BALANCE_ACCOUNT_END_BIT
 const u32 BALANCE_ASSET_END_BIT = BALANCE_ASSET_START_BIT + BALANCE_ASSET_BITS
 
 def getBalanceAccountIndex(LeafInfo leafInfo) -> field:
-	bool[32] selector = leafInfo.index
-	assert(selector[CLASS_START_BIT..CLASS_END_BIT] == BALANCE_SELECTOR)
-	return u32_to_field(u32_from_bits([
-		...[false; TOTAL_BITS - BALANCE_ACCOUNT_BITS],
-		...selector[BALANCE_ACCOUNT_START_BIT..BALANCE_ACCOUNT_END_BIT]
-	]))
+  bool[32] selector = leafInfo.index
+  assert(selector[CLASS_START_BIT..CLASS_END_BIT] == BALANCE_SELECTOR)
+  return u32_to_field(u32_from_bits([
+    ...[false; TOTAL_BITS - BALANCE_ACCOUNT_BITS],
+    ...selector[BALANCE_ACCOUNT_START_BIT..BALANCE_ACCOUNT_END_BIT]
+  ]))
 
 def getBalanceAssetIndex(LeafInfo leafInfo) -> field:
-	bool[32] selector = leafInfo.index
-	assert(selector[CLASS_START_BIT..CLASS_END_BIT] == BALANCE_SELECTOR)
-	return u32_to_field(u32_from_bits([
-		...[false; TOTAL_BITS - BALANCE_ASSET_BITS],
-		...selector[BALANCE_ASSET_START_BIT..BALANCE_ASSET_END_BIT]
-	]))
+  bool[32] selector = leafInfo.index
+  assert(selector[CLASS_START_BIT..CLASS_END_BIT] == BALANCE_SELECTOR)
+  return u32_to_field(u32_from_bits([
+    ...[false; TOTAL_BITS - BALANCE_ASSET_BITS],
+    ...selector[BALANCE_ASSET_START_BIT..BALANCE_ASSET_END_BIT]
+  ]))
 
 /* pool index */
 
@@ -127,17 +127,17 @@ const u32 POOL_DATA_START_BIT = POOL_RESERVED_END_BIT
 const u32 POOL_DATA_END_BIT = POOL_DATA_START_BIT + POOL_DATA_BITS
 
 def checkPoolLeaf(LeafInfo leafInfo):
-	bool[32] selector = leafInfo.index
-	assert(selector[0..CLASS_BITS] == POOL_SELECTOR)
-	assert(selector[POOL_RESERVED_START_BIT..POOL_RESERVED_END_BIT] == [false; POOL_RESERVED_BITS])
-	return
+  bool[32] selector = leafInfo.index
+  assert(selector[0..CLASS_BITS] == POOL_SELECTOR)
+  assert(selector[POOL_RESERVED_START_BIT..POOL_RESERVED_END_BIT] == [false; POOL_RESERVED_BITS])
+  return
 
 def getPoolIndex(LeafInfo leafInfo) -> field:
-	bool[32] selector = leafInfo.index
-	return u32_to_field(u32_from_bits([
-		...[false; TOTAL_BITS - POOL_INDEX_BITS],
-		...selector[POOL_INDEX_START_BIT..POOL_INDEX_END_BIT]
-	]))
+  bool[32] selector = leafInfo.index
+  return u32_to_field(u32_from_bits([
+    ...[false; TOTAL_BITS - POOL_INDEX_BITS],
+    ...selector[POOL_INDEX_START_BIT..POOL_INDEX_END_BIT]
+  ]))
 
 const bool[2] TOKEN0_INFO_SELECTOR = [false, false]
 const bool[2] TOKEN1_INFO_SELECTOR = [false, true]
@@ -145,16 +145,16 @@ const bool[2] TOKEN0_AMOUNT_SELECTOR = [true, false]
 const bool[2] TOKEN1_AMOUNT_SELECTOR = [true, true]
 
 def getPoolToken0Info(LeafInfo leafInfo) -> field:
-	return getValueBySelector(leafInfo, TOKEN0_INFO_SELECTOR)
+  return getValueBySelector(leafInfo, TOKEN0_INFO_SELECTOR)
 
 def getPoolToken1Info(LeafInfo leafInfo) -> field:
-	return getValueBySelector(leafInfo, TOKEN1_INFO_SELECTOR)
+  return getValueBySelector(leafInfo, TOKEN1_INFO_SELECTOR)
 
 def getPoolToken0Amount(LeafInfo leafInfo) -> field:
-	return getValueBySelector(leafInfo, TOKEN0_AMOUNT_SELECTOR)
+  return getValueBySelector(leafInfo, TOKEN0_AMOUNT_SELECTOR)
 
 def getPoolToken1Amount(LeafInfo leafInfo) -> field:
-	return getValueBySelector(leafInfo, TOKEN1_AMOUNT_SELECTOR)
+  return getValueBySelector(leafInfo, TOKEN1_AMOUNT_SELECTOR)
 
 
 /* share index */
@@ -168,17 +168,17 @@ const u32 SHARE_POOL_START_BIT = SHARE_ACCOUNT_END_BIT
 const u32 SHARE_POOL_END_BIT = SHARE_POOL_START_BIT + SHARE_POOL_BITS
 
 def getShareAccountIndex(LeafInfo leafInfo) -> field:
-	bool[32] selector = leafInfo.index
-	assert(selector[0..CLASS_BITS] == SHARE_SELECTOR)
-	return u32_to_field(u32_from_bits([
-		...[false; TOTAL_BITS - SHARE_ACCOUNT_BITS],
-		...selector[SHARE_ACCOUNT_START_BIT..SHARE_ACCOUNT_END_BIT]
-	]))
+  bool[32] selector = leafInfo.index
+  assert(selector[0..CLASS_BITS] == SHARE_SELECTOR)
+  return u32_to_field(u32_from_bits([
+    ...[false; TOTAL_BITS - SHARE_ACCOUNT_BITS],
+    ...selector[SHARE_ACCOUNT_START_BIT..SHARE_ACCOUNT_END_BIT]
+  ]))
 
 def getSharePoolIndex(LeafInfo leafInfo) -> field:
-	bool[32] selector = leafInfo.index
-	assert(selector[0..CLASS_BITS] == SHARE_SELECTOR)
-	return u32_to_field(u32_from_bits([
-		...[false; TOTAL_BITS - SHARE_POOL_BITS],
-		...selector[SHARE_POOL_START_BIT..SHARE_POOL_END_BIT]
-	]))
+  bool[32] selector = leafInfo.index
+  assert(selector[0..CLASS_BITS] == SHARE_SELECTOR)
+  return u32_to_field(u32_from_bits([
+    ...[false; TOTAL_BITS - SHARE_POOL_BITS],
+    ...selector[SHARE_POOL_START_BIT..SHARE_POOL_END_BIT]
+  ]))

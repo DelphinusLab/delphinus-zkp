@@ -55,8 +55,8 @@ def op1(Command command, field root, private LeafInfo[5] leafInfos) -> field:
 def op0(Command command, field root, private LeafInfo[5] leafInfos) -> field:
     return if command.op == OP_DEPOSIT then deposit(command, root, leafInfos) else op1(command, root, leafInfos) fi
 
-def main(private Command command, field root, private LeafInfo[5] leafInfos, field[2] hash, field root_new):
+def main(field[2] hash, private Command command, field root, private LeafInfo[5] leafInfos, field root_new):
     assert(hash == shaCommands([command]))
-    root = op0(command, root, leafInfos)
+    root = addpool(command, root, leafInfos)
     assert(root_new == root)
     return
