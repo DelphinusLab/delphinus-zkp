@@ -18,7 +18,8 @@ def checkAccount(LeafInfo leafInfo, field account) -> bool:
     return getBalanceAccountIndex(leafInfo) == account
 
 def checkAsset(LeafInfo leafInfo, field asset) -> bool:
-    return getBalanceAssetIndex(leafInfo) == asset
+    assert(getBalanceAssetIndex(leafInfo) == asset)
+    return true
 
 def checkPool(LeafInfo leafInfo, field pool) -> bool:
     return getPoolIndex(leafInfo) == pool

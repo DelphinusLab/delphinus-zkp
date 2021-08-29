@@ -43,7 +43,16 @@ def getRootHash(LeafInfo leafInfo) -> field:
   return currentValue
 
 def checkLeafInfo(field root, LeafInfo leafInfo) -> bool:
-  return root == getRootHash(leafInfo)
+  bool[32] selector = leafInfo.index
+  bool ret = true
+  field currentValue = hash(leafInfo.leafValues)
+    for u32 i in 0..15 do
+    u32 layer = 15 - i - 1
+    assert(leafInfo.pathDigests[layer][u32_from_2bits(selector[layer * 2..layer * 2 + 2])] == currentValue)
+    currentValue = hash(leafInfo.pathDigests[layer])
+    endfor
+  assert (root == currentValue)
+  return true
 
 def getLeafSelector(LeafInfo leafInfo) -> bool[2]:
   return leafInfo.index[30..TOTAL_BITS]

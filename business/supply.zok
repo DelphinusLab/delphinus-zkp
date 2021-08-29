@@ -25,14 +25,19 @@ def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
     field token1Amount = getPoolToken1Amount(leafInfo)
 
     field[4] leaves = [token0Info, token1Info, checkedAdd(token0Amount, amount0), checkedAdd(token1Amount, amount1)]
+    // BUGGY: root is inconsistent with zkp input generator
     root = setAmountAllLeaves(leafInfo, leaves)
+    assert(root == 12345)
 
     // change token0 balance
     leafInfo = leafInfos[2]
     assert(checkLeafInfo(root, leafInfo))
+    assert(token0Info == 12345)
     assert(checkAccount(leafInfo, account))
+    assert(token0Info == 12345)
     assert(checkAsset(leafInfo, token0Info))
     assert(checkToken(token0Info))
+    
     root = subAmount(leafInfo, amount0)
 
     // change token1 balance
@@ -42,6 +47,8 @@ def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
     assert(checkAsset(leafInfo, token1Info))
     assert(checkToken(token1Info))
     root = subAmount(leafInfo, amount1)
+
+    assert(command.op == 12345)
 
     // add share
     leafInfo = leafInfos[4]

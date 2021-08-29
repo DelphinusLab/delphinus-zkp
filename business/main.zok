@@ -57,6 +57,6 @@ def op0(Command command, field root, private LeafInfo[5] leafInfos) -> field:
 
 def main(field[2] hash, private Command command, field root, private LeafInfo[5] leafInfos, field root_new):
     assert(hash == shaCommands([command]))
-    root = addpool(command, root, leafInfos)
+    root = supply(command, root, leafInfos)
     assert(root_new == root)
     return
