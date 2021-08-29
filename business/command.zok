@@ -35,8 +35,8 @@ def checkToken(field token) -> bool:
 def checkNonceAndUpdate(LeafInfo leafInfo, field nonce) -> field:
     // check and update nonce
     field old_nonce = getValueBySelector(leafInfo, NONCE_SELECTOR)
-    assert(old_nonce + 1 == nonce)
-    return setAmountBySelector(leafInfo, nonce, NONCE_SELECTOR)
+    assert(old_nonce == nonce)
+    return setAmountBySelector(leafInfo, nonce + 1, NONCE_SELECTOR)
 
 def checkNonceAndUpdateWithKey(LeafInfo leafInfo, field nonce, field[2] key) -> field:
     // check and update nonce
@@ -50,7 +50,6 @@ def checkCommandSign<N>(Command command, LeafInfo leafInfo, field[N][2] msg) -> 
     // no sign at this stage
     return r == [0, 0] && s == 0
 /*
-
     field[2] a = [
         getValueBySelector(leafInfo, AX_SELECTOR),
         getValueBySelector(leafInfo, AY_SELECTOR)
