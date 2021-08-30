@@ -29,14 +29,14 @@ def u32_from_2bits(bool[2] selector) -> u32:
   return u32_from_bits([...[false; 30], ...selector])
 
 def checkTarget(bool[2] selector, field value, field[4] values) -> bool:
-  return value == lookup2bit(selector, values)
+  return value == values[u32_from_2bits(selector)]
 
 def getRootHash(LeafInfo leafInfo) -> field:
   bool[32] selector = leafInfo.index
   bool ret = true
   field currentValue = hash(leafInfo.leafValues)
-    for u32 i in 0..15 do
-    u32 layer = 15 - i - 1
+    for u32 i in 1..16 do
+    u32 layer = 15 - i
     leafInfo.pathDigests[layer][u32_from_2bits(selector[layer * 2..layer * 2 + 2])] = currentValue
     currentValue = hash(leafInfo.pathDigests[layer])
     endfor
@@ -46,8 +46,8 @@ def checkLeafInfo(field root, LeafInfo leafInfo) -> bool:
   bool[32] selector = leafInfo.index
   bool ret = true
   field currentValue = hash(leafInfo.leafValues)
-    for u32 i in 0..15 do
-    u32 layer = 15 - i - 1
+    for u32 i in 1..16 do
+    u32 layer = 15 - i
     assert(leafInfo.pathDigests[layer][u32_from_2bits(selector[layer * 2..layer * 2 + 2])] == currentValue)
     currentValue = hash(leafInfo.pathDigests[layer])
     endfor
@@ -63,7 +63,7 @@ def checkEmptyLeafInfo(LeafInfo leafInfo) -> bool:
 /* getter */
 
 def getValueBySelector(LeafInfo leafInfo, bool[2] selector) -> field:
-  return lookup2bit(selector, leafInfo.leafValues)
+  return leafInfo.leafValues[u32_from_2bits(selector)]
 
 def getValueDefault(LeafInfo leafInfo) -> field:
   return getValueBySelector(leafInfo, getLeafSelector(leafInfo))
