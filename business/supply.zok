@@ -17,7 +17,7 @@ def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
     // change pool data
     leafInfo = leafInfos[1]
     assert(checkLeafInfo(root, leafInfo))
-    assert(getPoolIndex(leafInfo) == pool)
+    assert(checkPool(leafInfo, pool))
 
     field token0Info = getPoolToken0Info(leafInfo)
     field token1Info = getPoolToken1Info(leafInfo)
@@ -25,7 +25,6 @@ def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
     field token1Amount = getPoolToken1Amount(leafInfo)
 
     field[4] leaves = [token0Info, token1Info, checkedAdd(token0Amount, amount0), checkedAdd(token1Amount, amount1)]
-    // BUGGY: root is inconsistent with zkp input generator
     root = setAmountAllLeaves(leafInfo, leaves)
 
     // change token0 balance

@@ -48,11 +48,11 @@ def checkLeafInfo(field root, LeafInfo leafInfo) -> bool:
   field currentValue = hash(leafInfo.leafValues)
     for u32 i in 1..16 do
     u32 layer = 15 - i
-    assert(leafInfo.pathDigests[layer][u32_from_2bits(selector[layer * 2..layer * 2 + 2])] == currentValue)
+    ret = ret && (leafInfo.pathDigests[layer][u32_from_2bits(selector[layer * 2..layer * 2 + 2])] == currentValue)
     currentValue = hash(leafInfo.pathDigests[layer])
     endfor
-  assert (root == currentValue)
-  return true
+  ret = ret && (root == currentValue)
+  return ret
 
 def getLeafSelector(LeafInfo leafInfo) -> bool[2]:
   return leafInfo.index[30..TOTAL_BITS]
@@ -135,11 +135,11 @@ const u32 POOL_RESERVED_END_BIT = POOL_RESERVED_START_BIT + POOL_RESERVED_BITS
 const u32 POOL_DATA_START_BIT = POOL_RESERVED_END_BIT
 const u32 POOL_DATA_END_BIT = POOL_DATA_START_BIT + POOL_DATA_BITS
 
-def checkPoolLeaf(LeafInfo leafInfo):
+def checkPoolLeafInfo(LeafInfo leafInfo) -> bool:
   bool[32] selector = leafInfo.index
-  assert(selector[0..CLASS_BITS] == POOL_SELECTOR)
-  assert(selector[POOL_RESERVED_START_BIT..POOL_RESERVED_END_BIT] == [false; POOL_RESERVED_BITS])
-  return
+  bool cond1 = (selector[0..CLASS_BITS] == POOL_SELECTOR)
+  bool cond2 = (selector[POOL_RESERVED_START_BIT..POOL_RESERVED_END_BIT] == [false; POOL_RESERVED_BITS])
+  return cond1 && cond2
 
 def getPoolIndex(LeafInfo leafInfo) -> field:
   bool[32] selector = leafInfo.index

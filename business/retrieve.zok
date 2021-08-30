@@ -17,7 +17,7 @@ def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
     // change pool data
     leafInfo = leafInfos[1]
     assert(checkLeafInfo(root, leafInfo))
-    assert(getPoolIndex(leafInfo) == pool)
+    assert(checkPool(leafInfo, pool))
 
     field token0Info = getPoolToken0Info(leafInfo)
     field token1Info = getPoolToken1Info(leafInfo)
