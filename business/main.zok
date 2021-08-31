@@ -7,10 +7,10 @@ import "./addpool" as addpool
 import "./deposit" as deposit
 import "./withdraw" as withdraw
 import "./swap" as swap
-
-/*
 import "./supply" as supply
 import "./retrieve" as retrieve
+
+/*
 import "./setkey" as setkey
 */
 
@@ -37,22 +37,23 @@ const field OP_SUPPLY = 3
 const field OP_RETRIEVE = 4
 const field OP_ADDPOOL = 5
 const field OP_SETKEY = 6
+
 /*
-def op6(Command command, field root, private LeafInfo[5] leafInfos) -> field:
-    return setkey(command, root, leafInfos)
+def op6(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
+    return setkey(command, leafInfos)
 
-def op5(Command command, field root, private LeafInfo[5] leafInfos) -> field:
-    return if command.op == OP_ADDPOOL then addpool(command, root, leafInfos) else op6(command, root, leafInfos) fi
+def op5(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
+    return if command.op == OP_ADDPOOL then addpool(command, leafInfos) else op6(command, leafInfos) fi
+*/
 
-def op4(Command command, field root, private LeafInfo[5] leafInfos) -> field:
-    return if command.op == OP_RETRIEVE then retrieve(command, root, leafInfos) else op5(command, root, leafInfos) fi
+def op4(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
+    return if command.op == OP_RETRIEVE then retrieve(command, leafInfos) else addpool(command, leafInfos) fi
 
-def op3(Command command, field root, private LeafInfo[5] leafInfos) -> field:
-    return if command.op == OP_SUPPLY then supply(command, root, leafInfos) else op4(command, root, leafInfos) fi
-    */
+def op3(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
+    return if command.op == OP_SUPPLY then supply(command, leafInfos) else op4(command, leafInfos) fi
 
 def op2(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
-    return if command.op == OP_SWAP then swap(command, leafInfos) else addpool(command, leafInfos) fi
+    return if command.op == OP_SWAP then swap(command, leafInfos) else op3(command, leafInfos) fi
 
 def op1(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
     return if command.op == OP_WITHDRAW then withdraw(command, leafInfos) else op2(command, leafInfos) fi
@@ -74,9 +75,10 @@ def main(field[2] hash, private Command command, private LeafInfo[5] leafInfos, 
 
     CommandResult cres = op0(command, leafInfos)
 
-    assert(cres.succeed)
     for u32 i in 0..5 do
-        assert(getRootHash(cres.leafInfos[i]) == nextRoot[i])
+        cres.succeed = cres.succeed && getRootHash(cres.leafInfos[i]) == nextRoot[i]
     endfor
+
+    assert(cres.succeed)
 
     return

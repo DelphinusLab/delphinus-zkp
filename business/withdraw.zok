@@ -19,7 +19,7 @@ def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
         cres.succeed = cres.succeed && (command.args[i] == 0)
     endfor
 
-
+    // nonce
     LeafInfo leafInfo = leafInfos[0]
     cres.succeed = cres.succeed && checkNonceLeafInfoIndex(leafInfo, account)
     cres.succeed = cres.succeed && (checkCommandSign(command, leafInfo, [[command.op, account], [token, amount], [nonce, 0]]))
@@ -32,8 +32,7 @@ def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
     
     field balance = getValue(leafInfo)
     field balanceNew = balance - amount
-    cres.succeed = cres.succeed && (balance > balanceNew)
-
+    cres.succeed = cres.succeed && (balance >= amount)
     cres.leafInfos[1] = setValue(leafInfo, balanceNew)
 
     return cres

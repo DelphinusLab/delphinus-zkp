@@ -34,10 +34,10 @@ def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
     cres.succeed = cres.succeed && (token1Info != 0)
 
     field token0AmountNew = if direction == 0 then token0Amount + amount else token0Amount - amount fi
-    cres.succeed = cres.succeed && if direction == 0 then token0Amount < token0AmountNew else token0Amount > token0AmountNew fi
+    cres.succeed = cres.succeed && if direction == 0 then true else token0Amount >= amount fi
 
     field token1AmountNew = if direction != 0 then token1Amount + amount else token1Amount - amount fi
-    cres.succeed = cres.succeed && if direction != 0 then token1Amount < token1AmountNew else token1Amount > token1AmountNew fi
+    cres.succeed = cres.succeed && if direction != 0 then true else token1Amount >= amount fi
 
     field[4] leaves = [token0Info, token1Info, token0AmountNew, token1AmountNew]
     cres.leafInfos[1] = setValues(leafInfo, leaves)
@@ -48,7 +48,7 @@ def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
     cres.succeed = cres.succeed && (checkTokenRange(token0Info))
     field balance0 = getValue(leafInfo)
     field balance0New = if direction == 0 then balance0 - amount else balance0 + amount fi
-    cres.succeed = cres.succeed && if direction == 0 then balance0 > balance0New else balance0 < balance0New fi
+    cres.succeed = cres.succeed && if direction == 0 then balance0 >= amount else true fi
     cres.leafInfos[2] = setValue(leafInfo, balance0New)
 
     // change token1 balance
@@ -57,7 +57,7 @@ def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
     cres.succeed = cres.succeed && (checkTokenRange(token1Info))
     field balance1 = getValue(leafInfo)
     field balance1New = if direction != 0 then balance1 - amount else balance1 + amount fi
-    cres.succeed = cres.succeed && if direction != 0 then balance1 > balance1New else balance1 < balance1New fi
+    cres.succeed = cres.succeed && if direction != 0 then balance1 >= amount else true fi
     cres.leafInfos[3] = setValue(leafInfo, balance1New)
 
     return cres

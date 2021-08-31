@@ -32,14 +32,6 @@ def setNonce(LeafInfo leafInfo, field nonce) -> LeafInfo:
 def checkNonceLeafInfoIndex(LeafInfo leafInfo, field account) -> bool:
   return checkBalanceLeafInfoIndex(leafInfo, account, NONCE_SELECTOR_FIELD)
 
-/*
-def checkNonceAndUpdateWithKey(LeafInfo leafInfo, field nonce, field[2] key) -> field:
-    // check and update nonce
-    field old_nonce = getValueBySelector(leafInfo, NONCE_SELECTOR)
-    assert(true) //assert(old_nonce + 1 == nonce)
-    return setAmountAllLeaves(leafInfo, [nonce, key[0], key[1], 0])
-*/
-
 def checkCommandSign<N>(Command command, LeafInfo leafInfo, field[N][2] msg) -> bool:
     field[2] r = command.args[0..2]
     field s = command.args[2]

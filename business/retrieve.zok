@@ -1,53 +1,74 @@
-from "./command" import Command, checkTokenRange, checkAsset, checkAccount, getValueBySelector, checkNonceAndUpdate, checkCommandSign, checkedAdd, checkedSub, checkPool, checkShareAccount, checkSharePool, LEAF_INFOS
-from "../utils/markle-tree" import LeafInfo, checkLeafInfo, setAmountBySelector, getPoolToken0Info, getPoolToken1Info, getPoolToken0Amount, getPoolToken1Amount, setAmountAllLeaves, getPoolIndex, addAmount, subAmount
+from "./command" import Command, CommandResult, checkTokenRange, checkCommandSign, COMMAND_ARGS, getNonce, setNonce, checkNonceLeafInfoIndex
+from "../utils/markle-tree" import LeafInfo, checkBalanceLeafInfoIndex, getValue, setValue, checkPoolLeafInfoIndex, getPoolToken0Info, getPoolToken1Info, getPoolToken0Amount, getPoolToken1Amount, setValues, checkShareLeafInfoIndex
 
-def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
+def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
+    CommandResult cres = CommandResult {
+        succeed: true,
+        leafInfos: leafInfos
+    }
+    cres.succeed = true
+
     field account = command.args[3]
     field pool = command.args[4]
     field amount0 = command.args[5]
     field amount1 = command.args[6]
     field nonce = command.args[7]
 
+    // nonce
     LeafInfo leafInfo = leafInfos[0]
-    assert(true) //assert(checkLeafInfo(root, leafInfo))
-    assert(true) //assert(checkAccount(leafInfo, account))
-    assert(true) //assert(checkCommandSign(command, leafInfo, [[command.op, account], [pool, amount0], [amount1, nonce]]))
-    root = checkNonceAndUpdate(leafInfo, nonce)
+    cres.succeed = cres.succeed && checkNonceLeafInfoIndex(leafInfo, account)
+    cres.succeed = cres.succeed && (checkCommandSign(command, leafInfo, [[command.op, account], [pool, amount0], [amount1, nonce]]))
+    cres.succeed = cres.succeed && getNonce(leafInfo) == nonce
+    cres.leafInfos[0] = setNonce(leafInfo, nonce + 1)
 
     // change pool data
     leafInfo = leafInfos[1]
-    assert(true) //assert(checkLeafInfo(root, leafInfo))
-    assert(true) //assert(checkPool(leafInfo, pool))
+    cres.succeed = cres.succeed && (checkPoolLeafInfoIndex(leafInfo, pool))
 
     field token0Info = getPoolToken0Info(leafInfo)
     field token1Info = getPoolToken1Info(leafInfo)
     field token0Amount = getPoolToken0Amount(leafInfo)
     field token1Amount = getPoolToken1Amount(leafInfo)
 
-    field[4] leaves = [token0Info, token1Info, checkedSub(token0Amount, amount0), checkedSub(token1Amount, amount1)]
-    root = setAmountAllLeaves(leafInfo, leaves)
+    cres.succeed = cres.succeed && (token0Info != 0)
+    cres.succeed = cres.succeed && (token1Info != 0)
+
+    field token0AmountNew = token0Amount - amount0
+    cres.succeed = cres.succeed && token0Amount >= amount0
+    field token1AmountNew = token1Amount - amount1
+    cres.succeed = cres.succeed && token1Amount >= amount1
+
+    field[4] leaves = [token0Info, token1Info, token0AmountNew, token1AmountNew]
+    cres.leafInfos[1] = setValues(leafInfo, leaves)
 
     // change token0 balance
     leafInfo = leafInfos[2]
-    assert(true) //assert(checkLeafInfo(root, leafInfo))
-    assert(true) //assert(checkAccount(leafInfo, account))
-    assert(true) //assert(checkAsset(leafInfo, token0Info))
-    assert(true) //assert(checkTokenRange(token0Info))
-    root = addAmount(leafInfo, amount0)
+    cres.succeed = cres.succeed && (checkBalanceLeafInfoIndex(leafInfo, account, token0Info))
+    cres.succeed = cres.succeed && (checkTokenRange(token0Info))
+    field balance0 = getValue(leafInfo)
+    field balance0New = balance0 + amount0
+    cres.succeed = cres.succeed && balance0 < balance0New
+    cres.leafInfos[2] = setValue(leafInfo, balance0New)
 
     // change token1 balance
     leafInfo = leafInfos[3]
-    assert(true) //assert(checkLeafInfo(root, leafInfo))
-    assert(true) //assert(checkAccount(leafInfo, account))
-    assert(true) //assert(checkAsset(leafInfo, token1Info))
-    assert(true) //assert(checkTokenRange(token1Info))
-    root = addAmount(leafInfo, amount1)
+    cres.succeed = cres.succeed && (checkBalanceLeafInfoIndex(leafInfo, account, token1Info))
+    cres.succeed = cres.succeed && (checkTokenRange(token1Info))
+    field balance1 = getValue(leafInfo)
+    field balance1New = balance1 + amount1
+    cres.succeed = cres.succeed && balance1 < balance1New
+    cres.leafInfos[3] = setValue(leafInfo, balance1New)
 
     // add share
     leafInfo = leafInfos[4]
-    assert(true) //assert(checkLeafInfo(root, leafInfo))
-    assert(true) //assert(checkShareAccount(leafInfo, account))
-    assert(true) //assert(checkSharePool(leafInfo, pool))
-    root = subAmount(leafInfo, checkedAdd(amount0, amount1))
+    cres.succeed = cres.succeed && (checkShareLeafInfoIndex(leafInfo, account, pool))
 
-    return root
+    field totalAmount = amount0 + amount1
+    cres.succeed = cres.succeed && totalAmount > amount0 && totalAmount > amount1
+
+    field share = getValue(leafInfo)
+    field shareNew = share - totalAmount
+    cres.succeed = cres.succeed && share >= totalAmount
+    cres.leafInfos[4] = setValue(leafInfo, shareNew)
+
+    return cres
