@@ -55,7 +55,7 @@ def op2(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
     return if command.op == OP_SWAP then swap(command, leafInfos) else addpool(command, leafInfos) fi
 
 def op1(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
-    return if command.op == OP_WITHDRAW then withdraw(command, leafInfos) else addpool(command, leafInfos) fi
+    return if command.op == OP_WITHDRAW then withdraw(command, leafInfos) else op2(command, leafInfos) fi
 
 def op0(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
     return if command.op == OP_DEPOSIT then deposit(command, leafInfos) else op1(command, leafInfos) fi

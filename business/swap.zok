@@ -17,7 +17,7 @@ def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
     // nonce
     LeafInfo leafInfo = leafInfos[0]
     cres.succeed = cres.succeed && checkNonceLeafInfoIndex(leafInfo, account)
-    cres.succeed = cres.succeed && (checkCommandSign(command, leafInfo, [[command.op, account], [pool, amount], [direction, nonce]]))
+    cres.succeed = cres.succeed && checkCommandSign(command, leafInfo, [[command.op, account], [pool, amount], [direction, nonce]])
     cres.succeed = cres.succeed && getNonce(leafInfo) == nonce
     cres.leafInfos[0] = setNonce(leafInfo, nonce + 1)
 
