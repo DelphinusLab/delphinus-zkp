@@ -1,29 +1,41 @@
-from "./command" import Command, checkToken, checkAsset, checkAccount, getValueBySelector, checkNonceAndUpdate, checkCommandSign, COMMAND_ARGS, LEAF_INFOS
-from "../utils/markle-tree" import LeafInfo, checkLeafInfo, setAmountBySelector, subAmount, checkEmptyLeafInfo
+from "./command" import Command, CommandResult, checkTokenRange, checkCommandSign, COMMAND_ARGS, getNonce, setNonce, checkNonceLeafInfoIndex
+from "../utils/markle-tree" import LeafInfo, checkBalanceLeafInfoIndex, getValue, setValue
 
-def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
+def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
+    CommandResult cres = CommandResult {
+        succeed: true,
+        leafInfos: leafInfos
+    }
+    cres.succeed = true
+
     field account = command.args[3]
     field token = command.args[4]
     field amount = command.args[5]
     field nonce = command.args[6]
+
+    cres.succeed = cres.succeed && checkTokenRange(token)
+
     for u32 i in 7..COMMAND_ARGS do
-        assert(command.args[i] == 0)
+        cres.succeed = cres.succeed && (command.args[i] == 0)
     endfor
 
-    for u32 i in 2..LEAF_INFOS do
-        assert(checkEmptyLeafInfo(leafInfos[i]))
-    endfor
 
     LeafInfo leafInfo = leafInfos[0]
-    assert(checkLeafInfo(root, leafInfo))
-    assert(checkAccount(leafInfo, account))
-    assert(checkCommandSign(command, leafInfo, [[command.op, account], [token, amount], [nonce, 0]]))
-    root = checkNonceAndUpdate(leafInfo, nonce)
+    cres.succeed = cres.succeed && checkNonceLeafInfoIndex(leafInfo, account)
+    cres.succeed = cres.succeed && (checkCommandSign(command, leafInfo, [[command.op, account], [token, amount], [nonce, 0]]))
+    cres.succeed = cres.succeed && getNonce(leafInfo) == nonce
+    cres.leafInfos[0] = setNonce(leafInfo, nonce + 1)
 
     // sub amount
     leafInfo = leafInfos[1]
-    assert(checkLeafInfo(root, leafInfo))
-    assert(checkAccount(leafInfo, account))
-    assert(checkAsset(leafInfo, token))
-    assert(checkToken(token))
-    return subAmount(leafInfo, amount)
+    cres.succeed = cres.succeed && checkBalanceLeafInfoIndex(leafInfo, account, token)
+    
+    field balance = getValue(leafInfo)
+    field balanceNew = balance - amount
+    cres.succeed = cres.succeed && (balance > balanceNew)
+
+    cres.leafInfos[1] = setValue(leafInfo, balanceNew)
+
+    return cres
+
+    

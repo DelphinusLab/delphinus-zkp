@@ -1,21 +1,30 @@
-from "./command" import Command, checkToken, checkAsset, checkAccount, COMMAND_ARGS, LEAF_INFOS
-from "../utils/markle-tree" import LeafInfo, checkLeafInfo, addAmount, checkEmptyLeafInfo
+from "./command" import Command, CommandResult, checkTokenRange, COMMAND_ARGS
+from "../utils/markle-tree" import LeafInfo, checkBalanceLeafInfoIndex, getValue, setValue
 
-def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
+def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
+    CommandResult cres = CommandResult {
+        succeed: true,
+        leafInfos: leafInfos
+    }
+    cres.succeed = true
+
     field account = command.args[0]
     field token = command.args[1]
     field amount = command.args[2]
-    for u32 i in 3..COMMAND_ARGS do
-        assert(command.args[i] == 0)
-    endfor
 
-    for u32 i in 1..LEAF_INFOS do
-        assert(checkEmptyLeafInfo(leafInfos[i]))
+    cres.succeed = cres.succeed && checkTokenRange(token)
+
+    for u32 i in 3..COMMAND_ARGS do
+        cres.succeed = cres.succeed && (command.args[i] == 0)
     endfor
 
     LeafInfo leafInfo = leafInfos[0]
-    assert(checkLeafInfo(root, leafInfo))
-    assert(checkToken(token))
-    assert(checkAsset(leafInfo, token))
-    assert(checkAccount(leafInfo, account))
-    return addAmount(leafInfo, amount)
+    cres.succeed = cres.succeed && checkBalanceLeafInfoIndex(leafInfo, account, token)
+
+    field balance = getValue(leafInfo)
+    field balanceNew = balance + amount
+    cres.succeed = cres.succeed && (balance < balanceNew)
+
+    cres.leafInfos[0] = setValue(leafInfo, balanceNew)
+
+    return cres

@@ -1,32 +1,41 @@
-from "./command" import Command, checkToken, checkAsset, checkAccount, COMMAND_ARGS, LEAF_INFOS, checkPool
-from "../utils/markle-tree" import LeafInfo, checkLeafInfo, addAmount, checkEmptyLeafInfo, setAmountAllLeaves, getPoolToken0Info, getPoolToken1Info, getPoolToken0Amount, getPoolToken1Amount
+from "./command" import Command, checkTokenRange, COMMAND_ARGS, LEAF_INFOS, CommandResult
+from "../utils/markle-tree" import LeafInfo, setValues, getPoolToken0Info, getPoolToken1Info, getPoolToken0Amount, getPoolToken1Amount, checkPoolLeafInfoIndex
 
-def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
+def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
+    CommandResult cres = CommandResult {
+        succeed: true,
+        leafInfos: leafInfos
+    }
+    cres.succeed = true
+
     field account = command.args[0]
     field pool = command.args[1]
     field token0 = command.args[2]
     field token1 = command.args[3]
+
     for u32 i in 4..COMMAND_ARGS do
-        assert(command.args[i] == 0)
+        cres.succeed = cres.succeed && (command.args[i] == 0)
     endfor
 
-    for u32 i in 1..LEAF_INFOS do
-        assert(checkEmptyLeafInfo(leafInfos[i]))
-    endfor
+    // prerequisite: check arguments
+    cres.succeed = cres.succeed && (token0 != token1)
+    cres.succeed = cres.succeed && checkTokenRange(token0)
+    cres.succeed = cres.succeed && checkTokenRange(token1)
 
+    // step 1: check poolinfo and set
     LeafInfo leafInfo = leafInfos[0]
-    assert(checkLeafInfo(root, leafInfo))
 
-    assert(checkPool(leafInfo, pool))
+    cres.succeed = cres.succeed && checkPoolLeafInfoIndex(leafInfo, pool)
 
     field token0Info = getPoolToken0Info(leafInfo)
     field token1Info = getPoolToken1Info(leafInfo)
     field token0Amount = getPoolToken0Amount(leafInfo)
     field token1Amount = getPoolToken1Amount(leafInfo)
 
-    assert(token0Info == 0)
-    assert(token1Info == 0)
-    assert(token0 != token1)
+    cres.succeed = cres.succeed && (token0Info == 0)
+    cres.succeed = cres.succeed && (token1Info == 0)
 
-    field[4] leaves = [token0, token1, 0, 0]
-    return setAmountAllLeaves(leafInfo, leaves)
+    cres.leafInfos[0] = setValues(leafInfo, [token0, token1, 0, 0])
+
+    // end
+    return cres

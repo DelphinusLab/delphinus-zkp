@@ -1,4 +1,4 @@
-from "../utils/markle-tree" import getBalanceAccountIndex, getBalanceAssetIndex, LeafInfo, getValueBySelector, setAmountBySelector, getShareAccountIndex, getSharePoolIndex, getPoolIndex, setAmountAllLeaves, checkPoolLeafInfo
+from "../utils/markle-tree" import  LeafInfo, getValueBySelector, setValueBySelector, checkBalanceLeafInfoIndex
 from "../utils/sign.zok" import checkSign
 
 const u32 COMMAND_ARGS = 8
@@ -9,41 +9,36 @@ struct Command {
     field[8] args
 }
 
-const bool[2] AX_SELECTOR = [false, false]
-const bool[2] AY_SELECTOR = [false, true]
-const bool[2] NONCE_SELECTOR = [true, false]
+struct CommandResult {
+    LeafInfo[5] leafInfos
+    bool succeed
+}
+
+const u32 AX_SELECTOR = 0
+const u32 AY_SELECTOR = 1
+const u32 NONCE_SELECTOR = 2
+const field NONCE_SELECTOR_FIELD = 2
 const field META_ASSET_INDEX = 0
 
-def checkAccount(LeafInfo leafInfo, field account) -> bool:
-    return getBalanceAccountIndex(leafInfo) == account
-
-def checkAsset(LeafInfo leafInfo, field asset) -> bool:
-    assert(getBalanceAssetIndex(leafInfo) == asset)
-    return true
-
-def checkPool(LeafInfo leafInfo, field pool) -> bool:
-    return checkPoolLeafInfo(leafInfo) && getPoolIndex(leafInfo) == pool
-
-def checkShareAccount(LeafInfo leafInfo, field account) -> bool:
-    return getShareAccountIndex(leafInfo) == account
-
-def checkSharePool(LeafInfo leafInfo, field account) -> bool:
-    return getSharePoolIndex(leafInfo) == account
-
-def checkToken(field token) -> bool:
+def checkTokenRange(field token) -> bool:
     return token >= 4 && token < 1024
 
-def checkNonceAndUpdate(LeafInfo leafInfo, field nonce) -> field:
-    // check and update nonce
-    field old_nonce = getValueBySelector(leafInfo, NONCE_SELECTOR)
-    assert(old_nonce == nonce)
-    return setAmountBySelector(leafInfo, nonce + 1, NONCE_SELECTOR)
+def getNonce(LeafInfo leafInfo) -> field:
+    return getValueBySelector(leafInfo, NONCE_SELECTOR)
 
+def setNonce(LeafInfo leafInfo, field nonce) -> LeafInfo:
+    return setValueBySelector(leafInfo, nonce, NONCE_SELECTOR)
+
+def checkNonceLeafInfoIndex(LeafInfo leafInfo, field account) -> bool:
+  return checkBalanceLeafInfoIndex(leafInfo, account, NONCE_SELECTOR_FIELD)
+
+/*
 def checkNonceAndUpdateWithKey(LeafInfo leafInfo, field nonce, field[2] key) -> field:
     // check and update nonce
     field old_nonce = getValueBySelector(leafInfo, NONCE_SELECTOR)
-    assert(old_nonce + 1 == nonce)
+    assert(true) //assert(old_nonce + 1 == nonce)
     return setAmountAllLeaves(leafInfo, [nonce, key[0], key[1], 0])
+*/
 
 def checkCommandSign<N>(Command command, LeafInfo leafInfo, field[N][2] msg) -> bool:
     field[2] r = command.args[0..2]
@@ -55,16 +50,6 @@ def checkCommandSign<N>(Command command, LeafInfo leafInfo, field[N][2] msg) -> 
         getValueBySelector(leafInfo, AX_SELECTOR),
         getValueBySelector(leafInfo, AY_SELECTOR)
     ]
-    assert(checkAsset(leafInfo, META_ASSET_INDEX))
+    assert(true) //assert(checkAsset(leafInfo, META_ASSET_INDEX))
     return checkSign(msg, r, s, a)
 */
-
-def checkedAdd(field x, field y) -> field:
-    field z = x + y
-    assert(z >= x)
-    return z
-
-def checkedSub(field x, field y) -> field:
-    field z = x - y
-    assert(z <= x)
-    return z

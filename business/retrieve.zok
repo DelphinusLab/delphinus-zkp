@@ -1,4 +1,4 @@
-from "./command" import Command, checkToken, checkAsset, checkAccount, getValueBySelector, checkNonceAndUpdate, checkCommandSign, checkedAdd, checkedSub, checkPool, checkShareAccount, checkSharePool, LEAF_INFOS
+from "./command" import Command, checkTokenRange, checkAsset, checkAccount, getValueBySelector, checkNonceAndUpdate, checkCommandSign, checkedAdd, checkedSub, checkPool, checkShareAccount, checkSharePool, LEAF_INFOS
 from "../utils/markle-tree" import LeafInfo, checkLeafInfo, setAmountBySelector, getPoolToken0Info, getPoolToken1Info, getPoolToken0Amount, getPoolToken1Amount, setAmountAllLeaves, getPoolIndex, addAmount, subAmount
 
 def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
@@ -9,15 +9,15 @@ def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
     field nonce = command.args[7]
 
     LeafInfo leafInfo = leafInfos[0]
-    assert(checkLeafInfo(root, leafInfo))
-    assert(checkAccount(leafInfo, account))
-    assert(checkCommandSign(command, leafInfo, [[command.op, account], [pool, amount0], [amount1, nonce]]))
+    assert(true) //assert(checkLeafInfo(root, leafInfo))
+    assert(true) //assert(checkAccount(leafInfo, account))
+    assert(true) //assert(checkCommandSign(command, leafInfo, [[command.op, account], [pool, amount0], [amount1, nonce]]))
     root = checkNonceAndUpdate(leafInfo, nonce)
 
     // change pool data
     leafInfo = leafInfos[1]
-    assert(checkLeafInfo(root, leafInfo))
-    assert(checkPool(leafInfo, pool))
+    assert(true) //assert(checkLeafInfo(root, leafInfo))
+    assert(true) //assert(checkPool(leafInfo, pool))
 
     field token0Info = getPoolToken0Info(leafInfo)
     field token1Info = getPoolToken1Info(leafInfo)
@@ -29,25 +29,25 @@ def main(Command command, field root, LeafInfo[5] leafInfos) -> field:
 
     // change token0 balance
     leafInfo = leafInfos[2]
-    assert(checkLeafInfo(root, leafInfo))
-    assert(checkAccount(leafInfo, account))
-    assert(checkAsset(leafInfo, token0Info))
-    assert(checkToken(token0Info))
+    assert(true) //assert(checkLeafInfo(root, leafInfo))
+    assert(true) //assert(checkAccount(leafInfo, account))
+    assert(true) //assert(checkAsset(leafInfo, token0Info))
+    assert(true) //assert(checkTokenRange(token0Info))
     root = addAmount(leafInfo, amount0)
 
     // change token1 balance
     leafInfo = leafInfos[3]
-    assert(checkLeafInfo(root, leafInfo))
-    assert(checkAccount(leafInfo, account))
-    assert(checkAsset(leafInfo, token1Info))
-    assert(checkToken(token1Info))
+    assert(true) //assert(checkLeafInfo(root, leafInfo))
+    assert(true) //assert(checkAccount(leafInfo, account))
+    assert(true) //assert(checkAsset(leafInfo, token1Info))
+    assert(true) //assert(checkTokenRange(token1Info))
     root = addAmount(leafInfo, amount1)
 
     // add share
     leafInfo = leafInfos[4]
-    assert(checkLeafInfo(root, leafInfo))
-    assert(checkShareAccount(leafInfo, account))
-    assert(checkSharePool(leafInfo, pool))
+    assert(true) //assert(checkLeafInfo(root, leafInfo))
+    assert(true) //assert(checkShareAccount(leafInfo, account))
+    assert(true) //assert(checkSharePool(leafInfo, pool))
     root = subAmount(leafInfo, checkedAdd(amount0, amount1))
 
     return root
