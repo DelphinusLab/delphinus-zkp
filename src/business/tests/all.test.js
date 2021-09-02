@@ -43,7 +43,6 @@ var child_process_1 = require("child_process");
 var storage = new command_1.L2Storage();
 var _0 = (0, main_1.genZKPInput)(new field_1.Field(command_1.CommandOp.AddPool), [
     new field_1.Field(0),
-    new field_1.Field(0),
     new field_1.Field(4),
     new field_1.Field(5)
 ], storage);
@@ -85,7 +84,8 @@ var _5 = (0, main_1.genZKPInput)(new field_1.Field(command_1.CommandOp.Retrieve)
     new field_1.Field(0),
     new field_1.Field(15),
     new field_1.Field(5),
-    new field_1.Field(2)
+    new field_1.Field(2),
+    new field_1.Field(0)
 ], storage);
 var _6 = (0, main_1.genZKPInput)(new field_1.Field(command_1.CommandOp.Withdraw), [
     new field_1.Field(0),
@@ -94,7 +94,8 @@ var _6 = (0, main_1.genZKPInput)(new field_1.Field(command_1.CommandOp.Withdraw)
     new field_1.Field(0),
     new field_1.Field(4),
     new field_1.Field(100),
-    new field_1.Field(3)
+    new field_1.Field(3),
+    new field_1.Field(0)
 ], storage);
 var _7 = (0, main_1.genZKPInput)(new field_1.Field(command_1.CommandOp.Withdraw), [
     new field_1.Field(0),
@@ -110,9 +111,7 @@ function testInput(data) {
         return __generator(this, function (_a) {
             console.log("zokrates compute-witness -a " + data.map(function (f) { return f.v.toString(10); }).join(" "));
             return [2 /*return*/, new Promise(function (resolve, reject) {
-                    return (0, child_process_1.exec)("zokrates compute-witness -a " + data.map(function (f) { return f.v.toString(10); }).join(" "), {
-                        cwd: "/home/shindar/Projects/delphinus/delphinus-zkp"
-                    }, function (error, stdout, stderr) {
+                    return (0, child_process_1.exec)("zokrates compute-witness -a " + data.map(function (f) { return f.v.toString(10); }).join(" "), function (error, stdout, stderr) {
                         console.log('stdout\n', stdout);
                         if (error) {
                             console.log(error);

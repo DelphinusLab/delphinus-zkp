@@ -6,9 +6,9 @@ export class AddPoolCommand extends Command {
   run(storage: L2Storage): PathInfo[] {
     const path = [] as PathInfo[];
 
-    const poolIndex = this.args[1];
-    const tokenIndex0 = this.args[2];
-    const tokenIndex1 = this.args[3];
+    const poolIndex = this.args[0];
+    const tokenIndex0 = this.args[1];
+    const tokenIndex1 = this.args[2];
 
     const index = getPoolStoreIndex(poolIndex.v.toNumber());
     path.push(storage.getPath(index));

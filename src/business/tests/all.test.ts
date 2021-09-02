@@ -9,7 +9,6 @@ const _0 = genZKPInput(
   new Field(CommandOp.AddPool),
   [
     new Field(0),
-    new Field(0),
     new Field(4),
     new Field(5)
   ],
@@ -77,7 +76,8 @@ const _5 = genZKPInput(
     new Field(0),
     new Field(15),
     new Field(5),
-    new Field(2)
+    new Field(2),
+    new Field(0)
   ],
   storage
 );
@@ -91,7 +91,8 @@ const _6 = genZKPInput(
     new Field(0),
     new Field(4),
     new Field(100),
-    new Field(3)
+    new Field(3),
+    new Field(0)
   ],
   storage
 );
@@ -116,9 +117,6 @@ async function testInput(data : Field[]) {
   return new Promise((resolve, reject) =>
     exec(
       `zokrates compute-witness -a ${data.map((f: Field) => f.v.toString(10)).join(" ")}`,
-      {
-        cwd: "/home/shindar/Projects/delphinus/delphinus-zkp"
-      },
       (error, stdout, stderr) => {
         console.log('stdout\n', stdout);
 

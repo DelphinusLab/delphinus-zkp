@@ -12,12 +12,9 @@ def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
     field token = command.args[4]
     field amount = command.args[5]
     field nonce = command.args[6]
+    // command.args[7] is for L1 account address
 
     cres.succeed = cres.succeed && checkTokenRange(token)
-
-    for u32 i in 7..COMMAND_ARGS do
-        cres.succeed = cres.succeed && (command.args[i] == 0)
-    endfor
 
     // nonce
     LeafInfo leafInfo = leafInfos[0]

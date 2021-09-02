@@ -25,9 +25,9 @@ var AddPoolCommand = /** @class */ (function (_super) {
     }
     AddPoolCommand.prototype.run = function (storage) {
         var path = [];
-        var poolIndex = this.args[1];
-        var tokenIndex0 = this.args[2];
-        var tokenIndex1 = this.args[3];
+        var poolIndex = this.args[0];
+        var tokenIndex0 = this.args[1];
+        var tokenIndex1 = this.args[2];
         var index = (0, command_1.getPoolStoreIndex)(poolIndex.v.toNumber());
         path.push(storage.getPath(index));
         var zero = new field_1.Field(0);

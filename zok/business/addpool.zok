@@ -8,10 +8,9 @@ def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
     }
     cres.succeed = true
 
-    field account = command.args[0]
-    field pool = command.args[1]
-    field token0 = command.args[2]
-    field token1 = command.args[3]
+    field pool = command.args[0]
+    field token0 = command.args[1]
+    field token1 = command.args[2]
 
     for u32 i in 4..COMMAND_ARGS do
         cres.succeed = cres.succeed && (command.args[i] == 0)
