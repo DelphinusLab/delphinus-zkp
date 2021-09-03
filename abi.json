@@ -1,0 +1,87 @@
+{
+  "inputs": [
+    {
+      "name": "hash",
+      "public": true,
+      "type": "array",
+      "components": {
+        "size": 2,
+        "type": "field"
+      }
+    },
+    {
+      "name": "command",
+      "public": false,
+      "type": "struct",
+      "components": {
+        "name": "Command",
+        "members": [
+          {
+            "name": "op",
+            "type": "field"
+          },
+          {
+            "name": "args",
+            "type": "array",
+            "components": {
+              "size": 8,
+              "type": "field"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "leafInfos",
+      "public": false,
+      "type": "array",
+      "components": {
+        "size": 5,
+        "type": "struct",
+        "components": {
+          "name": "LeafInfo",
+          "members": [
+            {
+              "name": "root",
+              "type": "field"
+            },
+            {
+              "name": "index",
+              "type": "array",
+              "components": {
+                "size": 32,
+                "type": "bool"
+              }
+            },
+            {
+              "name": "pathDigests",
+              "type": "array",
+              "components": {
+                "size": 15,
+                "type": "array",
+                "components": {
+                  "size": 4,
+                  "type": "field"
+                }
+              }
+            },
+            {
+              "name": "leafValues",
+              "type": "array",
+              "components": {
+                "size": 4,
+                "type": "field"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "finalRoot",
+      "public": true,
+      "type": "field"
+    }
+  ],
+  "outputs": []
+}
