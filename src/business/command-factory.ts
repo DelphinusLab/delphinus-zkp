@@ -1,6 +1,7 @@
 import { Field } from "delphinus-curves/src/field";
 import { CommandOp } from "./command";
 import { AddPoolCommand } from "./ops/addpool";
+import { AddTokenCommand } from "./ops/addtoken";
 import { DepositCommand } from "./ops/deposit";
 import { RetrieveCommand } from "./ops/retrieve";
 import { SupplyCommand } from "./ops/supply";
@@ -30,6 +31,10 @@ export function createCommand(op: Field, args: Field[]) {
 
   if (op.v.eqn(CommandOp.AddPool)) {
     return new AddPoolCommand(args);
+  }
+
+  if (op.v.eqn(CommandOp.AddToken)) {
+    return new AddTokenCommand(args);
   }
 
   throw new Error('Not implemented yet');

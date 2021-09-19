@@ -15,6 +15,7 @@
       "type": "struct",
       "components": {
         "name": "Command",
+        "generics": [],
         "members": [
           {
             "name": "op",
@@ -40,6 +41,7 @@
         "type": "struct",
         "components": {
           "name": "LeafInfo",
+          "generics": [],
           "members": [
             {
               "name": "root",

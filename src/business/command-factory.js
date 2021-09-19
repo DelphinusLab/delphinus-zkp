@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createCommand = void 0;
 var command_1 = require("./command");
 var addpool_1 = require("./ops/addpool");
+var addtoken_1 = require("./ops/addtoken");
 var deposit_1 = require("./ops/deposit");
 var retrieve_1 = require("./ops/retrieve");
 var supply_1 = require("./ops/supply");
@@ -26,6 +27,9 @@ function createCommand(op, args) {
     }
     if (op.v.eqn(command_1.CommandOp.AddPool)) {
         return new addpool_1.AddPoolCommand(args);
+    }
+    if (op.v.eqn(command_1.CommandOp.AddToken)) {
+        return new addtoken_1.AddTokenCommand(args);
     }
     throw new Error('Not implemented yet');
 }

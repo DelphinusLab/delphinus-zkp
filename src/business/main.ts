@@ -1,6 +1,8 @@
-import sha256 from 'crypto-js/sha256';
-import hexEnc from 'crypto-js/enc-hex';
+import sha256 from "crypto-js/sha256";
+import hexEnc from "crypto-js/enc-hex";
 import BN from "bn.js";
+import path from "path";
+import fs from "fs-extra";
 
 import { exec } from "child_process";
 import { Field } from "delphinus-curves/src/field";
@@ -52,17 +54,24 @@ class ZKPInputBuilder {
 }
 
 export function shaCommand(op: Field, command: Command) {
-  const data =
-    [op].concat(command.args).concat([new Field(0)]).map(x => x.v.toString('hex', 64)).join('');
+  const data = [op]
+    .concat(command.args)
+    .concat([new Field(0)])
+    .map((x) => x.v.toString("hex", 64))
+    .join("");
   const hvalue = sha256(hexEnc.parse(data)).toString();
 
   return [
-    new Field(new BN(hvalue.slice(0, 32), 'hex')),
-    new Field(new BN(hvalue.slice(32, 64), 'hex'))
+    new Field(new BN(hvalue.slice(0, 32), "hex")),
+    new Field(new BN(hvalue.slice(32, 64), "hex")),
   ];
 }
 
-export function genZKPInput(op: Field, args: Field[], storage: L2Storage): Field[] {
+export function genZKPInput(
+  op: Field,
+  args: Field[],
+  storage: L2Storage
+): Field[] {
   const builder = new ZKPInputBuilder();
   const command = createCommand(op, args) as Command;
 
@@ -77,26 +86,55 @@ export function genZKPInput(op: Field, args: Field[], storage: L2Storage): Field
   return builder.inputs;
 }
 
-export function runZkp(op: Field, args: Field[], storage: L2Storage) {
+export async function runZkp(op: Field, args: Field[], storage: L2Storage) {
   const data = genZKPInput(op, args, storage);
 
-  console.log(`zokrates compute-witness -a ${data.map((f: Field) => f.v.toString(10)).join(" ")}`);
+  console.log(
+    `zokrates compute-witness -a ${data
+      .map((f: Field) => f.v.toString(10))
+      .join(" ")}`
+  );
 
-  return new Promise((resolve, reject) =>
+  await new Promise((resolve, reject) =>
     exec(
-      `zokrates compute-witness -a ${data.map((f: Field) => f.v.toString(10)).join(" ")}`,
+      `zokrates compute-witness -a ${data
+        .map((f: Field) => f.v.toString(10))
+        .join(" ")}`,
+      {
+        cwd: path.resolve(__dirname, "..", ".."),
+      },
       (error, stdout, stderr) => {
-        console.log('stdout\n', stdout);
+        console.log("stdout\n", stdout);
 
         if (error) {
-          console.log(error);
           reject(error);
           return;
         }
-        //console.log('error\n', error);
-        //console.log('stderr\n', stderr);
         resolve(undefined);
       }
     )
   );
+
+  await new Promise((resolve, reject) =>
+    exec(
+      "zokrates generate-proof",
+      {
+        cwd: path.resolve(__dirname, "..", ".."),
+      },
+      (error, stdout, stderr) => {
+        console.log("stdout\n", stdout);
+
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(undefined);
+      }
+    )
+  );
+
+  const proof = await fs.readJson(
+    path.resolve(__dirname, "..", "..", "proof.json")
+  );
+  console.log(JSON.stringify(proof));
 }

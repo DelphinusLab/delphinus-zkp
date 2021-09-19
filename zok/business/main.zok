@@ -9,6 +9,7 @@ import "./withdraw" as withdraw
 import "./swap" as swap
 import "./supply" as supply
 import "./retrieve" as retrieve
+import "./addtoken" as addtoken
 
 /*
 import "./setkey" as setkey
@@ -37,17 +38,16 @@ const field OP_SUPPLY = 3
 const field OP_RETRIEVE = 4
 const field OP_ADDPOOL = 5
 const field OP_SETKEY = 6
+const field OP_ADDTOKEN = 7
 
-/*
 def op6(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
-    return setkey(command, leafInfos)
+    return addtoken(command, leafInfos)
 
 def op5(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
     return if command.op == OP_ADDPOOL then addpool(command, leafInfos) else op6(command, leafInfos) fi
-*/
 
 def op4(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
-    return if command.op == OP_RETRIEVE then retrieve(command, leafInfos) else addpool(command, leafInfos) fi
+    return if command.op == OP_RETRIEVE then retrieve(command, leafInfos) else op5(command, leafInfos) fi
 
 def op3(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
     return if command.op == OP_SUPPLY then supply(command, leafInfos) else op4(command, leafInfos) fi

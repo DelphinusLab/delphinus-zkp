@@ -4,11 +4,12 @@ import { MarkleTree, PathInfo } from "delphinus-curves/src/markle-tree";
 
 export enum CommandOp {
   Deposit = 0,
-  Swap = 2,
   Withdraw = 1,
+  Swap = 2,
   Supply = 3,
   Retrieve = 4,
   AddPool = 5,
+  AddToken = 7,
 };
 
 export class Command {
