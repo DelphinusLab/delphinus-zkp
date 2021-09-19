@@ -2,6 +2,7 @@ import sha256 from 'crypto-js/sha256';
 import hexEnc from 'crypto-js/enc-hex';
 import BN from "bn.js";
 
+import { exec } from "child_process";
 import { Field } from "delphinus-curves/src/field";
 import { MaxHeight, PathInfo } from "delphinus-curves/src//markle-tree";
 import { Command, L2Storage } from "./command";
@@ -74,4 +75,28 @@ export function genZKPInput(op: Field, args: Field[], storage: L2Storage): Field
 
   builder.pushRootHash(storage);
   return builder.inputs;
+}
+
+export function runZkp(op: Field, args: Field[], storage: L2Storage) {
+  const data = genZKPInput(op, args, storage);
+
+  console.log(`zokrates compute-witness -a ${data.map((f: Field) => f.v.toString(10)).join(" ")}`);
+
+  return new Promise((resolve, reject) =>
+    exec(
+      `zokrates compute-witness -a ${data.map((f: Field) => f.v.toString(10)).join(" ")}`,
+      (error, stdout, stderr) => {
+        console.log('stdout\n', stdout);
+
+        if (error) {
+          console.log(error);
+          reject(error);
+          return;
+        }
+        //console.log('error\n', error);
+        //console.log('stderr\n', stderr);
+        resolve(undefined);
+      }
+    )
+  );
 }
