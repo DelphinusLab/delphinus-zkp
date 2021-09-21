@@ -1,0 +1,22 @@
+from "./command" import Command, checkTokenRange, COMMAND_ARGS, LEAF_INFOS, CommandResult
+from "../utils/markle-tree" import LeafInfo, setValues, getPoolToken0Info, getPoolToken1Info, getPoolToken0Amount, getPoolToken1Amount, checkPoolLeafInfoIndex
+
+def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
+    CommandResult cres = CommandResult {
+        succeed: true,
+        leafInfos: leafInfos
+    }
+    cres.succeed = true
+
+    field tokenAddress = command.args[0]
+    field tokenIndex = command.args[1]
+
+    for u32 i in 2..COMMAND_ARGS do
+        cres.succeed = cres.succeed && (command.args[i] == 0)
+    endfor
+
+    // prerequisite: check arguments
+    cres.succeed = cres.succeed && checkTokenRange(tokenIndex)
+
+    // end
+    return cres

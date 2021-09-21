@@ -1,4 +1,8 @@
 import "utils/pack/u32/pack128" as pack128
+import "utils/pack/bool/pack128" as pack128b
+import "utils/pack/bool/unpack256" as unpack256b
+import "utils/casts/bool_256_to_u32_8" as bool_256_to_u32_8
+
 import "../utils/sha256" as sha256
 from "./command" import Command, CommandResult
 from "../utils/markle-tree" import LeafInfo, checkLeafInfo, getRootHash
@@ -9,22 +13,37 @@ import "./withdraw" as withdraw
 import "./swap" as swap
 import "./supply" as supply
 import "./retrieve" as retrieve
-import "./addtoken" as addtoken
+// import "./addtoken" as addtoken
 
 /*
 import "./setkey" as setkey
 */
 
+def fieldSplit(field v) -> u32[8]:
+    bool[256] d = unpack256b(v)
+    bool[256] led = [false; 256]
+
+    for u32 i in 0..32 do
+        for u32 j in 0..8 do
+            led[i * 8 + j] = d[(31 - i) * 8 + j]
+        endfor
+    endfor
+
+    return bool_256_to_u32_8(led)
+
 def shaCommands<N>(Command[N] commands) -> field[2]:
-    field[N * 5][2] data = [[0; 2]; N * 5]
+    u32[N * 5][2][8] data = [[[0; 8]; 2]; N * 5]
+
     for u32 i in 0..N do
         Command command = commands[i]
-        data[i * 4] = [command.op, command.args[0]]
-        data[i * 4 + 1] = [command.args[1], command.args[2]]
-        data[i * 4 + 2] = [command.args[3], command.args[4]]
-        data[i * 4 + 3] = [command.args[5], command.args[6]]
-        data[i * 4 + 4] = [command.args[7], 0]
+        data[i * 5][0] = fieldSplit(0)
+        data[i * 5][1] = fieldSplit(command.op)
+        for u32 j in 0..4 do
+            data[i * 5 + 1 + j][0] = fieldSplit(command.args[j * 2])
+            data[i * 5 + 1 + j][1] = fieldSplit(command.args[j * 2 + 1])
+        endfor
     endfor
+
     u32[8] hash = sha256(data)
     return [
         pack128(hash[0..4]),
@@ -40,8 +59,11 @@ const field OP_ADDPOOL = 5
 const field OP_SETKEY = 6
 const field OP_ADDTOKEN = 7
 
-def op6(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
-    return addtoken(command, leafInfos)
+ def op6(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
+    return CommandResult {
+        succeed: false,
+        leafInfos: leafInfos
+    }
 
 def op5(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
     return if command.op == OP_ADDPOOL then addpool(command, leafInfos) else op6(command, leafInfos) fi
@@ -61,19 +83,22 @@ def op1(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
 def op0(Command command, private LeafInfo[5] leafInfos) -> CommandResult:
     return if command.op == OP_DEPOSIT then deposit(command, leafInfos) else op1(command, leafInfos) fi
 
-def main(field[2] hash, private Command command, private LeafInfo[5] leafInfos, field finalRoot):
+def main(field[2] hash, field startRoot, private Command command, private LeafInfo[5] leafInfos, field endRoot):
     assert(hash == shaCommands([command]))
+
+    assert(startRoot == leafInfos[0].root)
 
     for u32 i in 0..5 do
         assert(checkLeafInfo(leafInfos[i]))
     endfor
 
-    field[5] nextRoot = [finalRoot; 5]
+    field[5] nextRoot = [endRoot; 5]
     for u32 i in 0..4 do
         nextRoot[i] = leafInfos[i + 1].root
     endfor
 
     CommandResult cres = op0(command, leafInfos)
+
 
     for u32 i in 0..5 do
         cres.succeed = cres.succeed && getRootHash(cres.leafInfos[i]) == nextRoot[i]

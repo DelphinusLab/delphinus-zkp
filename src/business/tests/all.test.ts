@@ -112,7 +112,7 @@ const _7 = genZKPInput(
 );
 
 async function testInput(data : Field[]) {
-  console.log(`zokrates compute-witness -a ${data.map((f: Field) => f.v.toString(10)).join(" ")}`);
+  console.log(`zokrates compute-witness -a ${data.slice(0, 10).map((f: Field) => f.v.toString(10)).join(" ")} ...`);
 
   return new Promise((resolve, reject) =>
     exec(
@@ -121,7 +121,7 @@ async function testInput(data : Field[]) {
         console.log('stdout\n', stdout);
 
         if (error) {
-          console.log(error);
+          //console.log(error);
           reject(error);
           return;
         }

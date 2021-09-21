@@ -54,11 +54,13 @@ class ZKPInputBuilder {
 }
 
 export function shaCommand(op: Field, command: Command) {
-  const data = [op]
+  const data = [new Field(0), op]
     .concat(command.args)
-    .concat([new Field(0)])
-    .map((x) => x.v.toString("hex", 64))
+    .map((x) => {
+      return x.v.toBuffer('le', 32).toString('hex')
+    })
     .join("");
+  console.log('sha: ' + data);
   const hvalue = sha256(hexEnc.parse(data)).toString();
 
   return [
@@ -77,6 +79,8 @@ export function genZKPInput(
 
   const shaValue = shaCommand(op, command);
   builder.push(shaValue);
+  builder.push(storage.root.value);
+
   builder.pushCommand(op, command);
 
   const pathInfo = command.run(storage);
@@ -91,8 +95,9 @@ export async function runZkp(op: Field, args: Field[], storage: L2Storage) {
 
   console.log(
     `zokrates compute-witness -a ${data
+      .slice(0, 11)
       .map((f: Field) => f.v.toString(10))
-      .join(" ")}`
+      .join(" ")} ...`
   );
 
   await new Promise((resolve, reject) =>
@@ -114,6 +119,8 @@ export async function runZkp(op: Field, args: Field[], storage: L2Storage) {
       }
     )
   );
+/*
+  console.log("zokrates generate-proof ...");
 
   await new Promise((resolve, reject) =>
     exec(
@@ -137,4 +144,5 @@ export async function runZkp(op: Field, args: Field[], storage: L2Storage) {
     path.resolve(__dirname, "..", "..", "proof.json")
   );
   console.log(JSON.stringify(proof));
+*/
 }

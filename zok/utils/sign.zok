@@ -7,16 +7,31 @@ from "ecc/babyjubjubParams" import BabyJubJubParams
 import "ecc/babyjubjubParams" as babyjubjubContext
 import "utils/casts/u32_8_to_bool_256"
 import "./sha256" as sha256
+import "utils/pack/bool/pack128" as pack128b
+import "utils/pack/bool/unpack256" as unpack256b
+import "utils/casts/bool_256_to_u32_8" as bool_256_to_u32_8
 
 def checkKey(field[2] A) -> bool:
     BabyJubJubParams context = babyjubjubContext()
     return onCurve(A, context) && orderCheck(A, context)
 
+def fieldSplit<M>(field[M][2] v) -> u32[M][2][8]:
+    u32[M][2][8] out = [[[0u32; 8]; 2]; M]
+
+    for u32 i in 0..M do
+        for u32 j in 0..2 do
+            bool[256] d = unpack256b(v[i][j])
+            out[i][j] = bool_256_to_u32_8(d)
+        endfor
+    endfor
+
+    return out
+
 def checkSign<N>(field[N][2] msg, field[2] R, field S, field[2] A) -> bool:
     BabyJubJubParams context = babyjubjubContext()
     field[2] G = [context.Gu, context.Gv]
 
-    bool[256] hRAM = u32_8_to_bool_256(sha256([[R[0], A[0]], ...msg]))
+    bool[256] hRAM = u32_8_to_bool_256(sha256(fieldSplit([[R[0], A[0]], ...msg])))
 
     bool[256] sBits = unpack256bool(S)
     field[2] lhs = scalarMult(sBits, G, context)
