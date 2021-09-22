@@ -99,9 +99,8 @@ def main(field[2] hash, field startRoot, private Command command, private LeafIn
 
     CommandResult cres = op0(command, leafInfos)
 
-
     for u32 i in 0..5 do
-        cres.succeed = cres.succeed && getRootHash(cres.leafInfos[i]) == nextRoot[i]
+        assert(getRootHash(cres.leafInfos[i]) == nextRoot[i])
     endfor
 
     assert(cres.succeed)

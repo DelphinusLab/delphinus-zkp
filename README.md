@@ -35,3 +35,6 @@ opcode:
 * 5 AddPool  - poolindex token0index token1index
 * 6 setkey   - reserved
 * 7 AddToken - tokenAddress tokenIndex
+
+## Sha256
+op 0 args

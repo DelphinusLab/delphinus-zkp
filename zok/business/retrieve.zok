@@ -47,7 +47,7 @@ def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
     cres.succeed = cres.succeed && (checkTokenRange(token0Info))
     field balance0 = getValue(leafInfo)
     field balance0New = balance0 + amount0
-    cres.succeed = cres.succeed && balance0 < balance0New
+    cres.succeed = cres.succeed && balance0 <= balance0New
     cres.leafInfos[2] = setValue(leafInfo, balance0New)
 
     // change token1 balance
@@ -56,7 +56,7 @@ def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
     cres.succeed = cres.succeed && (checkTokenRange(token1Info))
     field balance1 = getValue(leafInfo)
     field balance1New = balance1 + amount1
-    cres.succeed = cres.succeed && balance1 < balance1New
+    cres.succeed = cres.succeed && balance1 <= balance1New
     cres.leafInfos[3] = setValue(leafInfo, balance1New)
 
     // add share
@@ -64,7 +64,7 @@ def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
     cres.succeed = cres.succeed && (checkShareLeafInfoIndex(leafInfo, account, pool))
 
     field totalAmount = amount0 + amount1
-    cres.succeed = cres.succeed && totalAmount > amount0 && totalAmount > amount1
+    cres.succeed = cres.succeed && totalAmount >= amount0 && totalAmount >= amount1
 
     field share = getValue(leafInfo)
     field shareNew = share - totalAmount

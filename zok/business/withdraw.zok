@@ -11,8 +11,8 @@ def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
     field account = command.args[3]
     field token = command.args[4]
     field amount = command.args[5]
-    field nonce = command.args[6]
-    // command.args[7] is for L1 account address
+    // command.args[6] is for L1 account address
+    field nonce = command.args[7]
 
     cres.succeed = cres.succeed && checkTokenRange(token)
 

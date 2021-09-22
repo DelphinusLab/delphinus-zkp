@@ -19,6 +19,7 @@ export class SwapCommand extends Command {
     const index1 = getPoolStoreIndex(pool.v.toNumber());
     path.push(storage.getPath(index1));
     const poolInfo = storage.getLeaves(index1);
+
     poolInfo[2] = direction.v.eqn(0) ? poolInfo[2].add(amount) : poolInfo[2].sub(amount);
     poolInfo[3] = !direction.v.eqn(0) ? poolInfo[3].add(amount) : poolInfo[3].sub(amount);
     storage.setLeaves(index1, poolInfo);

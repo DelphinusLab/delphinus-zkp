@@ -9,7 +9,7 @@ export class WithdrawCommand extends Command {
     const account = this.args[3];
     const token = this.args[4];
     const amount = this.args[5];
-    const nonce = this.args[6];
+    const nonce = this.args[7];
 
     const index0 = getBalanceStoreIndex(account.v.toNumber(), 2);
     path.push(storage.getPath(index0));
