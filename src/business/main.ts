@@ -119,7 +119,7 @@ export async function runZkp(op: Field, args: Field[], storage: L2Storage) {
       }
     )
   );
-/*
+
   console.log("zokrates generate-proof ...");
 
   await new Promise((resolve, reject) =>
@@ -143,6 +143,12 @@ export async function runZkp(op: Field, args: Field[], storage: L2Storage) {
   const proof = await fs.readJson(
     path.resolve(__dirname, "..", "..", "proof.json")
   );
+
   console.log(JSON.stringify(proof));
-*/
+
+  return proof.proof.a
+    .concat(proof.proof.b[0])
+    .concat(proof.proof.b[1])
+    .concat(proof.proof.c)
+    .concat(proof.inputs);
 }

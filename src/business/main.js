@@ -8,7 +8,7 @@ const sha256_1 = __importDefault(require("crypto-js/sha256"));
 const enc_hex_1 = __importDefault(require("crypto-js/enc-hex"));
 const bn_js_1 = __importDefault(require("bn.js"));
 const path_1 = __importDefault(require("path"));
-const child_process_1 = require("child_process");
+const fs_extra_1 = __importDefault(require("fs-extra"));
 const field_1 = require("delphinus-curves/src/field");
 const markle_tree_1 = require("delphinus-curves/src//markle-tree");
 const command_factory_1 = require("./command-factory");
@@ -84,43 +84,54 @@ async function runZkp(op, args, storage) {
         .slice(0, 11)
         .map((f) => f.v.toString(10))
         .join(" ")} ...`);
-    await new Promise((resolve, reject) => (0, child_process_1.exec)(`zokrates compute-witness -a ${data
-        .map((f) => f.v.toString(10))
-        .join(" ")}`, {
-        cwd: path_1.default.resolve(__dirname, "..", ".."),
-    }, (error, stdout, stderr) => {
-        console.log("stdout\n", stdout);
-        if (error) {
+    /*
+    await new Promise((resolve, reject) =>
+      exec(
+        `zokrates compute-witness -a ${data
+          .map((f: Field) => f.v.toString(10))
+          .join(" ")}`,
+        {
+          cwd: path.resolve(__dirname, "..", ".."),
+        },
+        (error, stdout, stderr) => {
+          console.log("stdout\n", stdout);
+  
+          if (error) {
             reject(error);
             return;
-        }
-        resolve(undefined);
-    }));
-    /*
-      console.log("zokrates generate-proof ...");
-    
-      await new Promise((resolve, reject) =>
-        exec(
-          "zokrates generate-proof",
-          {
-            cwd: path.resolve(__dirname, "..", ".."),
-          },
-          (error, stdout, stderr) => {
-            console.log("stdout\n", stdout);
-    
-            if (error) {
-              reject(error);
-              return;
-            }
-            resolve(undefined);
           }
-        )
-      );
-    
-      const proof = await fs.readJson(
-        path.resolve(__dirname, "..", "..", "proof.json")
-      );
-      console.log(JSON.stringify(proof));
+          resolve(undefined);
+        }
+      )
+    );
+  
+    console.log("zokrates generate-proof ...");
+  
+    await new Promise((resolve, reject) =>
+      exec(
+        "zokrates generate-proof",
+        {
+          cwd: path.resolve(__dirname, "..", ".."),
+        },
+        (error, stdout, stderr) => {
+          console.log("stdout\n", stdout);
+  
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(undefined);
+        }
+      )
+    );
+  
     */
+    const proof = await fs_extra_1.default.readJson(path_1.default.resolve(__dirname, "..", "..", "proof.json"));
+    console.log(JSON.stringify(proof));
+    return proof.proof.a
+        .concat(proof.proof.b[0])
+        .concat(proof.proof.b[1])
+        .concat(proof.proof.c)
+        .concat(proof.inputs);
 }
 exports.runZkp = runZkp;

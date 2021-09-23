@@ -68,4 +68,3 @@ class L2Storage extends markle_tree_1.MarkleTree {
     }
 }
 exports.L2Storage = L2Storage;
-//# sourceMappingURL=command.js.map
