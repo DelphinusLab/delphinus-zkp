@@ -9,6 +9,7 @@ const enc_hex_1 = __importDefault(require("crypto-js/enc-hex"));
 const bn_js_1 = __importDefault(require("bn.js"));
 const path_1 = __importDefault(require("path"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
+const child_process_1 = require("child_process");
 const field_1 = require("delphinus-curves/src/field");
 const markle_tree_1 = require("delphinus-curves/src//markle-tree");
 const command_factory_1 = require("./command-factory");
@@ -54,14 +55,14 @@ function shaCommand(op, command) {
     const data = [new field_1.Field(0), op]
         .concat(command.args)
         .map((x) => {
-        return x.v.toBuffer('le', 32).toString('hex');
+        return x.v.toBuffer("le", 32).toString("hex");
     })
         .join("");
-    console.log('sha: ' + data);
+    console.log("sha: " + data);
     const hvalue = (0, sha256_1.default)(enc_hex_1.default.parse(data)).toString();
     return [
-        new field_1.Field(new bn_js_1.default(hvalue.slice(0, 32), "hex")),
-        new field_1.Field(new bn_js_1.default(hvalue.slice(32, 64), "hex")),
+        new field_1.Field(new bn_js_1.default(hvalue.slice(0, 32), "hex", "le")),
+        new field_1.Field(new bn_js_1.default(hvalue.slice(32, 64), "hex", "le")),
     ];
 }
 exports.shaCommand = shaCommand;
@@ -84,48 +85,29 @@ async function runZkp(op, args, storage) {
         .slice(0, 11)
         .map((f) => f.v.toString(10))
         .join(" ")} ...`);
-    /*
-    await new Promise((resolve, reject) =>
-      exec(
-        `zokrates compute-witness -a ${data
-          .map((f: Field) => f.v.toString(10))
-          .join(" ")}`,
-        {
-          cwd: path.resolve(__dirname, "..", ".."),
-        },
-        (error, stdout, stderr) => {
-          console.log("stdout\n", stdout);
-  
-          if (error) {
+    await new Promise((resolve, reject) => (0, child_process_1.exec)(`zokrates compute-witness -a ${data
+        .map((f) => f.v.toString(10))
+        .join(" ")}`, {
+        cwd: path_1.default.resolve(__dirname, "..", ".."),
+    }, (error, stdout, stderr) => {
+        console.log("stdout\n", stdout);
+        if (error) {
             reject(error);
             return;
-          }
-          resolve(undefined);
         }
-      )
-    );
-  
+        resolve(undefined);
+    }));
     console.log("zokrates generate-proof ...");
-  
-    await new Promise((resolve, reject) =>
-      exec(
-        "zokrates generate-proof",
-        {
-          cwd: path.resolve(__dirname, "..", ".."),
-        },
-        (error, stdout, stderr) => {
-          console.log("stdout\n", stdout);
-  
-          if (error) {
+    await new Promise((resolve, reject) => (0, child_process_1.exec)("zokrates generate-proof", {
+        cwd: path_1.default.resolve(__dirname, "..", ".."),
+    }, (error, stdout, stderr) => {
+        console.log("stdout\n", stdout);
+        if (error) {
             reject(error);
             return;
-          }
-          resolve(undefined);
         }
-      )
-    );
-  
-    */
+        resolve(undefined);
+    }));
     const proof = await fs_extra_1.default.readJson(path_1.default.resolve(__dirname, "..", "..", "proof.json"));
     console.log(JSON.stringify(proof));
     return proof.proof.a

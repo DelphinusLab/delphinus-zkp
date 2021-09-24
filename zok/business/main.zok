@@ -2,6 +2,7 @@ import "utils/pack/u32/pack128" as pack128
 import "utils/pack/bool/pack128" as pack128b
 import "utils/pack/bool/unpack256" as unpack256b
 import "utils/casts/bool_256_to_u32_8" as bool_256_to_u32_8
+import "utils/casts/u32_4_to_bool_128" as u32_4_to_bool_128
 
 import "../utils/sha256" as sha256
 from "./command" import Command, CommandResult
@@ -18,6 +19,17 @@ import "./retrieve" as retrieve
 /*
 import "./setkey" as setkey
 */
+
+def pack128ble(bool[128] d) -> field:
+    bool[128] led = [false; 128]
+
+    for u32 i in 0..16 do
+        for u32 j in 0..8 do
+            led[i * 8 + j] = d[(15 - i) * 8 + j]
+        endfor
+    endfor
+
+    return pack128b(led)
 
 def fieldSplit(field v) -> u32[8]:
     bool[256] d = unpack256b(v)
@@ -46,8 +58,8 @@ def shaCommands<N>(Command[N] commands) -> field[2]:
 
     u32[8] hash = sha256(data)
     return [
-        pack128(hash[0..4]),
-        pack128(hash[4..8])
+        pack128ble(u32_4_to_bool_128(hash[0..4])),
+        pack128ble(u32_4_to_bool_128(hash[4..8]))
     ]
 
 const field OP_DEPOSIT = 0

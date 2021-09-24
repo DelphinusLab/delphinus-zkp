@@ -57,15 +57,15 @@ export function shaCommand(op: Field, command: Command) {
   const data = [new Field(0), op]
     .concat(command.args)
     .map((x) => {
-      return x.v.toBuffer('le', 32).toString('hex')
+      return x.v.toBuffer("le", 32).toString("hex");
     })
     .join("");
-  console.log('sha: ' + data);
+  console.log("sha: " + data);
   const hvalue = sha256(hexEnc.parse(data)).toString();
 
   return [
-    new Field(new BN(hvalue.slice(0, 32), "hex")),
-    new Field(new BN(hvalue.slice(32, 64), "hex")),
+    new Field(new BN(hvalue.slice(0, 32), "hex", "le")),
+    new Field(new BN(hvalue.slice(32, 64), "hex", "le")),
   ];
 }
 
