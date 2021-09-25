@@ -55,14 +55,14 @@ function shaCommand(op, command) {
     const data = [new field_1.Field(0), op]
         .concat(command.args)
         .map((x) => {
-        return x.v.toBuffer("le", 32).toString("hex");
+        return x.v.toBuffer("be", 32).toString("hex");
     })
         .join("");
     console.log("sha: " + data);
     const hvalue = (0, sha256_1.default)(enc_hex_1.default.parse(data)).toString();
     return [
-        new field_1.Field(new bn_js_1.default(hvalue.slice(0, 32), "hex", "le")),
-        new field_1.Field(new bn_js_1.default(hvalue.slice(32, 64), "hex", "le")),
+        new field_1.Field(new bn_js_1.default(hvalue.slice(0, 32), "hex", "be")),
+        new field_1.Field(new bn_js_1.default(hvalue.slice(32, 64), "hex", "be")),
     ];
 }
 exports.shaCommand = shaCommand;
@@ -79,8 +79,11 @@ function genZKPInput(op, args, storage) {
     return builder.inputs;
 }
 exports.genZKPInput = genZKPInput;
-async function runZkp(op, args, storage) {
+async function runZkp(op, args, storage, runProof = true) {
     const data = genZKPInput(op, args, storage);
+    if (!runProof) {
+        return;
+    }
     console.log(`zokrates compute-witness -a ${data
         .slice(0, 11)
         .map((f) => f.v.toString(10))
