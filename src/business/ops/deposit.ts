@@ -1,8 +1,8 @@
-import { PathInfo } from "delphinus-curves/src/markle-tree";
+import { PathInfo } from "delphinus-curves/src/markle-tree-large";
 import { Command, getBalanceStoreIndex, L2Storage } from "../command";
 
 export class DepositCommand extends Command {
-  run(storage: L2Storage): PathInfo[] {
+  async run(storage: L2Storage) {
     const path = [] as PathInfo[];
 
     const account = this.args[0];
@@ -10,10 +10,10 @@ export class DepositCommand extends Command {
     const amount = this.args[2];
 
     const index = getBalanceStoreIndex(account.v.toNumber(), token.v.toNumber());
-    path.push(storage.getPath(index));
+    path.push(await storage.getPath(index));
 
-    const balance = storage.get(index);
-    storage.set(index, balance.add(amount));
+    const balance = await storage.getLeave(index);
+    await storage.setLeave(index, balance.add(amount));
 
     return path;
   }

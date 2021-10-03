@@ -5,112 +5,6 @@ import { exec } from "child_process";
 
 const storage = new L2Storage();
 
-const _0 = genZKPInput(
-  new Field(CommandOp.AddPool),
-  [
-    new Field(0),
-    new Field(4),
-    new Field(5)
-  ],
-  storage
-)
-
-const _1 = genZKPInput(
-  new Field(CommandOp.Deposit),
-  [
-    new Field(0),
-    new Field(4),
-    new Field(100)
-  ],
-  storage
-);
-
-
-const _2 = genZKPInput(
-  new Field(CommandOp.Deposit),
-  [
-    new Field(0),
-    new Field(5),
-    new Field(100)
-  ],
-  storage
-);
-
-const _3 = genZKPInput(
-  new Field(CommandOp.Supply),
-  [
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(10),
-    new Field(10),
-    new Field(0)
-  ],
-  storage
-);
-
-const _4 = genZKPInput(
-  new Field(CommandOp.Swap),
-  [
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(5),
-    new Field(0),
-    new Field(1)
-  ],
-  storage
-);
-
-const _5 = genZKPInput(
-  new Field(CommandOp.Retrieve),
-  [
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(15),
-    new Field(5),
-    new Field(2),
-    new Field(0)
-  ],
-  storage
-);
-
-const _6 = genZKPInput(
-  new Field(CommandOp.Withdraw),
-  [
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(4),
-    new Field(100),
-    new Field(3),
-    new Field(0)
-  ],
-  storage
-);
-
-const _7 = genZKPInput(
-  new Field(CommandOp.Withdraw),
-  [
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(5),
-    new Field(100),
-    new Field(4)
-  ],
-  storage
-);
-
 async function testInput(data : Field[]) {
   console.log(`zokrates compute-witness -a ${data.slice(0, 10).map((f: Field) => f.v.toString(10)).join(" ")} ...`);
 
@@ -134,6 +28,113 @@ async function testInput(data : Field[]) {
 }
 
 async function main() {
+
+const _0 = await genZKPInput(
+  new Field(CommandOp.AddPool),
+  [
+    new Field(0),
+    new Field(4),
+    new Field(5)
+  ],
+  storage
+)
+
+const _1 = await genZKPInput(
+  new Field(CommandOp.Deposit),
+  [
+    new Field(0),
+    new Field(4),
+    new Field(100)
+  ],
+  storage
+);
+
+
+const _2 = await genZKPInput(
+  new Field(CommandOp.Deposit),
+  [
+    new Field(0),
+    new Field(5),
+    new Field(100)
+  ],
+  storage
+);
+
+const _3 = await genZKPInput(
+  new Field(CommandOp.Supply),
+  [
+    new Field(0),
+    new Field(0),
+    new Field(0),
+    new Field(0),
+    new Field(0),
+    new Field(10),
+    new Field(10),
+    new Field(0)
+  ],
+  storage
+);
+
+const _4 = await genZKPInput(
+  new Field(CommandOp.Swap),
+  [
+    new Field(0),
+    new Field(0),
+    new Field(0),
+    new Field(0),
+    new Field(0),
+    new Field(5),
+    new Field(0),
+    new Field(1)
+  ],
+  storage
+);
+
+const _5 = await genZKPInput(
+  new Field(CommandOp.Retrieve),
+  [
+    new Field(0),
+    new Field(0),
+    new Field(0),
+    new Field(0),
+    new Field(0),
+    new Field(15),
+    new Field(5),
+    new Field(2),
+    new Field(0)
+  ],
+  storage
+);
+
+const _6 = await genZKPInput(
+  new Field(CommandOp.Withdraw),
+  [
+    new Field(0),
+    new Field(0),
+    new Field(0),
+    new Field(0),
+    new Field(4),
+    new Field(100),
+    new Field(3),
+    new Field(0)
+  ],
+  storage
+);
+
+const _7 = await genZKPInput(
+  new Field(CommandOp.Withdraw),
+  [
+    new Field(0),
+    new Field(0),
+    new Field(0),
+    new Field(0),
+    new Field(5),
+    new Field(100),
+    new Field(4)
+  ],
+  storage
+);
+
   await testInput(_0);
   await testInput(_1);
   await testInput(_2);

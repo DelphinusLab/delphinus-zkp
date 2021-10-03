@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.L2Storage = exports.getShareStoreIndex = exports.getBalanceStoreIndex = exports.getPoolStoreIndex = exports.Index = exports.StoreNameSpace = exports.Command = exports.CommandOp = void 0;
 const field_1 = require("delphinus-curves/src/field");
-const markle_tree_1 = require("delphinus-curves/src/markle-tree");
+const markle_tree_large_1 = require("delphinus-curves/src/markle-tree-large");
 var CommandOp;
 (function (CommandOp) {
     CommandOp[CommandOp["Deposit"] = 0] = "Deposit";
@@ -18,7 +18,7 @@ class Command {
     constructor(args) {
         this.args = args.concat(Array(8).fill(new field_1.Field(0))).slice(0, 8);
     }
-    run(storage) {
+    async run(storage) {
         throw new Error('Not Implemented yet');
     }
 }
@@ -53,18 +53,18 @@ function getShareStoreIndex(accountIndex, poolIndex) {
     return (StoreNameSpace.ShareStore << 30) | (accountIndex << 10) | poolIndex;
 }
 exports.getShareStoreIndex = getShareStoreIndex;
-class L2Storage extends markle_tree_1.MarkleTree {
-    getPoolToken0Info(index) {
-        return this.get(index + 0);
+class L2Storage extends markle_tree_large_1.MarkleTree {
+    async getPoolToken0Info(index) {
+        return this.getLeave(index + 0);
     }
-    getPoolToken1Info(index) {
-        return this.get(index + 1);
+    async getPoolToken1Info(index) {
+        return this.getLeave(index + 1);
     }
-    getPoolToken0Amount(index) {
-        return this.get(index + 2);
+    async getPoolToken0Amount(index) {
+        return this.getLeave(index + 2);
     }
-    getPoolToken1Amount(index) {
-        return this.get(index + 3);
+    async getPoolToken1Amount(index) {
+        return this.getLeave(index + 3);
     }
 }
 exports.L2Storage = L2Storage;

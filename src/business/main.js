@@ -34,12 +34,12 @@ class ZKPInputBuilder {
             this.push(pathInfo.pathDigests[i].slice(0, 4));
         }
     }
-    pushPathInfo(pathInfoList, storage) {
+    async pushPathInfo(pathInfoList, storage) {
         for (const pathInfo of pathInfoList) {
             this._pushPathInfo(pathInfo);
         }
         for (let i = 0; i < 5 - pathInfoList.length; i++) {
-            this._pushPathInfo(storage.getPath(0));
+            this._pushPathInfo(await storage.getPath(0));
         }
     }
     pushCommand(op, command) {
@@ -47,8 +47,8 @@ class ZKPInputBuilder {
         //console.log(command.args);
         this.push(command.args);
     }
-    pushRootHash(storage) {
-        this.push(storage.root.value);
+    async pushRootHash(storage) {
+        this.push(await storage.getRoot());
     }
 }
 function shaCommand(op, command) {
@@ -66,21 +66,21 @@ function shaCommand(op, command) {
     ];
 }
 exports.shaCommand = shaCommand;
-function genZKPInput(op, args, storage) {
+async function genZKPInput(op, args, storage) {
     const builder = new ZKPInputBuilder();
     const command = (0, command_factory_1.createCommand)(op, args);
     const shaValue = shaCommand(op, command);
     builder.push(shaValue);
-    builder.push(storage.root.value);
+    builder.push(await storage.getRoot());
     builder.pushCommand(op, command);
-    const pathInfo = command.run(storage);
+    const pathInfo = await command.run(storage);
     builder.pushPathInfo(pathInfo, storage);
     builder.pushRootHash(storage);
     return builder.inputs;
 }
 exports.genZKPInput = genZKPInput;
 async function runZkp(op, args, storage, runProof = true) {
-    const data = genZKPInput(op, args, storage);
+    const data = await genZKPInput(op, args, storage);
     if (!runProof) {
         return;
     }

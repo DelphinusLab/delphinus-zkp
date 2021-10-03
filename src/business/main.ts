@@ -7,7 +7,7 @@ import fs from "fs-extra";
 import { exec } from "child_process";
 import { Field } from "delphinus-curves/src/field";
 import { MaxHeight, PathInfo } from "delphinus-curves/src//markle-tree";
-import { Command, CommandOp, L2Storage } from "./command";
+import { Command, L2Storage } from "./command";
 import { createCommand } from "./command-factory";
 
 class ZKPInputBuilder {
@@ -32,13 +32,13 @@ class ZKPInputBuilder {
     }
   }
 
-  pushPathInfo(pathInfoList: PathInfo[], storage: L2Storage) {
+  async pushPathInfo(pathInfoList: PathInfo[], storage: L2Storage) {
     for (const pathInfo of pathInfoList) {
       this._pushPathInfo(pathInfo);
     }
 
     for (let i = 0; i < 5 - pathInfoList.length; i++) {
-      this._pushPathInfo(storage.getPath(0));
+      this._pushPathInfo(await storage.getPath(0));
     }
   }
 
@@ -48,8 +48,8 @@ class ZKPInputBuilder {
     this.push(command.args);
   }
 
-  pushRootHash(storage: L2Storage) {
-    this.push(storage.root.value);
+  async pushRootHash(storage: L2Storage) {
+    this.push(await storage.getRoot());
   }
 }
 
@@ -69,21 +69,21 @@ export function shaCommand(op: Field, command: Command) {
   ];
 }
 
-export function genZKPInput(
+export async function genZKPInput(
   op: Field,
   args: Field[],
   storage: L2Storage
-): Field[] {
+) {
   const builder = new ZKPInputBuilder();
   const command = createCommand(op, args) as Command;
 
   const shaValue = shaCommand(op, command);
   builder.push(shaValue);
-  builder.push(storage.root.value);
+  builder.push(await storage.getRoot());
 
   builder.pushCommand(op, command);
 
-  const pathInfo = command.run(storage);
+  const pathInfo = await command.run(storage);
   builder.pushPathInfo(pathInfo, storage);
 
   builder.pushRootHash(storage);
@@ -91,7 +91,7 @@ export function genZKPInput(
 }
 
 export async function runZkp(op: Field, args: Field[], storage: L2Storage, runProof = true) {
-  const data = genZKPInput(op, args, storage);
+  const data = await genZKPInput(op, args, storage);
 
   if (!runProof) {
     return;

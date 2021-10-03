@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { Field } from "delphinus-curves/src/field";
-import { MarkleTree, PathInfo } from "delphinus-curves/src/markle-tree";
+import { MarkleTree, PathInfo } from "delphinus-curves/src/markle-tree-large";
 
 export enum CommandOp {
   Deposit = 0,
@@ -19,7 +19,7 @@ export class Command {
     this.args = args.concat(Array(8).fill(new Field(0))).slice(0, 8);
   }
 
-  run(storage: L2Storage): PathInfo[] {
+  async run(storage: L2Storage): Promise<PathInfo[]> {
     throw new Error('Not Implemented yet');
   }
 }
@@ -57,21 +57,20 @@ export function getShareStoreIndex(accountIndex: number, poolIndex: number) {
   return (StoreNameSpace.ShareStore << 30) | (accountIndex << 10) | poolIndex;
 }
 
-
 export class L2Storage extends MarkleTree {
-  getPoolToken0Info(index: number) {
-    return this.get(index + 0);
+  async getPoolToken0Info(index: number) {
+    return this.getLeave(index + 0);
   }
 
-  getPoolToken1Info(index: number) {
-    return this.get(index + 1);
+  async getPoolToken1Info(index: number) {
+    return this.getLeave(index + 1);
   }
 
-  getPoolToken0Amount(index: number) {
-    return this.get(index + 2);
+  async getPoolToken0Amount(index: number) {
+    return this.getLeave(index + 2);
   }
 
-  getPoolToken1Amount(index: number) {
-    return this.get(index + 3);
+  async getPoolToken1Amount(index: number) {
+    return this.getLeave(index + 3);
   }
 }

@@ -1,9 +1,9 @@
 import { Field } from "delphinus-curves/src/field";
-import { PathInfo } from "delphinus-curves/src/markle-tree";
+import { PathInfo } from "delphinus-curves/src/markle-tree-large";
 import { Command, L2Storage, getPoolStoreIndex } from "../command";
 
 export class AddPoolCommand extends Command {
-  run(storage: L2Storage): PathInfo[] {
+  async run(storage: L2Storage) {
     const path = [] as PathInfo[];
 
     const poolIndex = this.args[0];
@@ -11,10 +11,10 @@ export class AddPoolCommand extends Command {
     const tokenIndex1 = this.args[2];
 
     const index = getPoolStoreIndex(poolIndex.v.toNumber());
-    path.push(storage.getPath(index));
+    path.push(await storage.getPath(index));
 
     const zero = new Field(0);
-    storage.setLeaves(index, [tokenIndex0, tokenIndex1, zero, zero]);
+    await storage.setLeaves(index, [tokenIndex0, tokenIndex1, zero, zero]);
 
     return path;
   }
