@@ -44,7 +44,6 @@ class ZKPInputBuilder {
     }
     pushCommand(op, command) {
         this.push(op);
-        //console.log(command.args);
         this.push(command.args);
     }
     async pushRootHash(storage) {
@@ -58,7 +57,6 @@ function shaCommand(op, command) {
         return x.v.toBuffer("be", 32).toString("hex");
     })
         .join("");
-    console.log("sha: " + data);
     const hvalue = (0, sha256_1.default)(enc_hex_1.default.parse(data)).toString();
     return [
         new field_1.Field(new bn_js_1.default(hvalue.slice(0, 32), "hex", "be")),
@@ -74,8 +72,8 @@ async function genZKPInput(op, args, storage) {
     builder.push(await storage.getRoot());
     builder.pushCommand(op, command);
     const pathInfo = await command.run(storage);
-    builder.pushPathInfo(pathInfo, storage);
-    builder.pushRootHash(storage);
+    await builder.pushPathInfo(pathInfo, storage);
+    await builder.pushRootHash(storage);
     return builder.inputs;
 }
 exports.genZKPInput = genZKPInput;

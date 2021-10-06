@@ -27,6 +27,7 @@ class ZKPInputBuilder {
     for (let i = 0; i < 32; i++) {
       this.push(new Field((pathInfo.index >> (31 - i)) & 1));
     }
+
     for (let i = 0; i < MaxHeight; i++) {
       this.push(pathInfo.pathDigests[i].slice(0, 4));
     }
@@ -44,7 +45,6 @@ class ZKPInputBuilder {
 
   pushCommand(op: Field, command: Command) {
     this.push(op);
-    //console.log(command.args);
     this.push(command.args);
   }
 
@@ -60,7 +60,6 @@ export function shaCommand(op: Field, command: Command) {
       return x.v.toBuffer("be", 32).toString("hex");
     })
     .join("");
-  console.log("sha: " + data);
   const hvalue = sha256(hexEnc.parse(data)).toString();
 
   return [
@@ -80,17 +79,21 @@ export async function genZKPInput(
   const shaValue = shaCommand(op, command);
   builder.push(shaValue);
   builder.push(await storage.getRoot());
-
   builder.pushCommand(op, command);
 
   const pathInfo = await command.run(storage);
-  builder.pushPathInfo(pathInfo, storage);
+  await builder.pushPathInfo(pathInfo, storage);
 
-  builder.pushRootHash(storage);
+  await builder.pushRootHash(storage);
   return builder.inputs;
 }
 
-export async function runZkp(op: Field, args: Field[], storage: L2Storage, runProof = true) {
+export async function runZkp(
+  op: Field,
+  args: Field[],
+  storage: L2Storage,
+  runProof = true
+) {
   const data = await genZKPInput(op, args, storage);
 
   if (!runProof) {

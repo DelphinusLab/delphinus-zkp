@@ -1,148 +1,103 @@
 import { Field } from "delphinus-curves/src/field";
 import { CommandOp, L2Storage } from "../command";
-import { genZKPInput } from "../main";
-import { exec } from "child_process";
+import { runZkp } from "../main";
 
 const storage = new L2Storage();
 
-async function testInput(data : Field[]) {
-  console.log(`zokrates compute-witness -a ${data.slice(0, 10).map((f: Field) => f.v.toString(10)).join(" ")} ...`);
+async function main() {
+  const _0 = await runZkp(
+    new Field(CommandOp.AddPool),
+    [new Field(0), new Field(4), new Field(5)],
+    storage
+  );
 
-  return new Promise((resolve, reject) =>
-    exec(
-      `zokrates compute-witness -a ${data.map((f: Field) => f.v.toString(10)).join(" ")}`,
-      (error, stdout, stderr) => {
-        console.log('stdout\n', stdout);
+  const _1 = await runZkp(
+    new Field(CommandOp.Deposit),
+    [new Field(0), new Field(4), new Field(100)],
+    storage
+  );
 
-        if (error) {
-          //console.log(error);
-          reject(error);
-          return;
-        }
-        //console.log('error\n', error);
-        //console.log('stderr\n', stderr);
-        resolve(undefined);
-      }
-    )
+  const _2 = await runZkp(
+    new Field(CommandOp.Deposit),
+    [new Field(0), new Field(5), new Field(100)],
+    storage
+  );
+
+  const _3 = await runZkp(
+    new Field(CommandOp.Supply),
+    [
+      new Field(0),
+      new Field(0),
+      new Field(0),
+      new Field(0),
+      new Field(0),
+      new Field(10),
+      new Field(10),
+      new Field(0),
+    ],
+    storage
+  );
+
+  const _4 = await runZkp(
+    new Field(CommandOp.Swap),
+    [
+      new Field(0),
+      new Field(0),
+      new Field(0),
+      new Field(0),
+      new Field(0),
+      new Field(5),
+      new Field(0),
+      new Field(1),
+    ],
+    storage
+  );
+
+  const _5 = await runZkp(
+    new Field(CommandOp.Retrieve),
+    [
+      new Field(0),
+      new Field(0),
+      new Field(0),
+      new Field(0),
+      new Field(0),
+      new Field(15),
+      new Field(5),
+      new Field(2),
+      new Field(0),
+    ],
+    storage
+  );
+
+  const _6 = await runZkp(
+    new Field(CommandOp.Withdraw),
+    [
+      new Field(0),
+      new Field(0),
+      new Field(0),
+      new Field(0),
+      new Field(4),
+      new Field(100),
+      new Field(0xdeadbeaf),
+      new Field(3),
+    ],
+    storage
+  );
+
+  const _7 = await runZkp(
+    new Field(CommandOp.Withdraw),
+    [
+      new Field(0),
+      new Field(0),
+      new Field(0),
+      new Field(0),
+      new Field(5),
+      new Field(100),
+      new Field(0xdeadbeaf),
+      new Field(4),
+    ],
+    storage
   );
 }
 
-async function main() {
-
-const _0 = await genZKPInput(
-  new Field(CommandOp.AddPool),
-  [
-    new Field(0),
-    new Field(4),
-    new Field(5)
-  ],
-  storage
-)
-
-const _1 = await genZKPInput(
-  new Field(CommandOp.Deposit),
-  [
-    new Field(0),
-    new Field(4),
-    new Field(100)
-  ],
-  storage
-);
-
-
-const _2 = await genZKPInput(
-  new Field(CommandOp.Deposit),
-  [
-    new Field(0),
-    new Field(5),
-    new Field(100)
-  ],
-  storage
-);
-
-const _3 = await genZKPInput(
-  new Field(CommandOp.Supply),
-  [
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(10),
-    new Field(10),
-    new Field(0)
-  ],
-  storage
-);
-
-const _4 = await genZKPInput(
-  new Field(CommandOp.Swap),
-  [
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(5),
-    new Field(0),
-    new Field(1)
-  ],
-  storage
-);
-
-const _5 = await genZKPInput(
-  new Field(CommandOp.Retrieve),
-  [
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(15),
-    new Field(5),
-    new Field(2),
-    new Field(0)
-  ],
-  storage
-);
-
-const _6 = await genZKPInput(
-  new Field(CommandOp.Withdraw),
-  [
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(4),
-    new Field(100),
-    new Field(3),
-    new Field(0)
-  ],
-  storage
-);
-
-const _7 = await genZKPInput(
-  new Field(CommandOp.Withdraw),
-  [
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(0),
-    new Field(5),
-    new Field(100),
-    new Field(4)
-  ],
-  storage
-);
-
-  await testInput(_0);
-  await testInput(_1);
-  await testInput(_2);
-  await testInput(_3);
-  await testInput(_4);
-  await testInput(_5);
-  await testInput(_6);
-  await testInput(_7);
-}
-
-main()
+main();

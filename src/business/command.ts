@@ -1,4 +1,3 @@
-import BN from "bn.js";
 import { Field } from "delphinus-curves/src/field";
 import { MarkleTree, PathInfo } from "delphinus-curves/src/markle-tree-large";
 
