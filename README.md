@@ -38,3 +38,25 @@ opcode:
 
 ## Sha256
 op 0 args
+
+
+plan: encode command
+op - 8 bits
+sign(3) - 384 bits
+nonce - 64 bits
+
+456 bits
+
+deposit(314bits) - accountIndex(32 bits) tokenIndex(32 bits) amount(256 bits)
+
+withdraw(560bits) - accountIndex(32 bits) tokenIndex(32 bits) amount(256 bits) l1address(256bits)
+
+swap(322bits) - accountIndex(32 bits) poolIndex + direction(32 bits) amount(256 bits) 
+
+withdraw/supply(314) - accountIndex(32 bits) poolIndex(32 bits) amount0(256 bits)
+
+addpool(544) - tokenIndex0(32 bits) tokenIndex1(32 bits) amount0(256 bits) amount1(256bits)
+
+576
+
+1032bits in total
