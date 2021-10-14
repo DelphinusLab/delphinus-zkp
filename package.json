@@ -3,10 +3,14 @@
   "version": "0.0.1",
   "description": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npx tsc",
+    "prepare": "npm run build"
   },
-  "author": "",
+  "author": "ZhenXunGe",
   "license": "UNLICENSED",
+  "exports": {
+    "./*": "./dist/*.js"
+  },
   "dependencies": {
     "bn.js": "^5.2.0",
     "crypto-js": "^4.1.1",
