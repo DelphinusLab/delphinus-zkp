@@ -10,6 +10,8 @@ import { MaxHeight, PathInfo } from "delphinus-curves/src//markle-tree";
 import { Command, L2Storage } from "./command";
 import { createCommand } from "./command-factory";
 
+const ZKPPath = path.resolve(__dirname, "..", "..", "..");
+
 class ZKPInputBuilder {
   inputs: Field[] = [];
 
@@ -113,7 +115,7 @@ export async function runZkp(
         .map((f: Field) => f.v.toString(10))
         .join(" ")}`,
       {
-        cwd: path.resolve(__dirname, "..", ".."),
+        cwd: ZKPPath,
       },
       (error, stdout, stderr) => {
         console.log("stdout\n", stdout);
@@ -133,7 +135,7 @@ export async function runZkp(
     exec(
       "zokrates generate-proof",
       {
-        cwd: path.resolve(__dirname, "..", ".."),
+        cwd: ZKPPath,
       },
       (error, stdout, stderr) => {
         console.log("stdout\n", stdout);
@@ -148,7 +150,7 @@ export async function runZkp(
   );
 
   const proof = await fs.readJson(
-    path.resolve(__dirname, "..", "..", "proof.json")
+    path.resolve(ZKPPath, "proof.json")
   );
 
   console.log(JSON.stringify(proof));
