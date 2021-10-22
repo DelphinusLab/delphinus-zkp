@@ -1,6 +1,6 @@
 import { Field } from "delphinus-curves/src/field";
-import { CommandOp, L2Storage } from "../src/business/command";
-import { runZkp } from "../src/business/main";
+import { CommandOp, L2Storage } from "../src/zokrates/command";
+import { runZkp } from "../src/zokrates/main";
 
 const storage = new L2Storage();
 

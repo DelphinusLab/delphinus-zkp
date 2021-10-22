@@ -7,56 +7,40 @@
 Giving root hash and item path (with neighbor's hash) for validation
 
 ### Namespace
+
 (2bits) Class
 
 1. b00 Balance: (20bits) account index + (10bits) token index
 2. b01 Pool: (10bits) pool index + (18bits) 0 + (2bits) poolinfo (token0index, token1index, amount0, amount1)
 3. b10 Share: (20bits) account index + (10bits) pool index
 
+## Circom Plan
 
-## Command
-command has 1 opcode + 8 args (padding 0 if not reach 8).
-Each opcode is 128bits and args are 256bits (TB compact)
+Assue admin's account index is 0.
 
-For L1, first sha the command op + args and check the sha input of zkp.
-Then if it is Withdraw or Addpool, handle it accordingly, 
+## Common Args
 
-opcode:
+- op - 8 bits
+- sign(3) - 384 bits
+- nonce - 64 bits
 
-(* most command has first 3 args reserved for signature *)
+## Commands and Args
 
-(* Swap direction is - 0 = save token 0 and take token 1, 1 = reverse *)
+- deposit - accountIndex(32 bits) tokenIndex(32 bits) amount(256 bits) 0(256bits)
+- withdraw - accountIndex(32 bits) tokenIndex(32 bits) amount(256 bits) l1address(256bits)
+- swap - accountIndex(32 bits) poolIndex + direction(31 + 1 bits) amount(256 bits)
+- withdraw/supply - accountIndex(32 bits) poolIndex(32 bits) amount0(256 bits)
+- addpool - poolIndex(32 bits) tokenIndexPair(16 + 16bits) amount0(256 bits) amount1(256bits)
+- setkey - accountIndex(32 bits) reserve(32 bits) x(256 bits) y(256bits)
 
-* 0 Deposit  - accountIndex tokenIndex amount
-* 1 Withdraw - 0 0 0 accountIndex tokenIndex amount l1address nonce
-* 2 Swap     - 0 0 0 accountIndex poolIndex amount direction nonce
-* 3 Supply   - 0 0 0 accountIndex poolIndex amount0 amount1 nonce
-* 4 Retrieve - 0 0 0 accountIndex poolIndex amount0 amount1 nonce
-* 5 AddPool  - poolindex token0index token1index
-* 6 setkey   - reserved
-* 7 AddToken - tokenAddress tokenIndex
+## Prerequisites
 
-## Sha256
-op 0 args
+- install rust, circom and snarkjs, see <https://docs.circom.io/getting-started/installation/>
+- in `circom` folder, run `bash tools/setup.sh`
+- in `circom` folder, run `bash tools/compile.sh`
 
+## How to contribute
 
-plan: encode command
-op - 8 bits
-sign(3) - 384 bits
-nonce - 64 bits
-
-456 bits
-
-deposit(314bits) - accountIndex(32 bits) tokenIndex(32 bits) amount(256 bits)
-
-withdraw(560bits) - accountIndex(32 bits) tokenIndex(32 bits) amount(256 bits) l1address(256bits)
-
-swap(322bits) - accountIndex(32 bits) poolIndex + direction(32 bits) amount(256 bits) 
-
-withdraw/supply(314) - accountIndex(32 bits) poolIndex(32 bits) amount0(256 bits)
-
-addpool(544) - tokenIndex0(32 bits) tokenIndex1(32 bits) amount0(256 bits) amount1(256bits)
-
-576
-
-1032bits in total
+- Run `node dist/tests/circom.test.js` to see how many tests would fail.
+- Implement circom/main.circom to pass those test.
+- We would continuously add more tests.
