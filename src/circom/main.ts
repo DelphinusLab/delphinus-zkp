@@ -4,11 +4,11 @@ import BN from "bn.js";
 import path from "path";
 import fs from "fs-extra";
 
-import { exec } from "child_process";
 import { Field } from "delphinus-curves/src/field";
 import { MaxHeight, PathInfo } from "delphinus-curves/src//merkle-tree";
-import { Command, getBalanceStoreIndex, L2Storage } from "../circom/command";
+import { Command } from "../circom/command";
 import { createCommand } from "../circom/command-factory";
+import { getAccountPublicKeyIndex, L2Storage } from "./address-space";
 
 interface Input {
   commandHash: string[];
@@ -23,11 +23,11 @@ interface Input {
 class ZKPInputBuilder {
   input: Input = {
     commandHash: [],
-    startRootHash: "",
-    sign: [],
     commands: [],
-    dataPath: [],
+    sign: [],
     keyPath: [],
+    dataPath: [],
+    startRootHash: "",
     endRootHash: "",
   };
 
@@ -63,7 +63,7 @@ class ZKPInputBuilder {
   }
 
   pushCommand(command: [Field, Field[]]) {
-    let data = [];
+    let data: string[] = [];
     data = data.concat(command[1].slice(3, 8).map((x) => x.toString()));
     this.input.commands.push(data);
   }
@@ -115,41 +115,50 @@ export async function genZKPInput(
   commands: [Field, Field[]][],
   storage: L2Storage
 ) {
-  const keyPathInfo = [];
   const builder = new ZKPInputBuilder();
+
+  // input: sha
   const shaValue = shaCommands(commands);
   builder.pushHash(shaValue);
-  await builder.pushStartRootHash(storage);
 
+  // input: command
+  commands.forEach((command) => builder.pushCommand(command));
+
+  // input: signatures
   for (const command of commands) {
     builder.pushSign(command);
   }
 
-  for (const command of commands) {
-    const op = command[0];
-    const args = command[1];
-    const accountIndex = args[4].v.toNumber();
-    const keyIndex = getBalanceStoreIndex(accountIndex, 0);
-    const commandWorker = createCommand(op, args) as Command;
+  // input: start root hash
+  await builder.pushStartRootHash(storage);
 
-    builder.pushCommand(command);
+  {
+    for (const command of commands) {
+      const op = command[0];
+      const args = command[1];
+      const commandWorker = createCommand(op, args) as Command;
 
-    keyPathInfo.push(await storage.getPath(keyIndex));
-    const pathInfo = await commandWorker.run(storage);
-    await builder.pushTreeDataWithPadding(pathInfo, storage);
+      // input: key path
+      const accountIndex = commandWorker.callerAccountIndex;
+      const keyIndex = getAccountPublicKeyIndex(accountIndex);
+      builder.pushKeyData(await storage.getPath(keyIndex));
+
+      // input: data path
+      const pathInfo = await commandWorker.run(storage);
+      await builder.pushTreeDataWithPadding(pathInfo, storage);
+    }
   }
 
-  keyPathInfo.forEach((v) => builder.pushKeyData(v));
-
+  // input: end root hash
   await builder.pushEndRootHash(storage);
+
   return builder.input;
 }
 
+const circomRoot = path.join(__dirname, "..", "..", "..", "circom");
+
 export async function writeInput(input: Input) {
-  return await fs.writeJSON(
-    path.join(__dirname, "..", "..", "..", "circom", "input.json"),
-    input
-  );
+  return await fs.writeJSON(path.join(circomRoot, "input.json"), input);
 }
 
 export async function runZkp(

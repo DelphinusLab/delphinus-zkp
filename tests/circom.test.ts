@@ -1,9 +1,10 @@
-import { Field } from "delphinus-curves/src/field";
-import { CommandOp, L2Storage } from "../src/zokrates/command";
-import { genZKPInput, runZkp, writeInput } from "../src/circom/main";
 import BN from "bn.js";
-import { exec } from "child_process";
 import path from "path";
+import { exec } from "child_process";
+import { Field } from "delphinus-curves/src/field";
+import { genZKPInput, runZkp, writeInput } from "../src/circom/main";
+import { L2Storage } from "../src/circom/address-space";
+import { CommandOp } from "../src/circom/command-factory";
 
 const storage = new L2Storage();
 
@@ -23,7 +24,7 @@ async function runCircom(name: string, error = false) {
         }
       )
     );
-  } catch(e) {
+  } catch (e) {
     console.log(e);
     if (error) {
       console.log(`[SUCCESS] Run ${name} succeeded.`);
@@ -32,7 +33,7 @@ async function runCircom(name: string, error = false) {
     }
     return;
   }
-  
+
   if (!error) {
     console.log(`[SUCCESS] Run ${name} succeeded.`);
   } else {
@@ -87,7 +88,6 @@ async function testAddPoolWrong() {
   await writeInput(input);
   await runCircom("testAddPoolWrong", true);
 }
-
 
 async function testShaWrong() {
   const input = await genZKPInput(
@@ -159,7 +159,9 @@ async function testDataPathWrong() {
     storage
   );
 
-  input.dataPath[0][0][65] = new BN(input.dataPath[0][0][65]).addn(1).toString(10);
+  input.dataPath[0][0][65] = new BN(input.dataPath[0][0][65])
+    .addn(1)
+    .toString(10);
   await writeInput(input);
   await runCircom("testDataPathWrong", true);
 }
@@ -170,10 +172,10 @@ async function main() {
 
   await storage.loadSnapshot("0");
   await testShaWrong();
-  
+
   await storage.loadSnapshot("0");
   await testKeyPathWrong();
-  
+
   await storage.loadSnapshot("0");
   await testDataPathWrong();
 
