@@ -1,5 +1,5 @@
 from "./command" import Command, checkTokenRange, checkAsset, checkAccount, COMMAND_ARGS, LEAF_INFOS, checkCommandSign, checkNonceAndUpdateWithKey
-from "../utils/markle-tree" import LeafInfo, checkLeafInfo, addAmount, checkEmptyLeafInfo, setAmountAllLeaves
+from "../utils/merkle-tree" import LeafInfo, checkLeafInfo, addAmount, checkEmptyLeafInfo, setAmountAllLeaves
 from "../utils/sign" import checkKey
 
 def main(Command command, field root, LeafInfo[5] leafInfos) -> field:

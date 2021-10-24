@@ -1,18 +1,19 @@
 # Delphinus ZKP Design
 
-## Storage - 32bits markle tree - 4 nodes per layer - 4G Item [field = U252]
+## Storage - merkle tree with 32bits index - 4 nodes per layer - 4G Item [field = U252] in total
 
 ### To get value from storage
 
-Giving root hash and item path (with neighbor's hash) for validation
+Giving root hash and digest path for validation
 
-### Namespace
+### Address Space
 
 (2bits) Class
 
 1. b00 Balance: (20bits) account index + (10bits) token index
 2. b01 Pool: (10bits) pool index + (18bits) 0 + (2bits) poolinfo (token0index, token1index, amount0, amount1)
 3. b10 Share: (20bits) account index + (10bits) pool index
+4. b11 Account: (20bits) account index + (10bits) info data, (0 & 1 - public key, 2 - nonce, other -reserved)
 
 ## Circom Plan
 

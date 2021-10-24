@@ -1,5 +1,5 @@
 from "./command" import Command, CommandResult, checkTokenRange, checkCommandSign, COMMAND_ARGS, getNonce, setNonce, checkNonceLeafInfoIndex
-from "../utils/markle-tree" import LeafInfo, checkBalanceLeafInfoIndex, getValue, setValue, checkPoolLeafInfoIndex, getPoolToken0Info, getPoolToken1Info, getPoolToken0Amount, getPoolToken1Amount, setValues, checkShareLeafInfoIndex
+from "../utils/merkle-tree" import LeafInfo, checkBalanceLeafInfoIndex, getValue, setValue, checkPoolLeafInfoIndex, getPoolToken0Info, getPoolToken1Info, getPoolToken0Amount, getPoolToken1Amount, setValues, checkShareLeafInfoIndex
 
 def main(Command command, LeafInfo[5] leafInfos) -> CommandResult:
     CommandResult cres = CommandResult {

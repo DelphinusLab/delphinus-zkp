@@ -1,5 +1,5 @@
 import { Field } from "delphinus-curves/src/field";
-import { MarkleTree, PathInfo } from "delphinus-curves/src/markle-tree-large";
+import { MerkleTree, PathInfo } from "delphinus-curves/src/merkle-tree-large";
 
 export enum CommandOp {
   Deposit = 0,
@@ -56,7 +56,7 @@ export function getShareStoreIndex(accountIndex: number, poolIndex: number) {
   return (StoreNameSpace.ShareStore << 30) | (accountIndex << 10) | poolIndex;
 }
 
-export class L2Storage extends MarkleTree {
+export class L2Storage extends MerkleTree {
   async getPoolToken0Info(index: number) {
     return this.getLeave(index + 0);
   }

@@ -6,7 +6,7 @@ import fs from "fs-extra";
 
 import { exec } from "child_process";
 import { Field } from "delphinus-curves/src/field";
-import { MaxHeight, PathInfo } from "delphinus-curves/src//markle-tree";
+import { MaxHeight, PathInfo } from "delphinus-curves/src//merkle-tree";
 import { Command, L2Storage } from "./command";
 import { createCommand } from "./command-factory";
 

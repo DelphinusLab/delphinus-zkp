@@ -1,5 +1,5 @@
 import { Field } from "delphinus-curves/src/field";
-import { PathInfo } from "delphinus-curves/src/markle-tree-large";
+import { PathInfo } from "delphinus-curves/src/merkle-tree-large";
 import { Command, L2Storage, getPoolStoreIndex } from "../command";
 
 export class AddPoolCommand extends Command {

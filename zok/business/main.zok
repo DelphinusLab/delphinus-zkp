@@ -6,7 +6,7 @@ import "utils/casts/u32_4_to_bool_128" as u32_4_to_bool_128
 
 import "../utils/sha256" as sha256
 from "./command" import Command, CommandResult
-from "../utils/markle-tree" import LeafInfo, checkLeafInfo, getRootHash
+from "../utils/merkle-tree" import LeafInfo, checkLeafInfo, getRootHash
 
 import "./addpool" as addpool
 import "./deposit" as deposit

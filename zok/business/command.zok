@@ -1,4 +1,4 @@
-from "../utils/markle-tree" import  LeafInfo, getValueBySelector, setValueBySelector, checkBalanceLeafInfoIndex
+from "../utils/merkle-tree" import  LeafInfo, getValueBySelector, setValueBySelector, checkBalanceLeafInfoIndex
 from "../utils/sign.zok" import checkSign
 
 const u32 COMMAND_ARGS = 8

@@ -1,5 +1,5 @@
 import { Field } from "delphinus-curves/src/field";
-import { PathInfo } from "delphinus-curves/src/markle-tree-large";
+import { PathInfo } from "delphinus-curves/src/merkle-tree-large";
 import { Command, getBalanceStoreIndex, L2Storage } from "../command";
 
 export class WithdrawCommand extends Command {
