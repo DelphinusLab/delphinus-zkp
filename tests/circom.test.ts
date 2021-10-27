@@ -6,7 +6,7 @@ import { genZKPInput, runZkp, writeInput } from "../src/circom/main";
 import { L2Storage } from "../src/circom/address-space";
 import { CommandOp } from "../src/circom/command-factory";
 
-const storage = new L2Storage();
+const storage = new L2Storage(true);
 
 async function runCircom(name: string, error = false) {
   try {
