@@ -1,7 +1,7 @@
 pragma circom 2.0.0;
 
 include "./command.circom";
-include "./merkle-tree.circom";
+include "../utils/merkle-tree.circom";
 
 template addPool(command, leafInfos) {
   signal output res[5][4];
