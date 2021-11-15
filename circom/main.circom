@@ -1,5 +1,15 @@
 // TreeData: field[66], 0: index, 1 - 60: path digests, 61 - 64: leaf value, 65 - root hash
 // Command: field[6], 0: op, 1: nonce, 2 - 3: 32bits args, 4 - 5: 252 bits args
+pragma circom 2.0.0;
+
+include "./utils/sha256.circom";
+include "./utils/merkle-tree.circom";
+include "./utils/sign.circom";
+include "./utils/dependency.circom";
+include "./business/addpool.circom";
+include "./business/addtoken.circom";
+include "./business/command.circom";
+include "./business/deposit.circom";
 
 template CheckCommandHash(N) {
     var CommandArgs = 6;
