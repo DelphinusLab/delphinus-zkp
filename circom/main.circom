@@ -10,6 +10,7 @@ include "./business/addpool.circom";
 include "./business/addtoken.circom";
 include "./business/command.circom";
 include "./business/deposit.circom";
+include "./business/retrieve.circom";
 
 template CheckCommandHash(N) {
     var CommandArgs = 6;
