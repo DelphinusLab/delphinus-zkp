@@ -11,6 +11,7 @@ include "./business/addtoken.circom";
 include "./business/command.circom";
 include "./business/deposit.circom";
 include "./business/retrieve.circom";
+include "./business/setkey.circom";
 
 template CheckCommandHash(N) {
     var CommandArgs = 6;

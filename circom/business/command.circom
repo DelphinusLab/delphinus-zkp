@@ -3,6 +3,18 @@ pragma circom 2.0.0;
 include "../utils/merkle-tree.circom";
 include "../utils/sign.circom";
 
+/*stub*/
+
+function checkAccount(N1, N2) {
+  // true
+  return 1;
+}
+
+function checkNonceAndUpdateWithKey(N1, N2, N3) {
+  return 1;
+}
+/*stub end*/
+
 template CommandResult() {
   signal input succeed;
   signal input leafInfos[5][4];
@@ -44,9 +56,7 @@ function checkNonceLeafInfoIndex(leafInfo, account) {
   return checkBalanceLeafInfoIndex(leafInfo, account, NONCE_SELECTOR_FIELD);
 }
 
-template checkCommandSign(command, leafInfo, msg, msgLength) {
-  signal output res;
-  
+function checkCommandSign(command, leafInfo, msg, msgLength) {
   var r[2];
   // command[1] is args[8] 
   r[0]= command[1][0];
@@ -54,9 +64,9 @@ template checkCommandSign(command, leafInfo, msg, msgLength) {
   var s = command[1][2];
   // no sign at this stage
   if(r[0] == 0 && r[1] == 0 && s == 0) {
-    res <== 1; // true
+    return 1; // true
   } else {
-    res <== 0; // false
+    return 0; // false
   }
   /* 
   var AX_SELECTOR = 0;

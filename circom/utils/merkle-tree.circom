@@ -2,6 +2,15 @@ pragma circom 2.0.0;
 
 include "./dependency.circom";
 
+/*stub*/
+
+function checkEmptyLeafInfo(N) {
+  // true
+  return 1;
+}
+
+/*stub end*/
+
 template LeafInfo() {
   signal input data[4];
   signal output root;
