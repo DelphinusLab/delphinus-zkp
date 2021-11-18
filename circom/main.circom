@@ -13,6 +13,7 @@ include "./business/deposit.circom";
 include "./business/retrieve.circom";
 include "./business/setkey.circom";
 include "./business/supply.circom";
+include "./business/swap.circom";
 
 template CheckCommandHash(N) {
     var CommandArgs = 6;
