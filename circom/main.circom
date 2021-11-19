@@ -14,6 +14,7 @@ include "./business/retrieve.circom";
 include "./business/setkey.circom";
 include "./business/supply.circom";
 include "./business/swap.circom";
+include "./business/withdraw.circom";
 
 template CheckCommandHash(N) {
     var CommandArgs = 6;
