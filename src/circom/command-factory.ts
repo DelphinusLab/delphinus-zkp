@@ -8,7 +8,7 @@ export enum CommandOp {
   Supply = 3,
   Retrieve = 4,
   AddPool = 5,
-  AddToken = 7,
+  SetKey = 6,
 };
 
 export function createCommand(op: Field, args: Field[]) {
