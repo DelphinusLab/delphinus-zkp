@@ -1,12 +1,30 @@
 // TreeData: field[66], 0: index, 1 - 60: path digests, 61 - 64: leaf value, 65 - root hash
 // Command: field[6], 0: op, 1: nonce, 2 - 3: 32bits args, 4 - 5: 252 bits args
 
+include "../node_modules/circomlib/circuits/sha256/sha256.circom";
+include "utils/bit.circom";
+
 template CheckCommandHash(N) {
     var CommandArgs = 6;
+    var ByteBits = 4;
+    var CommandBytes = 81;
+
+    var i, j;
 
     signal input commands[N][CommandArgs];
     signal input commandHash[2];
-    
+    signal commandBits[N * CommandBytes * ByteBits];
+    component bits = CommandBits(N);
+    component sha2 = Sha256(N * CommandBytes * ByteBits);
+    for (i=0; i<N; i++) {
+        for (j=0; j<CommandArgs; j++) {
+            bits.commands[i][j] <== commands[i][j];
+        }
+    }
+    for (i=0; i<N*CommandBytes*ByteBits; i++) {
+        sha2.in[i] <-- bits.out[i];
+    }
+    // TODO: compare sha2.out with commandHash ?
     // TODO: hash all commands, and constraint the result to the input hash
 }
 
