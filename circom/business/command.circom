@@ -15,20 +15,30 @@ function checkNonceAndUpdateWithKey(N1, N2, N3) {
 }
 /*stub end*/
 
-template CommandResult() {
-  signal input succeed;
-  signal input leafInfos[5][4];
+template Command() {
+  signal input data1;
+  signal input data2[8];
+  signal output op;
+  signal output args[8];
+
+  op <== data1;
+  for(var i=0; i<8; i++) {
+    args[i] <== data2[i];
+  }
 }
 
-template Command() {
-    signal input data[2];
-    signal output op;
-    signal output args[8];
+template CommandResult() {
+  signal input data1;
+  signal input data2[5][4];
+  signal output succeed;
+  signal output leafInfos[5][4];
 
-    op <== data[0];
-    for(var i=0; i<8; i++) {
-      args[i] <== data[1][i];
+  succeed <== data1;
+  for(var i=0; i<5; i++) {
+    for(var j=0; i<4; j++) {
+      leafInfos[i][j] <== data2[i][j];
     }
+  }
 }
 
 function checkTokenRange(token) {
