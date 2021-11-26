@@ -95,34 +95,30 @@ function getValueBySelector(leafValues, idx) {
   return leafValues[idx];
 }
 
-function getValue(leafInfo) {
+function getValue(leafValues, index) {
   var TOTAL_BITS = 32;
   var arr[2];
-  // leafInfo[1] is index[32]
   for(var i=30; i<TOTAL_BITS; i++) {
-    arr[i-30] = leafInfo[1][i];
+    arr[i-30] = index[i];
   }
-  arr[0] = leafInfo[1][30];
-  arr[1] = leafInfo[1][31];
-  return getValueBySelector(leafInfo, u32_from_2bits(arr));
+
+  return getValueBySelector(leafValues, u32_from_2bits(arr));
 }
 
 /* setter */
 
-function setValue(leafInfo, v) {
-  var arr = [2];
+function setValue(leafValues, index, v) {
+  var arr[2];
   var TOTAL_BITS = 32;
   var LEAF_BITS = 2;
   var LEAF_START_BIT = TOTAL_BITS - LEAF_BITS;
   var LEAF_END_BIT = TOTAL_BITS;
 
-  // leafInfo[1] is index[32]
   for(var i=LEAF_START_BIT; i<LEAF_END_BIT; i++) {
-    arr[i-LEAF_START_BIT] = leafInfo[1][i];
+    arr[i-LEAF_START_BIT] = index[i];
   }
-  // leafInfo[3] is leafValues
-  leafInfo[3][u32_from_2bits(arr)] = v;
-  return leafInfo;
+  leafValues[u32_from_2bits(arr)] = v;
+  return leafValues;
 }
 
 function setValueBySelector(leafInfo, v, idx) {
@@ -138,47 +134,26 @@ function setValues(leafValues, v) {
 
 /* balance index */
 
-function checkBalanceLeafInfoIndex(leafInfo, account, asset) {
+function checkBalanceLeafInfoIndex(index, account, asset) {
   // represent [false, false]
   var BALANCE_SELECTOR[2] = [0, 0];
-  // leafInfo[1] is index[32]
-  var selector[32] = leafInfo[1];
-  // represent false
-  var cond0 = 0;
-  var cond1 = 0;
-  var cond2 = 0;
+  var selector[32] = index;
+  assert(selector[0] == BALANCE_SELECTOR[0]);
+  assert(selector[1] == BALANCE_SELECTOR[1]);
 
   var arr1[20];
+  for(var i=2; i<22; i++) {
+    arr1[i-2] = selector[i];
+  }
+  assert(bits_to_field(20, arr1) == account);
+
   var arr2[10];
-  for(var i=2; i<32; i++) {
-    if(i<22) {
-      arr1[i-2] = selector[i];
-    }
-    if(i>=22) {
-      arr2[i-22] = selector[i];
-    }
+  for(var i=22; i<32; i++) {
+    arr2[i-22] = selector[i];
   }
-  if(selector[0] == BALANCE_SELECTOR[0] && selector[1] == BALANCE_SELECTOR[1]) {
-    // true
-    cond0 = 1;
-  }
-  // 20 is the length of arr1
-  if(bits_to_field(20, arr1) == account) {
-    // true
-    cond1 = 1;
-  }
-  // 10 is the length of arr2
-  if(bits_to_field(10, arr2) == asset) {
-    // true
-    cond2 = 1;
-  }
-  if(cond0 == 1 && cond1 == 1 && cond2 == 1) {
-    // true
-    return 1;
-  } else {
-    // false
-    return 0;
-  }
+  assert(bits_to_field(10, arr2) == asset);
+
+  return 1; // true
 }
 
 /* pool index */

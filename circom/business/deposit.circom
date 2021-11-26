@@ -3,54 +3,71 @@ pragma circom 2.0.0;
 include "./command.circom";
 include "../utils/merkle-tree.circom";
 
-template deposit(command, leafInfos) {
-  signal output res[2];
-  component cres = CommandResult();
-  component cmd = Command();
+template deposit() {
+  signal input args[8];
+  signal input root[5];
+  signal input index[5][32];
+  signal input pathDigests[5][15][4];
+  signal input leafValues[5][4];
+  signal output succeed_out;
+  signal output root_out[5];
+  signal output index_out[5][32];
+  signal output pathDigests_out[5][15][4];
+  signal output leafValues_out[5][4];
+  signal succeed;
+  signal in[2];
 
-  // leafInfos should be an array, leafInfos[5][4]
-  for(var i=0; i<5; i++) {
-    for(var j=0; j<4; j++) {
-      cres.leafInfos[i][j] <== leafInfos[i][j];
-    }
-  }
+  // true
+  succeed <== 1;
 
-  cres.succeed = 1; //true
+  var account = args[0];
+  var token = args[1];
+  var amount = args[2];
 
-  cmd.data[0] <== command[0];
-  cmd.data[1] <== command[1];
-  var account = cmd.args[0];
-  var token = cmd.args[1];
-  var amount = cmd.args[2];
-
-  if(checkTokenRange(token) != 1) {
-    cres.succeed <== 0; // false
-  }
+  in[0] <-- checkTokenRange(token);
+  in[0] * succeed === 1; // true
 
   var COMMAND_ARGS = 8;
   for(var i=3; i<COMMAND_ARGS; i++) {
-    if(cmd.args[i] != 0) {
-      cres.succeed <== 0; // false
-    }
-  } 
+    succeed * args[i] === 0;
+  }
    
-  var leafInfo[4] = leafInfos[0];
-  if(cres.succeed == 1 && checkBalanceLeafInfoIndex(leafInfo, account, token) == 1) {
-    cres.succeed <== 1; // true
-  } else {
-    cres.succeed <== 0; // false
-  }
+  in[1] <-- checkBalanceLeafInfoIndex(index[0], account, token);
+  in[1] * succeed === 1; // true
 
-  var balance = getValue(leafInfo);
+  var balance = getValue(leafValues[0], index[0]);
   var balanceNew = balance + amount;
-  if(cres.succeed == 1 && balance < balanceNew) {
-    cres.succeed <== 1; // true
-  } else {
-    cres.succeed <== 0; // false
+  assert(balance < balanceNew);
+
+  var arr[4] = setValue(leafValues[0], index[0], balanceNew);
+  for(var i=0; i<4; i++) {
+    leafValues_out[0][i] <== arr[i];
   }
 
-  cres.leafInfos[0] <== setValue(leafInfo, balanceNew);
+  // end
+  succeed_out <== succeed;
   
-  res[0] <== cres.succeed;
-  res[1] <== cres.leafInfos;
+  for(var i=0; i<5; i++) {
+    // root
+    root_out[i] <== root[i];
+
+    // index[32]
+    for(var k=0; k<32; k++) {
+      index_out[i][k] <== index[i][k];
+    }
+
+    // pathDigests[15][4]
+    for(var l=0; l<15; l++) {
+      for(var p=0; p<4; p++) {
+        pathDigests_out[i][l][p] <== pathDigests[i][l][p];
+      }
+    }
+
+    // leafValues[4]
+    for(var j=0; j<4; j++) {
+      if(i != 0) {
+        leafValues_out[i][j] <== leafValues[i][j];
+      }
+    }
+  }
 }
