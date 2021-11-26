@@ -3,83 +3,84 @@ pragma circom 2.0.0;
 include "./command.circom";
 include "../utils/merkle-tree.circom";
 
-template addPool(command, leafInfos) {
-  signal output res[2];
+template addPool() {
+  signal input args[8];
+  signal input root[5];
+  signal input index[5][32];
+  signal input pathDigests[5][15][4];
+  signal input leafValues[5][4];
+  signal output succeed_out;
+  signal output root_out[5];
+  signal output index_out[5][32];
+  signal output pathDigests_out[5][15][4];
+  signal output leafValues_out[5][4];
+  signal succeed;
+  signal res;
+  signal in[3];
+  signal token0Info;
+  signal token1Info;
+  signal token0Amount;
+  signal token1Amount;
 
-  component cres = CommandResult();
-  component cmd = Command();
-  component leafInfo = LeafInfo();
+  succeed <== 1; // true
 
-  for(var i=0; i<5; i++) {
-    for(var j=0; j<4; j++) {
-      cres.leafInfos[i][j] <== leafInfos[i][j];
-    }
-  }
-
-  cres.succeed <== 1; // true
-
-  cmd.data[0] <== command[0];
-  cmd.data[1] <== command[1];
-  var pool = cmd.args[0];
-  var token0 = cmd.args[1];
-  var token1 = cmd.args[2];
+  var pool = args[0];
+  var token0 = args[1];
+  var token1 = args[2];
 
   var COMMAND_ARGS = 8; 
   for(var i=4; i<COMMAND_ARGS; i++) {
-    if(cmd.args[i] != 0) {
-      cres.succeed <== 0; // false
-    }
+    succeed * args[i] === 0;
   }
 
   // prerequisite: check arguments
-  // 0 means false, 1 menas true
-  if(cres.succeed == 1 && token0 != token1) {
-    cres.succeed <== 1;
-  } else {
-    cres.succeed <== 0; 
-  }
-  if(cres.succeed == 1 && checkTokenRange(token0) == 1) {
-    cres.succeed <== 1;
-  } else {
-    cres.succeed <== 0;
-  }
-  if(cres.succeed == 1 && checkTokenRange(token1) == 1) {
-    cres.succeed <== 1;
-  } else {
-    cres.succeed <== 0;
-  }
- 
+  assert(token0 != token1);
+  in[0] <-- checkTokenRange(token0);
+  succeed * in[0] === 1; // true
+  in[1] <-- checkTokenRange(token1);
+  succeed * in[1] === 1; // true
+
   // step 1: check poolinfo and set
-  var lInfo[4] = leafInfos[0];
+  in[2] <-- checkPoolLeafInfoIndex(index[0], pool);
+  succeed * in[2] === 1; // true
 
-  // 0 means false, 1 menas true
-  if(cres.succeed == 1 && checkPoolLeafInfoIndex(lInfo, pool) == 1) {
-    cres.succeed <== 1;
-  } else {
-    cres.succeedi <== 0;
+  token0Info <== getPoolToken0Info(leafValues[0]);
+  token1Info <== getPoolToken1Info(leafValues[0]);
+  token0Amount <== getPoolToken0Amount(leafValues[0]);
+  token1Amount <== getPoolToken1Amount(leafValues[0]);
+
+  token0Info === 0;
+  token1Info === 0;
+
+  var arr[4] = setValues(leafValues[0], [token0, token1, 0, 0]);
+  for(var i=0; i<4; i++) {
+    leafValues_out[0][i] <== arr[i];
   }
 
-  var token0Info = getPoolToken0Info(lInfo);
-  var token1Info = getPoolToken1Info(lInfo);
-  var token0Amount = getPoolToken0Amount(lInfo);
-  var token1Amount = getPoolToken1Amount(lInfo);
-
-  if(cres.succeed == 1 && token0Info == 0) {
-    cres.succeed <== 1;
-  } else {
-    cres.succeed <== 0;
-  }
-  if(cres.succeed == 1 && token1Info == 0) {
-    cres.succeed <== 1;
-  } else {
-    cres.succeed <== 0;
-  }
-
-
-  cres.leafInfos[0] <== setValues(lInfo, [token0, token1, 0, 0]);
+  // end
+  succeed_out <== succeed;
   
-  var arr[2];
-  arr[0] = cres.succeed;
-  arr[1] = cres.leafInfos;
-  res[0] <== arr;
+  for(var i=0; i<5; i++) {
+    // root
+    root_out[i] <== root[i];
+
+    // index[32]
+    for(var k=0; k<32; k++) {
+      index_out[i][k] <== index[i][k];
+    }
+
+    // pathDigests[15][4]
+    for(var l=0; l<15; l++) {
+      for(var p=0; p<4; p++) {
+        pathDigests_out[i][l][p] <== pathDigests[i][l][p];
+      }
+    }
+
+    // leafValues[4]
+    for(var j=0; j<4; j++) {
+      if(i != 0) {
+        leafValues_out[i][j] <== leafValues[i][j];
+      }
+    }
+  }
 }

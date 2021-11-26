@@ -11,27 +11,6 @@ function checkEmptyLeafInfo(N) {
 
 /*stub end*/
 
-template LeafInfo() {
-  signal input data[4];
-  signal output root;
-  signal output index[32];
-  signal output pathDigests[15][4];
-  signal output leafValues[4];
-
-  root <== data[0];
-  for(var i=0; i<32; i++) {
-    index[i] <== data[1][i];
-  }
-  for(var i=0; i<15; i++) {
-    for(var j=0; j<4; j++) {
-      pathDigests[i][j] <== data[2][i];
-    }
-  }
-  for(var i=0; i<4; i++) {
-    leafValues[i] <== data[3][i];
-  }
-}
-
 function bits_to_field(count, bits) {
   var arr[32];
   for(var i=0; i<32; i++) {
@@ -112,8 +91,8 @@ function checkLeafInfo(leafInfo) {
 
 /* getter */
 
-function getValueBySelector(leafInfo, idx) {
-  return leafInfo[3][idx]; // leafInfo[3] is leafValues[4]
+function getValueBySelector(leafValues, idx) {
+  return leafValues[idx];
 }
 
 function getValue(leafInfo) {
@@ -152,10 +131,9 @@ function setValueBySelector(leafInfo, v, idx) {
   return leafInfo;
 }
 
-function setValues(leafInfo, v) {
-  // leafInfo[3] is leafValues
-  leafInfo[3] = v;
-  return leafInfo;
+function setValues(leafValues, v) {
+  leafValues = v;
+  return leafValues;
 }
 
 /* balance index */
@@ -205,65 +183,45 @@ function checkBalanceLeafInfoIndex(leafInfo, account, asset) {
 
 /* pool index */
 
-function checkPoolLeafInfoIndex(leafInfo, pool) {
+function checkPoolLeafInfoIndex(index, pool) {
+  var selector[32] = index; // index[32]
   // [false, true]
   var POOL_SELECTOR[2] = [0, 1];
-  // [false, false]
-  var BALANCE_SELECTOR[2] = [0, 0];
-  // false
-  var cond0 = 0;
-  var cond1 = 0;
+  assert(selector[0] == POOL_SELECTOR[0]);
+  assert(selector[1] == POOL_SELECTOR[1]);
+  
+  var res[10];
+  for(var i=2; i<12; i++) {
+    res[i-2] = selector[i];
+  }
+  assert(bits_to_field(10, res) == pool);
+
+  for(var i=12; i<30; i++) {
+    assert(selector[i] == 0); // false
+  }
+
   // true
-  var cond2 = 1;
-  
-  var selector[32] = leafInfo[1]; // index[32]
-  
-  var arr[10];
-  for(var i=2; i<30; i++) {
-    if(i<12) {
-      arr[i-2] = selector[i];
-    } 
-    if(i>=12) {
-      // 1 means true
-      if(selector[i] == 1) {
-        cond2 = 0;
-      }
-    }
-  }
-  if(selector[0] == BALANCE_SELECTOR[0] && selector[1] == BALANCE_SELECTOR[1]) {
-    // true
-    cond0 = 1;
-  }
-  if(bits_to_field(10, arr) == pool) {
-    cond1 = 1;
-  }
-  if(cond0 == 1 && cond1 == 1 && cond2 == 1) {
-    // true
-    return 1;
-  } else {
-    // false
-    return 0;
-  }
+  return 1;
 }
 
-function getPoolToken0Info(leafInfo) {
+function getPoolToken0Info(leafValues) {
   var TOKEN0_INFO_SELECTOR = 0;
-  return getValueBySelector(leafInfo, TOKEN0_INFO_SELECTOR);
+  return getValueBySelector(leafValues, TOKEN0_INFO_SELECTOR);
 }
 
-function getPoolToken1Info(leafInfo) {
+function getPoolToken1Info(leafValues) {
   var TOKEN1_INFO_SELECTOR = 1;
-  return getValueBySelector(leafInfo, TOKEN1_INFO_SELECTOR);
+  return getValueBySelector(leafValues, TOKEN1_INFO_SELECTOR);
 }
 
-function getPoolToken0Amount(leafInfo) {
+function getPoolToken0Amount(leafValues) {
   var TOKEN0_AMOUNT_SELECTOR = 2;
-  return getValueBySelector(leafInfo, TOKEN0_AMOUNT_SELECTOR);
+  return getValueBySelector(leafValues, TOKEN0_AMOUNT_SELECTOR);
 }
 
-function getPoolToken1Amount(leafInfo) {
+function getPoolToken1Amount(leafValues) {
   var TOKEN1_AMOUNT_SELECTOR = 3;
-  return getValueBySelector(leafInfo, TOKEN1_AMOUNT_SELECTOR);
+  return getValueBySelector(leafValues, TOKEN1_AMOUNT_SELECTOR);
 }
 
 /* share index */
