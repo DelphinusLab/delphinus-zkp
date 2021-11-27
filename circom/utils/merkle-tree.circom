@@ -121,10 +121,9 @@ function setValue(leafValues, index, v) {
   return leafValues;
 }
 
-function setValueBySelector(leafInfo, v, idx) {
-  // leafInfo[3] is leafValues
-  leafInfo[3][idx] = v;
-  return leafInfo;
+function setValueBySelector(leafValues, v, idx) {
+  leafValues[idx] = v;
+  return leafValues;
 }
 
 function setValues(leafValues, v) {
@@ -201,16 +200,13 @@ function getPoolToken1Amount(leafValues) {
 
 /* share index */
 
-function checkShareLeafInfoIndex(leafInfo, account, pool) {
+function checkShareLeafInfoIndex(index, account, pool) {
   // represent [true, false]
   var SHARE_SELECTOR[2] = [1, 0];
-  // leafInfo[1] is index[32]
-  var selector[32] = leafInfo[1];
-  // represent false
-  var cond0 = 0;
-  var cond1 = 0;
-  var cond2 = 0;
 
+  var selector[32] = index;
+  assert(selector[0] == SHARE_SELECTOR[0]);
+  assert(selector[1] == SHARE_SELECTOR[1]);
   var arr1[20];
   var arr2[10];
   for(var i=2; i<32; i++) {
@@ -221,25 +217,8 @@ function checkShareLeafInfoIndex(leafInfo, account, pool) {
       arr2[i-22] = selector[i];
     }
   }
-  if(selector[0] == SHARE_SELECTOR[0] && selector[1] == SHARE_SELECTOR[1]) {
-    // true
-    cond0 = 1;
-  }
-  // 20 is the length of arr1
-  if(bits_to_field(20, arr1) == account) {
-    // true
-    cond1 = 1;
-  }
-  // 10 is the length of arr2
-  if(bits_to_field(10, arr2) == pool) {
-    // true
-    cond2 = 1;
-  }
-  if(cond0 == 1 && cond1 == 1 && cond2 == 1) {
-    // true
-    return 1;
-  } else {
-    // false
-    return 0;
-  }
+  assert(bits_to_field(20, arr1) == account);
+  assert(bits_to_field(10, arr2) == pool);
+
+  return 1; // true
 }

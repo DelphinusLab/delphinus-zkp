@@ -5,7 +5,7 @@ function u32_from_bits(arr) {
 }
 
 function u32_to_field(N) {
-  return 1;
+  return 2;
 }
 
 function hash(N) {

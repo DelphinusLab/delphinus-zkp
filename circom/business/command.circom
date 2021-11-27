@@ -51,45 +51,41 @@ function checkTokenRange(token) {
   }
 }
 
-function getNonce(leafInfo) {
+function getNonce(leafValues) {
   var NONCE_SELECTOR = 2;
-  return getValueBySelector(leafInfo, NONCE_SELECTOR);
+  return getValueBySelector(leafValues, NONCE_SELECTOR);
 }
 
-function setNonce(leafInfo, nonce) {
+function setNonce(leafValues, nonce) {
   var NONCE_SELECTOR = 2;
-  return setValueBySelector(leafInfo, nonce, NONCE_SELECTOR);
+  return setValueBySelector(leafValues, nonce, NONCE_SELECTOR);
 }
 
-function checkNonceLeafInfoIndex(leafInfo, account) {
+function checkNonceLeafInfoIndex(index, account) {
   var NONCE_SELECTOR_FIELD = 2;
-  return checkBalanceLeafInfoIndex(leafInfo, account, NONCE_SELECTOR_FIELD);
+  return checkBalanceLeafInfoIndex(index, account, NONCE_SELECTOR_FIELD);
 }
 
-function checkCommandSign(command, leafInfo, msg, msgLength) {
+function checkCommandSign(args, leafValues, msg, msgLength) {
   var r[2];
-  // command[1] is args[8] 
-  r[0]= command[1][0];
-  r[1]= command[1][1];
-  var s = command[1][2];
+  r[0] = args[0];
+  r[1] = args[1];
+  var s = args[2];
   // no sign at this stage
-  if(r[0] == 0 && r[1] == 0 && s == 0) {
-    return 1; // true
-  } else {
-    return 0; // false
-  }
+  assert(r[0] == 0 && r[1] == 0 && s == 0);
+
+  return 1; // true
   /* 
   var AX_SELECTOR = 0;
   var AY_SELECTOR = 1;
   var a[2] = [
-      getValueBySelector(leafInfo, AX_SELECTOR),
-      getValueBySelector(leafInfo, AY_SELECTOR)
+    getValueBySelector(leafValues, AX_SELECTOR),
+    getValueBySelector(leafValues, AY_SELECTOR)
   ];
   var META_ASSET_INDEX = 0;
   // == 1 means true
-  assert(checkAsset(leafInfo, META_ASSET_INDEX) == 1);
-  component check_sign = checkSign(msg, r, s, a, msgLength);
-  // msgLength is the length of msg
-  res <== check_sign.res;
+  assert(checkAsset(leafValues, META_ASSET_INDEX) == 1);
+  component chSign = checkSign(msg, r, s, a, msgLength);
+  return chSign.res;
   */
 }

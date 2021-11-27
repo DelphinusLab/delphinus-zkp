@@ -15,28 +15,15 @@ function checkKey(A) {
 }
 
 template fieldSplit(v, vLength) {
-  signal output res[vLength][2];
-
-  // arr1 is a part of arr2
-  var arr1[8];
-  for(var i=0; i<8; i++) {
-    arr1[i] = 0;
-  }
-  // arr2 is a part of out
-  var arr2[2];
-  arr2[0] = arr1;
-  arr2[1] = arr1;
+  signal output out[vLength][2][8];
   
   for(var i=0; i<vLength; i++) {
-    res[i] <== arr2;
-  }
-  
-  // change v to an array of which the length is 8
-  var d[256];
-  for(var i=0; i<vLength; i++) {
-    for(var j=0; i<2; j++) {
-      d[256] = unpack256b(v[i][j]);
-      res[i][j] <== bool_256_to_u32_8(d);
+    for(var j=0; j<2; j++) {
+      var d[256] = unpack256b(v[i][j]);
+      var res[8] = bool_256_to_u32_8(d);
+      for(var k=0; k<8; k++) {
+        out[i][j][k] <== res[k];
+      }
     }
   }
 }
@@ -44,7 +31,7 @@ template fieldSplit(v, vLength) {
 template checkSign(msg, R, S, A, msgLength) {
   signal output res;
 
-  var context = babyjubjubContext();
+  var context[2] = babyjubjubContext();
   //context[0] and context[1] represent Gu and Gv respectively
   var G[2] = [context[0], context[1]];
 
@@ -53,9 +40,9 @@ template checkSign(msg, R, S, A, msgLength) {
   for(var i=0; i<msgLength; i++) {
     arr[i+1] = msg[i];
   }
-  component field_split = fieldSplit(arr, msgLength+1);
-  // msgLength+1 is the length of arr;
-  var hRAM[256] = u32_8_to_bool_256(sha256(field_split.res));
+
+  component fieldSp = fieldSplit(arr, msgLength+1);
+  var hRAM[256] = u32_8_to_bool_256(sha256(fieldSp.out));
 
   var sBits[256] = unpack256bool(S);
   var lhs[2] = scalarMult(sBits, G, context);
@@ -63,20 +50,10 @@ template checkSign(msg, R, S, A, msgLength) {
   var AhRAM[2] = scalarMult(hRAM, A, context);
   var rhs[2] = add(R, AhRAM, context);
 
-  var out;
-  if(rhs[0] == lhs[0] && rhs[1] == lhs[1]) {
-    // represent true
-    out = 1;
-  } else {
-    // represent false
-    out = 0;
-  }
+  assert(rhs[0] == lhs[0]);
+  assert(rhs[1] == lhs[1]);
+  assert(onCurve(R, context) == 1);
+  assert(orderCheck(R, context) == 1);
 
-  if(out  == 1 && onCurve(R, context)  == 1 && orderCheck(R, context) == 1) {
-    // represent true
-    res <== 1;
-  } else {
-    // represent false
-    res <== 0;
-  }
+  res <== 1; // true
 }
