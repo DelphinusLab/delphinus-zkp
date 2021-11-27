@@ -4,14 +4,10 @@ include "./sha256.circom";
 include "./dependency.circom";
 
 function checkKey(A) {
-  var context = babyjubjubContext();
-  if(onCurve(A, context) == 1 && orderCheck(A, context) == 1) {
-    // represent true
-    return 1;
-  } else {
-    // represent false
-    return 0;
-  }
+  var context[2] = babyjubjubContext();
+  assert(onCurve(A, context) == 1 && orderCheck(A, context) == 1);
+
+  return 1; // true
 }
 
 template fieldSplit(v, vLength) {

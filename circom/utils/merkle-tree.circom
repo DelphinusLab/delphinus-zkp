@@ -56,37 +56,21 @@ function getRootHash(leafInfo) {
   return currentValue;
 }
 
-function checkLeafInfo(leafInfo) {
-  // leafInfo[1] is index[32]
-  var selector[32] = leafInfo[1];
-  var ret;
-  // leafInfo[3] is leafValues[4]
-  var currentValue = hash(leafInfo[3]);
+function checkLeafInfo(index, leafValues, pathDigests, root) {
+  var selector[32] = index;
+  var currentValue = hash(leafValues);
   
-  var arr[2]; // selector[0], selector[1]
   for(var i=1; i<16; i++) {
     var layer = 15 - i;
+    var arr[2];
     arr[0] = selector[layer*2];
-    arr[1] = selector[layer*2 + 1];
+    arr[1] = selector[layer*2+1];
+    assert(pathDigests[layer][u32_from_2bits(arr)] == currentValue);
+    currentValue = hash(pathDigests[layer]);
+  }
+  assert(root == currentValue);
 
-    // leafInfo[2] is pathDigests[15][4]
-    if(leafInfo[2][layer][u32_from_2bits(arr)] == currentValue) {
-      // represent true
-      ret = 1;
-    } else {
-      // represent false
-      ret = 0;
-    }
-    currentValue = hash(leafInfo[2][layer]);
-  }
-  // leafInfo[0] is root
-  if(ret == 1 && leafInfo[0] == currentValue) {
-    // represent true
-    return 1;
-  } else {
-    // represent false
-    return 0;
-  }
+  return 1; // true
 }
 
 /* getter */
