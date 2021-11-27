@@ -42,13 +42,8 @@ template CommandResult() {
 }
 
 function checkTokenRange(token) {
-  if(token >= 4 && token < 1024) {
-    // true
-    return 1;
-  } else {
-    // false
-    return 0;
-  }
+  assert(token >= 4 && token < 1024);
+  return 1; // true
 }
 
 function getNonce(leafValues) {

@@ -3,104 +3,86 @@ pragma circom 2.0.0;
 include "./command.circom";
 include "../utils/merkle-tree.circom";
 
-template withdraw(command, leafInfos) {
-  // as the return of withdraw
-  signal output succeed;
-  signal output lInfos[5][4];
-
-  component cres = CommandResult();
-  component cmd = Command();
-  
-  for(var i=0; i<5; i++) {
-    for(var j=0; j<4; j++) {
-      cres.leafInfos[i][j] <== leafInfos[5][4];
-    }
-  }
+template withdraw() {
+  signal input op;
+  signal input args[8];
+  signal input root[5];
+  signal input index[5][32];
+  signal input pathDigests[5][15][4];
+  signal input leafValues[5][4];
+  signal output succeed_out;
+  signal output root_out[5];
+  signal output index_out[5][32];
+  signal output pathDigests_out[5][15][4];
+  signal output leafValues_out[5][4];
+  signal succeed;
+  signal res;
+  signal in[4];
 
   // true
-  cres.succeed <== 1;
+  succeed <== 1;
 
-  cmd.data[0] <== command[0];
-  cmd.data[1] <== command[1];
-  var account = cmd.args[3];
-  var token = cmd.args[4];
-  var amount = cmd.args[5];
-  //command.args[6] is for L1 account address
-  var nonce = cmd.args[7];
+  var account = args[3];
+  var token = args[4];
+  var amount = args[5];
+  // args[6] is for L1 account address
+  var nonce = args[7];
 
-  if(checkTokenRange(token) == 1) {
-    // true
-    cres.succeed <== 1;
-  } else {
-    // false
-    cres.succeed <== 0;
-  }
+  in[0] <-- checkTokenRange(token);
+  in[0] * succeed === 1; // true
 
   // nonce
-  var leafInfo[4] = leafInfos[0];
-  if(cres.succeed == 1 && checkNonceLeafInfoIndex(leafInfo, account) == 1) {
-    // true
-    cres.succeed <== 1;
-  } else {
-    // false
-    cres.succeed <== 0;
-  }
+  in[1] <-- checkNonceLeafInfoIndex(index[0], account);
+  in[1] * succeed === 1; // true
 
-  if(cres.succeed == 1 && checkCommandSign(command, leafInfo, [[cmd.op, account], [token, amount], [nonce, 0]], 3) == 1) { 
-    // true
-    cres.succeed <== 1;
-  } else {
-    // false
-    cres.succeed <== 0;
-  }
-  
-  if(cres.succeed == 1 && getNonce(leafInfo) == nonce) {
-    // true
-    cres.succeed <== 1;
-  } else {
-    // false
-    cres.succeed <== 0;
-  }
-  
-  var arr[4] = setNonce(leafInfo, nonce + 1);
+  in[2] <-- checkCommandSign(args, leafValues[0], [[op, account], [token, amount], [nonce, 0]], 3);
+  in[2] * succeed === 1; // true
 
+  assert(getNonce(leafValues[0]) == nonce);
+
+  var arr1[4] = setNonce(leafValues[0], nonce + 1);
   for(var i=0; i<4; i++) {
-    cres.leafInfos[0][i] <== arr[i];
+    leafValues_out[0][i] <== arr1[i];
   }
 
   // sub amount
-  leafInfo = leafInfos[1];
+  in[3] <-- checkBalanceLeafInfoIndex(index[1], account, token);
+  in[3] * succeed === 1; // true
 
-  if(cres.succeed == 1 && checkBalanceLeafInfoIndex(leafInfo, account, token) == 1) {
-    // true
-    cres.succeed <== 1;
-  } else {
-    // false
-    cres.succeed <== 0;
-  }
-  
-  var balance = getValue(leafInfo);
+  var balance = getValue(leafValues[1], index[1]);
   var balanceNew = balance - amount;
   
-  if(cres.succeed == 1 && balance >= amount) {
-    // true
-    cres.succeed <== 1;
-  } else {
-    // false
-    cres.succeed <== 0;
-  }
+  assert(balance >= amount);
   
-  var arr1[4] = setValue(leafInfo, balanceNew);
-  
+  var arr2[4] = setValue(leafValues[1], index[1], balanceNew);
   for(var i=0; i<4; i++) {
-    cres.leafInfos[1][i] <== arr1[i];
+    leafValues_out[1][i] <== arr2[i];
   }
 
   // end
-  succeed <== cres.succeed;
+  succeed_out <== succeed;
+
   for(var i=0; i<5; i++) {
+    // root
+    root_out[i] <== root[i];
+
+    // index[32]
+    for(var k=0; k<32; k++) {
+      index_out[i][k] <== index[i][k];
+    }
+
+    // pathDigests[15][4]
+    for(var l=0; l<15; l++) {
+      for(var p=0; p<4; p++) {
+        pathDigests_out[i][l][p] <== pathDigests[i][l][p];
+      }
+    }
+
+    // leafValues[4]
     for(var j=0; j<4; j++) {
-      lInfos[i][j] <== cres.leafInfos[i][j];
+      if(i != 0 && i != 1) {
+        leafValues_out[i][j] <== leafValues[i][j];
+      }
     }
   }
 }
