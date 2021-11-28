@@ -6,7 +6,7 @@ include "utils/bit.circom";
 
 template CheckCommandHash(N) {
     var CommandArgs = 6;
-    var ByteBits = 4;
+    var ByteBits = 8;
     var CommandBytes = 81;
 
     var i, j;
