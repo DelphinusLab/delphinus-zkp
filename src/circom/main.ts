@@ -3,6 +3,7 @@ import hexEnc from "crypto-js/enc-hex";
 import BN from "bn.js";
 import path from "path";
 import fs from "fs-extra";
+import { exec } from "child_process";
 
 import { Field } from "delphinus-curves/src/field";
 import { MaxHeight, PathInfo } from "delphinus-curves/src//merkle-tree";
@@ -169,4 +170,34 @@ export async function runZkp(
 ) {
   const input = await genZKPInput([[op, args]], storage);
   await writeInput(input);
+
+  await new Promise((resolve, reject) =>
+    exec(
+      "bash tools/run.sh",
+      {
+        cwd: path.resolve(__dirname, "..", "..", "circom"),
+      },
+      (error, stdout, stderr) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(stdout);
+      }
+    )
+  );
+
+  await new Promise((resolve, reject) =>
+    exec(
+      "bash tools/proof.sh",
+      {
+        cwd: path.resolve(__dirname, "..", "..", "circom"),
+      },
+      (error, stdout, stderr) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(stdout);
+      }
+    )
+  );
 }
