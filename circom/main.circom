@@ -34,10 +34,52 @@ template CheckCommandHash(N) {
 
 template CheckTreeRootHash() {
     var MaxTreeDataIndex = 66;
+    var PathSize = 15;
+    var selector[PathSize];
 
     signal input dataPath[MaxTreeDataIndex];
 
     // TODO: calculate the root hash, and constraint the result to the root hash
+
+     /* We using 2bit for each selector thus we decompose the path into path
+     * selectors. Moreover we make sure that each selector are within the range of
+     * [0,1,2,3]
+     */
+    var path = dataPath[0];
+    var a = 0;
+    var verifyPath = 0;
+    var carry = 1;
+    for (var i=0; i<PathSize; i++) {
+        selector[i] <-- (path >> (i * 2)) & 3; // [0, 3]
+        a <== selector[i] * (selector[i] - 1);
+        a <== a * (selector[i] - 2);
+        a <== a * (selector[i] - 3);
+        a === 0;
+
+        verifyPath += selector[i] * carry;
+        carry *= 4;
+    }
+    verifyPath === path;
+
+    //TODO initial first hash by new node data
+    //new_hash_acc[0]  <==
+    // oldHashPath = [1 .. 60]
+    // newHahsPath = [1 .. 60]
+    //newHashPath[i] ?== oldHashPash[i]
+    // Check old hash calculation is correct
+
+    // Check new hash calculation is correct
+    // last_hash =
+    // for (i=0; i<15; i++) {
+    //     for (j =0; i<4; j++) {
+    //       if (j != selector[i]) {
+    //          newHashPath[i*4 + j] <== oldHashPath[i*4 + j]
+    //       } else {
+    //          newHashPath[i*4 + j] <== last_hash
+    //       }
+    //     }
+    //     last_hash = hash(newHashPath[i*4 +0 ... i*4 + 3])
+    // }
 }
 
 template CheckSign() {
