@@ -1,15 +1,6 @@
 import { Field } from "delphinus-curves/src/field";
 import { AddPoolCommand } from "./ops/addpool";
-
-export enum CommandOp {
-  Deposit = 0,
-  Withdraw = 1,
-  Swap = 2,
-  Supply = 3,
-  Retrieve = 4,
-  AddPool = 5,
-  SetKey = 6,
-};
+import { CommandOp } from "delphinus-l2-client-helper/src/swap";
 
 export function createCommand(op: Field, args: Field[]) {
   if (op.v.eqn(CommandOp.AddPool)) {

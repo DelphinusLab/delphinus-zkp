@@ -31,8 +31,12 @@ Assue admin's account index is 0.
 - withdraw(1) - accountIndex(32 bits) tokenIndex(32 bits) amount(256 bits) l1address(256bits)
 - swap(2) - accountIndex(32 bits) poolIndex(32 bits) reverse(255 reserved bits + 1bits) amount(256 bits)
 - supply(3)/retrieve(4) - accountIndex(32 bits) poolIndex(32 bits) amount0(256 bits) amount1(256 bits)
-- addpool(5) - tokenIndex0(32 bits) tokenIndex1(32bits) amount0(256 bits) amount1(256bits)
+- addpool(5) - tokenIndex0(32 bits) tokenIndex1(32bits) reserved(256 bits) reserved(256bits)
 - setkey(6) - accountIndex(32 bits) reserve(32 bits) x(256 bits) y(256bits)
+
+## Additional Args (not in circuits)
+
+- addpool(5) - poolIndex(u32)
 
 ## Prerequisites
 

@@ -2,9 +2,10 @@ import BN from "bn.js";
 import path from "path";
 import { exec } from "child_process";
 import { Field } from "delphinus-curves/src/field";
-import { genZKPInput, runZkp, writeInput } from "../src/circom/main";
+import { runZkp, writeInput } from "../src/circom/main";
 import { L2Storage } from "../src/circom/address-space";
-import { CommandOp } from "../src/circom/command-factory";
+import { genZKPInput } from "../src/circom/generate-zkinput";
+import { CommandOp } from "delphinus-l2-client-helper/src/swap";
 
 const storage = new L2Storage(true);
 
