@@ -43,7 +43,7 @@ template supply() {
 
   // change pool data
   in[2] <-- checkPoolLeafInfoIndex(leafValues[1], pool);
-  in[2] * succeed === 1; // tru
+  in[2] * succeed === 1; // true
 
   var token0Info = getPoolToken0Info(leafValues[1]);
   var token1Info = getPoolToken1Info(leafValues[1]);
