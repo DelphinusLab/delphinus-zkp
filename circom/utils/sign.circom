@@ -38,7 +38,8 @@ template checkSign(msg, R, S, A, msgLength) {
   }
 
   component fieldSp = fieldSplit(arr, msgLength+1);
-  var hRAM[256] = u32_8_to_bool_256(sha256(fieldSp.out));
+  component sha256 = Sha256(msgLength+1, fieldSp.out);
+  var hRAM[256] = u32_8_to_bool_256(sha256.res);
 
   var sBits[256] = unpack256bool(S);
   var lhs[2] = scalarMult(sBits, G, context);
