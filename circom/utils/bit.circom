@@ -1,7 +1,8 @@
 /* n bytes in bitwise format */
 template BitOfBytes(n) {
+    var ByteBits = 8;
     signal input in;
-    signal output out[n * 4];
+    signal output out[n * ByteBits];
     var lc1 = 0;
 
     var carry = 1;

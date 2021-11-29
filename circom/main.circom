@@ -24,8 +24,8 @@ template CheckCommandHash(N) {
     for (i=0; i<N*CommandBytes*ByteBits; i++) {
         sha2.in[i] <-- bits.out[i];
     }
-    // TODO: compare sha2.out with commandHash ?
-    // TODO: hash all commands, and constraint the result to the input hash
+    commandHash[0] === sha2.out[0];
+    commandHash[1] === sha2.out[1];
 }
 
 template CheckTreeRootHash() {
