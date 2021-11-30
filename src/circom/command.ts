@@ -1,6 +1,6 @@
 import { Field } from "delphinus-curves/src/field";
 import { PathInfo } from "delphinus-curves/src/merkle-tree-large";
-import { L2Storage } from "./address-space";0
+import { L2Storage } from "./address-space";
 
 export class Command {
   args: Field[];

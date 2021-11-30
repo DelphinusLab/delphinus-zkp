@@ -84,7 +84,8 @@ export async function runZkp(
   return {
     proof: {
       a: proof.pi_a.slice(0, 2),
-      b: proof.pi_b.slice(0, 2),
+      // see https://github.com/iden3/snarkjs/issues/13
+      b: proof.pi_b.slice(0, 2).map((x: string[]) => x.reverse()),
       c: proof.pi_c.slice(0, 2),
     },
     inputs: publicInput,
