@@ -56,7 +56,7 @@ template CheckTreeRootHash() {
     signal cs2[PathLevel];
 
     signal input treeData[MaxTreeDataIndex];
-    signal verifyTreeData[MaxTreeDataIndex];
+    //signal verifyTreeData[MaxTreeDataIndex];
     signal newTreeData[MaxTreeDataIndex];
 
     // TODO: calculate the root hash, and constraint the result to the root hash
@@ -84,28 +84,29 @@ template CheckTreeRootHash() {
     // Verify input m-tree path hash values are valid.
     // We assuming level 0 is the lowest level which just above leaf values, level 14 is the highest level which just under root hash
     // and select[i] is the level i path. (which indicate treeData[0]'s last 2 bits are for level 0 path, etc)
-    verifyTreeData[0 + PathIndexStart] <== treeData[0 + PathIndexStart];
-    verifyTreeData[1 + PathIndexStart] <== treeData[1 + PathIndexStart];
-    verifyTreeData[2 + PathIndexStart] <== treeData[2 + PathIndexStart];
-    verifyTreeData[3 + PathIndexStart] <== treeData[3 + PathIndexStart];
-    var level = 1;
-    while( level < PathLevel ) {
-        for(var i=0;i<4;i++) {
-            if(i == selector[level]) {
+    //verifyTreeData[0 + PathIndexStart] <== treeData[0 + PathIndexStart];
+    //verifyTreeData[1 + PathIndexStart] <== treeData[1 + PathIndexStart];
+    //verifyTreeData[2 + PathIndexStart] <== treeData[2 + PathIndexStart];
+    //verifyTreeData[3 + PathIndexStart] <== treeData[3 + PathIndexStart];
+    for (var level = 1; level < PathLevel; level++) {
+        for(var i = 0; i < 4; i++) {
+            /*if(i == selector[level]) {
                 verifyTreeData[level*4 + i + PathIndexStart] <== HASH(verifyTreeData[(level - 1) * 4 + PathIndexStart], verifyTreeData[(level - 1) * 4 + 1 + PathIndexStart], verifyTreeData[(level - 1) * 4 + 2 + PathIndexStart], verifyTreeData[(level - 1) * 4 + 3 + PathIndexStart]);
                 verifyTreeData[level*4 + i + PathIndexStart] === treeData[level*4 + i + PathIndexStart];
             }
             else {
                 verifyTreeData[level*4 + i + PathIndexStart] <== treeData[level*4 + i + PathIndexStart];
+            }*/
+            if(i == selector[level]) {
+                treeData[level*4 + i + PathIndexStart] === HASH(treeData[(level - 1) * 4 + PathIndexStart], treeData[(level - 1) * 4 + 1 + PathIndexStart], treeData[(level - 1) * 4 + 2 + PathIndexStart], treeData[(level - 1) * 4 + 3 + PathIndexStart]);
             }
         }  
-        level++;
     }
 
     // Generate new m-tree has values 
     var last_hash = HASH(treeData[61], treeData[62], treeData[63],treeData[64]);
     for (var level = 0; level < PathLevel; level++) {
-        for(var i=0; i<4; i++) {
+        for(var i = 0; i < 4; i++) {
             if(i == selector[level]) {
                 newTreeData[level*4 + i + PathIndexStart] <== last_hash;
             }
