@@ -1,3 +1,4 @@
+pragma circom 2.0.0;
 // TreeData: field[66], 0: index, 1 - 60: path digests, 61 - 64: leaf value, 65 - root hash
 // Command: field[6], 0: op, 1: nonce, 2 - 3: 32bits args, 4 - 5: 252 bits args
 
@@ -35,7 +36,8 @@ template CheckCommandHash(N) {
 template CheckTreeRootHash() {
     var MaxTreeDataIndex = 66;
     var PathSize = 15;
-    var selector[PathSize];
+    signal selector[PathSize];
+    //var selector[PathSize];
 
     signal input dataPath[MaxTreeDataIndex];
 
@@ -45,21 +47,23 @@ template CheckTreeRootHash() {
      * selectors. Moreover we make sure that each selector are within the range of
      * [0,1,2,3]
      */
-    var path = dataPath[0];
-    var a = 0;
+    var verifySelectorValue[3];
     var verifyPath = 0;
     var carry = 1;
+    var bb  = dataPath[0] >> (1 * 2) & 3;
+
     for (var i=0; i<PathSize; i++) {
-        selector[i] <-- (path >> (i * 2)) & 3; // [0, 3]
-        a <== selector[i] * (selector[i] - 1);
-        a <== a * (selector[i] - 2);
-        a <== a * (selector[i] - 3);
-        a === 0;
+        selector[i] <-- (dataPath[0] >> (i * 2)) & 3; // [0, 3]
+        //selector[i] = (dataPath[0] >> (i * 2)) & 3; // [0, 3]
+        verifySelectorValue[0] = selector[i] * (selector[i] - 1);
+        verifySelectorValue[1] = verifySelectorValue[0] * (selector[i] - 2);
+        verifySelectorValue[2] = verifySelectorValue[1] * (selector[i] - 3);
+        verifySelectorValue[2] === 0;
 
         verifyPath += selector[i] * carry;
         carry *= 4;
     }
-    verifyPath === path;
+    verifyPath === dataPath[0];
 
     //TODO initial first hash by new node data
     //new_hash_acc[0]  <==
