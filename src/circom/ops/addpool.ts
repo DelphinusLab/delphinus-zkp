@@ -13,11 +13,21 @@ export class AddPoolCommand extends Command {
     const path = [] as PathInfo[];
 
     const nonce = this.args[3];
-    const poolIndex = this.args[4];
-    const tokenIndex0 = new Field(this.args[5].v.shrn(16));
-    const tokenIndex1 = new Field(this.args[5].v.addn(0xffff));
+    const tokenIndex0 = this.args[4];
+    const tokenIndex1 = this.args[5];
 
+    // circuits: check tokenIndex0 < 2 ^ 10
+    // circuits: check tokenIndex1 < 2 ^ 10
+    // circuits: check tokenIndex0 != tokenIndex1
+
+    // omit poolIndex in circuits args, we can get it from merkle tree path
+    const poolIndex = this.args[9];
+
+    // STEP1: udpate nonce
+    // circuits: check nonce
     path.push(await storage.getAndUpdateNonce(this.callerAccountIndex, nonce));
+
+    // STEP2: init pool info
     path.push(await storage.getPoolInfo(poolIndex));
 
     const zero = new Field(0);
