@@ -3,6 +3,8 @@
 
 include "../node_modules/circomlib/circuits/sha256/sha256.circom";
 include "utils/bit.circom";
+include "utils/select.circom";
+
 
 template CheckCommandHash(N) {
     var CommandArgs = 6;
