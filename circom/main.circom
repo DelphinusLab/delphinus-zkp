@@ -41,9 +41,8 @@ template CheckCommandHash(N) {
         65 - new root hash (Root hash value which had applied new leaf values)
 
     What template do:
-        1. check input m-tree is valid
-        2. ??? output new m-tree by applyihng new leaf values 
-        3. check input new root hash is correct.
+        1. check all inputs of 15 levels old m-tree hashes are valid.
+        2. check input new root hash is correct.
 
 */ 
 template CheckTreeRootHash() {
@@ -67,7 +66,6 @@ template CheckTreeRootHash() {
      */
     var verifyPath = 0;
     var carry = 1;
-    var bb  = treeData[0] >> (1 * 2) & 3;
 
     for (var i=0; i<PathLevel; i++) {
         selector[i] <-- (treeData[0] >> (i * 2)) & 3; // [0, 3]
@@ -80,31 +78,15 @@ template CheckTreeRootHash() {
     }
     verifyPath === treeData[0];
 
-    
     // Verify input m-tree path hash values are valid.
     // We assuming level 0 is the lowest level which just above leaf values, level 14 is the highest level which just under root hash
     // and select[i] is the level i path. (which indicate treeData[0]'s last 2 bits are for level 0 path, etc)
-    //verifyTreeData[0 + PathIndexStart] <== treeData[0 + PathIndexStart];
-    //verifyTreeData[1 + PathIndexStart] <== treeData[1 + PathIndexStart];
-    //verifyTreeData[2 + PathIndexStart] <== treeData[2 + PathIndexStart];
-    //verifyTreeData[3 + PathIndexStart] <== treeData[3 + PathIndexStart];
     for (var level = 1; level < PathLevel; level++) {
-        for(var i = 0; i < 4; i++) {
-            /*if(i == selector[level]) {
-                verifyTreeData[level*4 + i + PathIndexStart] <== HASH(verifyTreeData[(level - 1) * 4 + PathIndexStart], verifyTreeData[(level - 1) * 4 + 1 + PathIndexStart], verifyTreeData[(level - 1) * 4 + 2 + PathIndexStart], verifyTreeData[(level - 1) * 4 + 3 + PathIndexStart]);
-                verifyTreeData[level*4 + i + PathIndexStart] === treeData[level*4 + i + PathIndexStart];
-            }
-            else {
-                verifyTreeData[level*4 + i + PathIndexStart] <== treeData[level*4 + i + PathIndexStart];
-            }*/
-            if(i == selector[level]) {
-                treeData[level*4 + i + PathIndexStart] === HASH(treeData[(level - 1) * 4 + PathIndexStart], treeData[(level - 1) * 4 + 1 + PathIndexStart], treeData[(level - 1) * 4 + 2 + PathIndexStart], treeData[(level - 1) * 4 + 3 + PathIndexStart]);
-            }
-        }  
+        treeData[level*4 + selector[level] + PathIndexStart] === HASH(treeData[(level - 1) * 4 + PathIndexStart], treeData[(level - 1) * 4 + 1 + PathIndexStart], treeData[(level - 1) * 4 + 2 + PathIndexStart], treeData[(level - 1) * 4 + 3 + PathIndexStart]); 
     }
 
-    // Generate new m-tree has values 
-    var last_hash = HASH(treeData[61], treeData[62], treeData[63],treeData[64]);
+    // Generate new m-tree has values
+    var last_hash = HASH(treeData[61], treeData[62], treeData[63], treeData[64]);
     for (var level = 0; level < PathLevel; level++) {
         for(var i = 0; i < 4; i++) {
             if(i == selector[level]) {
@@ -116,41 +98,9 @@ template CheckTreeRootHash() {
             last_hash = HASH(newTreeData[level*4 + PathIndexStart], newTreeData[level*4 + 1 +PathIndexStart], newTreeData[level*4 + 2 +PathIndexStart], newTreeData[level*4 + 3 +PathIndexStart]);
         }
     }
-    // Verfiy
-    treeData[65] === HASH(newTreeData[57], newTreeData[58], newTreeData[59], newTreeData[60]);
 
-
-
-    /* We using 2bit for each selector thus we decompose the path into path
-     * selectors. Moreover we make sure that each selector are within the range of
-     * [0,1,2,3]
-     
-    for (i=0; i<PathLevel; i++) {
-        selector[i] <== (path >> (i * 2)) & 3;
-        selector[i] * (selector[i] - 1) * (selector[i] - 2) * (selector[i] - 3) === 0;
-        c += selector[i] * carry;
-        carry *= 4;
-    }
-
-    //TODO initial first hash by new node data
-    //new_hash_acc[0]  <==
-    // oldHashPath = [1 .. 60]
-    // newHahsPath = [1 .. 60]
-    //newHashPath[i] ?== oldHashPash[i]
-    // Check old hash calculation is correct
-
-    // Check new hash calculation is correct
-    last_hash =
-    for (i=0; i<15; i++) {
-        for (j =0; i<4; j++) {
-          if (j != selector[i]) {
-             newHashPath[i*4 + j] <== oldHashPath[i*4 + j]
-          } else {
-             newHashPath[i*4 + j] <== last_hash
-          }
-        }
-        last_hash = hash(newHashPath[i*4 +0 ... i*4 + 3])
-    }*/
+    // Verfiy New Root
+    last_hash === treeData[65];
 }
 
 template CheckSign() {
