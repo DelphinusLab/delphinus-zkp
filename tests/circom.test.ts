@@ -18,15 +18,14 @@ async function runCircom(name: string, error = false) {
           cwd: path.resolve(__dirname, "..", "..", "circom"),
         },
         (error, stdout, stderr) => {
-          if (error) {
-            reject(error);
+          if (!stdout.includes("OK") || error) {
+            reject(new Error(stdout));
           }
           resolve(stdout);
         }
       )
     );
   } catch (e) {
-    console.log(e);
     if (error) {
       console.log(`[SUCCESS] Run ${name} succeeded.`);
     } else {

@@ -78,7 +78,7 @@ template CheckCommandsRun(N) {
     checkCommandHashComp.commandHash[0] <== commandHash[0];
     checkCommandHashComp.commandHash[1] <== commandHash[1];
     for (var i = 0; i < N; i++) {
-        for (var j = 0; j < MaxStep; j++) {
+        for (var j = 0; j < CommandArgs; j++) {
             checkCommandHashComp.commands[i][j] <== commands[i][j];
         }
     }
