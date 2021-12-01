@@ -3,6 +3,7 @@ pragma circom 2.0.0;
 // Command: field[6], 0: op, 1: nonce, 2 - 3: 32bits args, 4 - 5: 252 bits args
 
 include "../node_modules/circomlib/circuits/sha256/sha256.circom";
+include "../node_modules/circomlib/circuits/poseidon.circom";
 include "utils/bit.circom";
 include "utils/select.circom";
 
@@ -33,7 +34,7 @@ template CheckCommandHash(N) {
     commandHash[1] === sha2.out[1];
 }
 
-/* 
+/*
     Input: treeData: field[66]
         0: index (field store information about path of 15 levels m-tree nodes, 2 bits for each level)
         1 - 60: path digests (hash values before applying new leaf values, 4 fields for each m-tree level, 15 level total)
@@ -44,7 +45,7 @@ template CheckCommandHash(N) {
         1. check all inputs of 15 levels old m-tree hashes are valid.
         2. check input new root hash is correct.
 
-*/ 
+*/
 template CheckTreeRootHash() {
     var MaxTreeDataIndex = 66;
     var PathLevel = 15;
@@ -67,6 +68,15 @@ template CheckTreeRootHash() {
     var verifyPath = 0;
     var carry = 1;
 
+    // hash for verifying old merkley tree hash
+    //component hash[PathLevel + 1] = Poseidon(4);
+
+    // hash for verifying new merkley tree hash
+    component new_hash[PathLevel + 1];
+    for (var i=0; i<= PathLevel; i++) {
+        new_hash[i] = Poseidon(4);
+    }
+
     for (var i=0; i<PathLevel; i++) {
         selector[i] <-- (treeData[0] >> (i * 2)) & 3; // [0, 3]
         cs[i] <== selector[i] * (selector[i] - 1);
@@ -81,26 +91,37 @@ template CheckTreeRootHash() {
     // Verify input m-tree path hash values are valid.
     // We assuming level 0 is the lowest level which just above leaf values, level 14 is the highest level which just under root hash
     // and select[i] is the level i path. (which indicate treeData[0]'s last 2 bits are for level 0 path, etc)
+    /*
     for (var level = 1; level < PathLevel; level++) {
-        treeData[level*4 + selector[level] + PathIndexStart] === HASH(treeData[(level - 1) * 4 + PathIndexStart], treeData[(level - 1) * 4 + 1 + PathIndexStart], treeData[(level - 1) * 4 + 2 + PathIndexStart], treeData[(level - 1) * 4 + 3 + PathIndexStart]); 
+        treeData[level*4 + selector[level] + PathIndexStart] === HASH(treeData[(level - 1) * 4 + PathIndexStart], treeData[(level - 1) * 4 + 1 + PathIndexStart], treeData[(level - 1) * 4 + 2 + PathIndexStart], treeData[(level - 1) * 4 + 3 + PathIndexStart]);
     }
+    */
 
+    new_hash[0].inputs[0] <== treeData[61];
+    new_hash[0].inputs[1] <== treeData[62];
+    new_hash[0].inputs[2] <== treeData[63];
+    new_hash[0].inputs[3] <== treeData[64];
     // Generate new m-tree has values
-    var last_hash = HASH(treeData[61], treeData[62], treeData[63], treeData[64]);
     for (var level = 0; level < PathLevel; level++) {
         for(var i = 0; i < 4; i++) {
+            var idx = level*4 + i + PathIndexStart;
             if(i == selector[level]) {
-                newTreeData[level*4 + i + PathIndexStart] <== last_hash;
+                newTreeData[idx] <== new_hash[level].out;
             }
             else {
-                newTreeData[level*4 + i + PathIndexStart] <== treeData[level*4 + i + PathIndexStart];
+                newTreeData[idx] <== treeData[idx];
             }
-            last_hash = HASH(newTreeData[level*4 + PathIndexStart], newTreeData[level*4 + 1 +PathIndexStart], newTreeData[level*4 + 2 +PathIndexStart], newTreeData[level*4 + 3 +PathIndexStart]);
+            (newTreeData[idx] - treeData[idx]) * (i - selector[level]) === 0;
+            (newTreeData[idx] - treeData[idx]) * (i - selector[level]) === 0;
+            new_hash[level+1].inputs[0] <== newTreeData[level*4 + PathIndexStart];
+            new_hash[level+1].inputs[1] <== newTreeData[level*4 + 1 +PathIndexStart];
+            new_hash[level+1].inputs[2] <== newTreeData[level*4 + 2 +PathIndexStart];
+            new_hash[level+1].inputs[3] <== newTreeData[level*4 + 3 +PathIndexStart];
         }
     }
 
     // Verfiy New Root
-    last_hash === treeData[65];
+    new_hash[PathLevel].out === treeData[65];
 }
 
 template CheckSign() {
@@ -135,7 +156,7 @@ template RunCommand() {
     for (var i = 0; i < MaxStep; i++) {
       checkTreeRootHashComp[i] = CheckTreeRootHash();
       for (var j = 0; j < MaxTreeDataIndex; j++) {
-        checkTreeRootHashComp[i].dataPath[j] <== dataPath[i][j];
+        checkTreeRootHashComp[i].treeData[j] <== dataPath[i][j];
       }
     }
 
