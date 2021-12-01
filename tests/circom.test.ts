@@ -21,6 +21,7 @@ async function runCircom(name: string, error = false) {
           if (error) {
             reject(error);
           }
+          console.log(stdout);
           resolve(stdout);
         }
       )

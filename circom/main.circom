@@ -24,8 +24,10 @@ template CheckCommandHash(N) {
         }
     }
     for (i=0; i<N*CommandBytes*ByteBits; i++) {
-        sha2.in[i] <-- bits.out[i];
+        sha2.in[i] <== bits.out[i];
     }
+    log(sha2.out[0]);
+    log(sha2.out[1]);
     commandHash[0] === sha2.out[0];
     commandHash[1] === sha2.out[1];
 }
@@ -64,7 +66,7 @@ template RunCommand() {
     signal input commands[CommandArgs];
     signal input dataPath[MaxStep][MaxTreeDataIndex];
     signal output endRootHash;
-    
+
     // Check the merkle tree path is valid
     component checkTreeRootHashComp[5];
     for (var i = 0; i < MaxStep; i++) {
@@ -97,8 +99,9 @@ template CheckCommandsRun(N) {
     checkCommandHashComp = CheckCommandHash(N);
     checkCommandHashComp.commandHash[0] <== commandHash[0];
     checkCommandHashComp.commandHash[1] <== commandHash[1];
+
     for (var i = 0; i < N; i++) {
-        for (var j = 0; j < MaxStep; j++) {
+        for (var j = 0; j < CommandArgs; j++) {
             checkCommandHashComp.commands[i][j] <== commands[i][j];
         }
     }
