@@ -14,3 +14,21 @@ template Select() {
     r4 <-- (sel-1) * (sel-2) * (sel-3)/6;
     out <== r1 * in[0] + r2 * in[1] + r3 * in[2] + r4 * in[3];
 }
+
+template IsZero() {
+    signal input in;
+    signal output out;
+    signal inv;
+    inv <-- in !=0 ? 1/in : 0;
+    out <== 1 - in * inv;
+    in * out === 0;
+}
+
+template BiSelect() {
+    signal input in[2];
+    signal cond;
+    signal output out;
+    component iszero = IsZero();
+    iszero.in <== cond;
+    out <== in[0] * iszero.out + in[1] * (1-iszero.out);
+}
