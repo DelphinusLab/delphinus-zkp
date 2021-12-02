@@ -77,6 +77,11 @@ template CheckTreeRootHash() {
         new_hash[i] = Poseidon(4);
     }
 
+    component selcond[PathLevel * 4];
+    for (var i=0; i< PathLevel * 4; i++) {
+        selcond[i] = BiSelect();
+    }
+
     for (var i=0; i<PathLevel; i++) {
         selector[i] <-- (treeData[0] >> (i * 2)) & 3; // [0, 3]
         cs[i] <== selector[i] * (selector[i] - 1);
@@ -102,21 +107,15 @@ template CheckTreeRootHash() {
     new_hash[0].inputs[2] <== treeData[63];
     new_hash[0].inputs[3] <== treeData[64];
     // Generate new m-tree has values
+
     for (var level = 0; level < PathLevel; level++) {
         for(var i = 0; i < 4; i++) {
-            var idx = level*4 + i + PathIndexStart;
-            if(i == selector[level]) {
-                newTreeData[idx] <== new_hash[level].out;
-            }
-            else {
-                newTreeData[idx] <== treeData[idx];
-            }
-            (newTreeData[idx] - treeData[idx]) * (i - selector[level]) === 0;
-            (newTreeData[idx] - treeData[idx]) * (i - selector[level]) === 0;
-            new_hash[level+1].inputs[0] <== newTreeData[level*4 + PathIndexStart];
-            new_hash[level+1].inputs[1] <== newTreeData[level*4 + 1 +PathIndexStart];
-            new_hash[level+1].inputs[2] <== newTreeData[level*4 + 2 +PathIndexStart];
-            new_hash[level+1].inputs[3] <== newTreeData[level*4 + 3 +PathIndexStart];
+            var idx = level*4 + i;
+            selcond[idx].in[0] <== treeData[idx + PathIndexStart];
+            selcond[idx].in[1] <== new_hash[level].out;
+            selcond[idx].cond <== i - selector[i];
+            newTreeData[idx + PathIndexStart] <== selcond[idx].out;
+            new_hash[level+1].inputs[i] <== newTreeData[idx + PathIndexStart];
         }
     }
 

@@ -26,9 +26,11 @@ template IsZero() {
 
 template BiSelect() {
     signal input in[2];
-    signal cond;
+    signal input cond;
     signal output out;
+    signal r;
     component iszero = IsZero();
     iszero.in <== cond;
-    out <== in[0] * iszero.out + in[1] * (1-iszero.out);
+    r <== in[1] * (1-iszero.out);
+    out <== in[0] * iszero.out + r;
 }
