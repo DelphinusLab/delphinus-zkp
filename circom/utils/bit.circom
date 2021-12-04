@@ -6,14 +6,28 @@ template BitOfBytes(n) {
     var lc1 = 0;
 
     var carry = 1;
-    for (var i=0; i<n*4; i++) {
-        out[i] <-- (in >> i) & 1;
-        out[i] * (out[i] -1 ) === 0;
-        lc1 += out[i] * carry;
+    for (var i=0; i<n*ByteBits; i++) {
+        var idx = n * ByteBits - i - 1;
+        out[idx] <-- (in >> i) & 1;
+        out[idx] * (out[idx] -1 ) === 0;
+        lc1 += out[idx] * carry;
         carry = carry + carry;
     }
-
     lc1 === in;
+}
+
+template Bits2NumEx(n) {
+    signal input in[n];
+    signal output out;
+    var lc1=0;
+
+    var e2 = 1;
+    for (var i = 0; i<n; i++) {
+        lc1 += in[n - i - 1] * e2;
+        e2 = e2 + e2;
+    }
+
+    lc1 ==> out;
 }
 
 template Concatenate(N, L) {

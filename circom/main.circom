@@ -4,35 +4,10 @@ pragma circom 2.0.0;
 
 include "../node_modules/circomlib/circuits/sha256/sha256.circom";
 include "../node_modules/circomlib/circuits/poseidon.circom";
+include "utils/command.circom";
 include "utils/bit.circom";
 include "utils/select.circom";
 
-
-template CheckCommandHash(N) {
-    var CommandArgs = 6;
-    var ByteBits = 8;
-    var CommandBytes = 81;
-
-    var i, j;
-
-    signal input commands[N][CommandArgs];
-    signal input commandHash[2];
-    signal commandBits[N * CommandBytes * ByteBits];
-    component bits = CommandBits(N);
-    component sha2 = Sha256(N * CommandBytes * ByteBits);
-    for (i=0; i<N; i++) {
-        for (j=0; j<CommandArgs; j++) {
-            bits.commands[i][j] <== commands[i][j];
-        }
-    }
-    for (i=0; i<N*CommandBytes*ByteBits; i++) {
-        sha2.in[i] <== bits.out[i];
-    }
-    log(sha2.out[0]);
-    log(sha2.out[1]);
-    commandHash[0] === sha2.out[0];
-    commandHash[1] === sha2.out[1];
-}
 
 /*
     Input: treeData: field[66]
