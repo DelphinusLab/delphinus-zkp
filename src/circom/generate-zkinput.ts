@@ -61,7 +61,7 @@ class ZKPInputBuilder {
   }
 
   pushCommand(command: [Field, Field[]]) {
-    let data: string[] = [];
+    let data: string[] = [command[0].v.toString()];
     data = data.concat(command[1].slice(3, 8).map((x) => x.toString()));
     this.input.commands.push(data);
   }
