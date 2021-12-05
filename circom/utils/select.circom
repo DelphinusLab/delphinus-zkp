@@ -1,3 +1,4 @@
+pragma circom 2.0.0;
 /* select k(input) from args[N] */
 template Select() {
     signal input sel;

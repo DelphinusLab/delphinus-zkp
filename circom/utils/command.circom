@@ -1,3 +1,5 @@
+pragma circom 2.0.0;
+
 template CheckCommandHash(N) {
     var CommandArgs = 6;
     var ByteBits = 8;
