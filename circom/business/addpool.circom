@@ -75,7 +75,7 @@ template addpool(N) {
     }
 
     // end
-    succeed_out <== succeed;
+    succeed_out <== 1;
     
     for(var i=0; i<N; i++) {
         for(var j=0; j<MaxTreeDataIndex; j++) {
