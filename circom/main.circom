@@ -39,7 +39,7 @@ template RunCommand() {
     // Check the merkle tree path is valid
     component checkTreeRootHashComp[5];
     for (var i = 0; i < MaxStep; i++) {
-      checkTreeRootHashComp[i] = CheckTreeRootHash();
+      checkTreeRootHashComp[i] = CheckTreeRootHash(0);
       for (var j = 0; j < MaxTreeDataIndex; j++) {
         checkTreeRootHashComp[i].treeData[j] <== dataPath[i][j];
       }
