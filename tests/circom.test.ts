@@ -7,7 +7,7 @@ import { L2Storage } from "../src/circom/address-space";
 import { genZKPInput } from "../src/circom/generate-zkinput";
 import { CommandOp } from "delphinus-l2-client-helper/src/swap";
 
-const storage = new L2Storage(true);
+let storage: L2Storage;
 
 async function runCircom(name: string, error = false) {
   try {
@@ -168,22 +168,19 @@ async function testDataPathWrong() {
 }
 
 async function main() {
-  await storage.loadSnapshot("0");
-  await storage.startSnapshot("1");
-
-  await storage.loadSnapshot("0");
+  storage = new L2Storage(true);
   await testShaWrong();
 
-  await storage.loadSnapshot("0");
+  storage = new L2Storage(true);
   await testKeyPathWrong();
 
-  await storage.loadSnapshot("0");
+  storage = new L2Storage(true);
   await testDataPathWrong();
 
-  await storage.loadSnapshot("0");
+  storage = new L2Storage(true);
   await testAddPoolWrong();
 
-  await storage.loadSnapshot("0");
+  storage = new L2Storage(true);
   await testAddPool();
 }
 
