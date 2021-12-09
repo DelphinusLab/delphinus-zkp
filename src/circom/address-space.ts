@@ -68,9 +68,9 @@ export class L2Storage extends MerkleTree {
   }
 
   async getAndUpdateNonce(_accountIndex: number | Field, nonce: Field) {
-    const accountIndex = toNumber(_accountIndex);
-    const path = await this.getPath(accountIndex);
-    await this.setLeave(accountIndex, nonce.add(new Field(1)));
+    const nonceIndex = getAccountNonceIndex(_accountIndex);
+    const path = await this.getPath(nonceIndex);
+    await this.setLeave(nonceIndex, nonce.add(new Field(1)));
     return path;
   }
 
