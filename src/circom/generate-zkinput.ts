@@ -31,7 +31,11 @@ class ZKPInputBuilder {
 
   genMerkleData(pathInfo: PathInfo) {
     let data = [];
-    data.push(pathInfo.index.toString(10));
+    data.push(
+      pathInfo.index >= 0
+        ? pathInfo.index.toString(10)
+        : (new BN(1)).shln(32).add(new BN(pathInfo.index)).toString(10)
+    );
     for (let i = 0; i < MaxHeight; i++) {
       data = data.concat(
         pathInfo.pathDigests[i].slice(0, 4).map((x) => x.toString())

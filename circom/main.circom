@@ -26,6 +26,15 @@ template CheckSign() {
     // 4. check the sign
 }
 
+template CheckArgRange(N) {
+    signal input in;
+    signal output out;
+
+    // TODO: use bit2num to limit the range
+
+    out <== 1;
+}
+
 template RunCommand() {
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
@@ -44,6 +53,12 @@ template RunCommand() {
         checkTreeRootHashComp[i].treeData[j] <== dataPath[i][j];
       }
     }
+
+    component checkArgRange[2];
+    checkArgRange[0] = CheckArgRange(32);
+    checkArgRange[1] = CheckArgRange(32);
+    checkArgRange[0].in <== commands[5];
+    checkArgRange[1].in <== commands[6];
 
     // TODO:
     // 1. dispatch the command, each command return it's merkle-tree's modification path
