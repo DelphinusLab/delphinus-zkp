@@ -1,22 +1,13 @@
+pragma circom 2.0.0;
 // TreeData: field[66], 0: index, 1 - 60: path digests, 61 - 64: leaf value, 65 - root hash
 // Command: field[6], 0: op, 1: nonce, 2 - 3: 32bits args, 4 - 5: 252 bits args
 
-template CheckCommandHash(N) {
-    var CommandArgs = 6;
-
-    signal input commands[N][CommandArgs];
-    signal input commandHash[2];
-    
-    // TODO: hash all commands, and constraint the result to the input hash
-}
-
-template CheckTreeRootHash() {
-    var MaxTreeDataIndex = 66;
-
-    signal input dataPath[MaxTreeDataIndex];
-
-    // TODO: calculate the root hash, and constraint the result to the root hash
-}
+include "../node_modules/circomlib/circuits/sha256/sha256.circom";
+include "../node_modules/circomlib/circuits/poseidon.circom";
+include "utils/command.circom";
+include "utils/bit.circom";
+include "utils/select.circom";
+include "utils/check_tree_root_hash.circom";
 
 template CheckSign() {
     var MaxTreeDataIndex = 66;
@@ -44,13 +35,13 @@ template RunCommand() {
     signal input commands[CommandArgs];
     signal input dataPath[MaxStep][MaxTreeDataIndex];
     signal output endRootHash;
-    
+
     // Check the merkle tree path is valid
     component checkTreeRootHashComp[5];
     for (var i = 0; i < MaxStep; i++) {
-      checkTreeRootHashComp[i] = CheckTreeRootHash();
+      checkTreeRootHashComp[i] = CheckTreeRootHash(0);
       for (var j = 0; j < MaxTreeDataIndex; j++) {
-        checkTreeRootHashComp[i].dataPath[j] <== dataPath[i][j];
+        checkTreeRootHashComp[i].treeData[j] <== dataPath[i][j];
       }
     }
 
@@ -77,6 +68,7 @@ template CheckCommandsRun(N) {
     checkCommandHashComp = CheckCommandHash(N);
     checkCommandHashComp.commandHash[0] <== commandHash[0];
     checkCommandHashComp.commandHash[1] <== commandHash[1];
+
     for (var i = 0; i < N; i++) {
         for (var j = 0; j < CommandArgs; j++) {
             checkCommandHashComp.commands[i][j] <== commands[i][j];
