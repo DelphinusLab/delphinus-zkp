@@ -13,13 +13,13 @@
   },
   "dependencies": {
     "bn.js": "^5.2.0",
+    "circomlib": "^2.0.2",
     "crypto-js": "^4.1.1",
     "delphinus-curves": "*",
     "delphinus-l2-client-helper": "*",
     "fs-extra": "^10.0.0",
     "sha256": "^0.2.0",
-    "snarkjs": "^0.4.7",
-    "circomlib": "git+https://github.com/iden3/circomlib.git"
+    "snarkjs": "^0.4.7"
   },
   "devDependencies": {
     "@types/bn.js": "^5.1.0",
