@@ -1,5 +1,7 @@
 pragma circom 2.0.0;
 
+include "./dependency.circom";
+
 /* n bytes in bitwise format */
 template BitOfBytes(n) {
     var ByteBits = 8;
@@ -110,4 +112,40 @@ template CommandBits(N) {
     for (i=0; i< N * CommandBytes * ByteBits; i++) {
         out[i] <== concat.out[i];
     }
+}
+
+template bits_to_field(N) {
+    signal input bits[N]; // N is the length of bits
+    signal output res;
+    signal arr[32];
+    signal in;
+
+    for(var i=0; i<32; i++) {
+      if(i<32-N) {
+        arr[i] <== 0; // 0 means false
+      } else {
+        arr[i] <== bits[i-32+N];
+      }
+    }
+
+    in <-- u32_to_field(u32_from_bits(arr));
+    res <== in;
+}
+
+template u32_from_2bits() {
+	signal input selector[2];
+	signal output res;
+	signal arr[32];
+	signal in;
+
+	for(var i=0; i<32; i++) {
+      if(i<30) {
+        arr[i] <== 0; // 0 means false
+      } else {
+        arr[i] <== selector[i-30];
+      }
+    }
+
+	in <-- u32_from_bits(arr);
+	res <== in;
 }

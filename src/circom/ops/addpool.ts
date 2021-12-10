@@ -19,7 +19,7 @@ export class AddPoolCommand extends Command {
     // circuits: check tokenIndex0 < 2 ^ 10
     // circuits: check tokenIndex1 < 2 ^ 10
     // circuits: check tokenIndex0 != tokenIndex1
-
+    // check if the other part of args is 0
     // omit poolIndex in circuits args, we can get it from merkle tree path
     const poolIndex = this.args[9];
 
@@ -29,7 +29,8 @@ export class AddPoolCommand extends Command {
 
     // STEP2: init pool info
     path.push(await storage.getPoolInfo(poolIndex));
-
+    // check index of pool
+    // check if leafValues[0] and leafValues[1] is 0
     const zero = new Field(0);
     await storage.setLeaves(getPoolInfoIndex(poolIndex), [
       tokenIndex0,
