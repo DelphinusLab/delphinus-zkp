@@ -1,20 +1,25 @@
-pragma circom 2.0.0;
+pragma circom 2.0.2;
+
+include "../../node_modules/circomlib/circuits/bitify.circom";
+include "../../node_modules/circomlib/circuits/poseidon.circom";
+
+include "./select.circom";
 
 /*
-    Input: 
+    Input:
         treeData: field[66]
-            0: index 
-                The format of index is: 
+            0: index
+                The format of index is:
                     The last (most right side) 2 bits of index means the path of leaves so it is useless.
                     The 3rd, 4th bits from right side means the path of level which just above leaves, and so on.
             1 - 60: path digests (hash values before applying new leaf values, 4 fields for each m-tree level, 15 level total)
             61 - 64: leaf values
             65 - root hash
 
-        update: 
+        update:
             0: leaf values are not changed.
             1: leaf values had been changed.
-    
+
     Output: root has after re-calculation.
 
     What template do:
@@ -45,8 +50,8 @@ template CheckTreeRootHash(update) {
         ...
         oldNodes[15][0] - oldNodes[15][0] are the m-tree level just under root hash
     */
-    var oldNodes[PathLevel][NodesPerLevel]; 
-    var newNodes[PathLevel][NodesPerLevel]; 
+    var oldNodes[PathLevel][NodesPerLevel];
+    var newNodes[PathLevel][NodesPerLevel];
     {
         /* Because we calculate the hash from leaves, we reverse the path. */
         var offset = PathIndexStart;
@@ -58,28 +63,24 @@ template CheckTreeRootHash(update) {
         }
     }
 
-    /* 
-        The format of index (treeData[0]) is: 
+    /*
+        The format of index (treeData[0]) is:
             The last (most right side) 2 bits of index refers to the path of leaves so it is useless.
             The 4th, 3rd bits from right side means the path of level which just above leaves, and so on.
     */
-    // Calculate the selector, use var to reduce constraints. 
-    // TODO: replace it with Num2Bits.
+    component n2b = Num2Bits(PathLevel * BitsPerLevel);
     var selector[PathLevel];
     {
+        n2b.in <== index;
+
         var offset = 0;
-        var carry = 0;
         for (var i = 0; i < PathLevel; i++) {
             selector[i] = 0;
             for (var j = 0; j < BitsPerLevel; j++) {
-                indexBits[offset] <-- (index >> offset) & 1;
-                carry += indexBits[offset] * (1 << offset);
-                selector[i] += indexBits[offset] * (1 << j);
+                selector[i] += n2b.out[offset] * (1 << j);
                 offset++;
             }
         }
-
-        carry === index;
     }
 
     component hash[PathLevel];
