@@ -1,9 +1,8 @@
 pragma circom 2.0.2;
 
-include "./command_to_bits.circom";
-include "./eddsasha2.circom";
+include "../../utils/command_sign.circom";
 
-template CheckCommandSign() {
+template TestCheckCommandSign() {
     var CommandArgs = 6;
     var ByteBits = 8;
     var CommandBytes = 81;
@@ -15,7 +14,6 @@ template CheckCommandSign() {
     signal input rx;
     signal input ry;
     signal input s;
-    signal output out;
 
     component c2b = Command2Bits();
     for (var i = 0; i < CommandArgs; i++) {
@@ -33,5 +31,8 @@ template CheckCommandSign() {
         cs.msg[i] <== c2b.out[i];
     }
 
-    out <== cs.out;
+    cs.out === 0;
 }
+
+
+component main = TestCheckCommandSign();

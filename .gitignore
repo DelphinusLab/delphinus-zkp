@@ -12,3 +12,5 @@ circom/**/*_js
 circom/**/*_cpp
 abi.json
 out
+
+!circom/unit_tests/**/*.json
