@@ -8,7 +8,7 @@ include "../utils/bit.circom";
  *      But if out is 0, it is unknown (because prover can give bad witness).
  * In some case, the condition is in a branch so we can not put an assert into circuits.
  * However, we can use FE because the proofer want to prove that the out is 1 to pass the verifier.
- * Use thses templates carefully.
+ * Use these templates carefully.
  */
 
 // b01 Pool: (10bits) pool index + (18bits) 0 + (2bits) poolinfo (token0index, token1index, amount0, amount1)
