@@ -56,17 +56,17 @@ template AndMany(N) {
 }
 
 // b11 Account: (20bits) account index + (10bits) info data, (0 & 1 - public key, 2 - nonce, other -reserved)
-template CheckAccountInfoIndexFE() {
+template CheckAccountInfoIndexFE(OFFSET) {
     signal input index;
     signal output out;
     signal output caller;
 
-    // Find 20 bits as value `a` in BE, check (3 << 30) + (a << 10) + 2 == index
+    // Find 20 bits as value `a` in BE, check (3 << 30) + (a << 10) + OFFSET == index
     component n2b = Num2Bits(20);
     n2b.in <-- (index >> 10) & ((1 << 20) - 1);
 
     component eq = IsEqual();
-    eq.in[0] <== n2b.in * (1 << 10) + (3 << 30) + 2;
+    eq.in[0] <== n2b.in * (1 << 10) + (3 << 30) + OFFSET;
     eq.in[1] <== index;
 
     out <== eq.out;
@@ -76,7 +76,8 @@ template CheckAccountInfoIndexFE() {
 template CheckAndUpdateNonceAnonymousFE() {
     var IndexOffset = 0;
     var LeafStartOffset = 61;
-    var NonceOffset = LeafStartOffset + 2;
+    var NonceOffsetInLeaves = 2;
+    var NonceOffset = LeafStartOffset + NonceOffsetInLeaves;
     var MaxTreeDataIndex = 66;
     signal input nonce;
     signal input dataPath[MaxTreeDataIndex];
@@ -85,7 +86,7 @@ template CheckAndUpdateNonceAnonymousFE() {
     signal output out;
     signal output caller;
 
-    component c = CheckAccountInfoIndexFE();
+    component c = CheckAccountInfoIndexFE(NonceOffsetInLeaves);
     c.index <== dataPath[IndexOffset];
     var out0 = c.out;
 
