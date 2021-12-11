@@ -25,12 +25,13 @@ export class AddPoolCommand extends Command {
 
     // STEP1: udpate nonce
     // circuits: check nonce
+    // circuits: check caller permission
     path.push(await storage.getAndUpdateNonce(this.callerAccountIndex, nonce));
 
     // STEP2: init pool info
+    // circuits: check index of pool
+    // circuits: check leafValues[0] and leafValues[1] equal to 0
     path.push(await storage.getPoolInfo(poolIndex));
-    // check index of pool
-    // check if leafValues[0] and leafValues[1] is 0
     const zero = new Field(0);
     await storage.setLeaves(getPoolInfoIndex(poolIndex), [
       tokenIndex0,

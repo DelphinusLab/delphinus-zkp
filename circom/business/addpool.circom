@@ -1,133 +1,268 @@
-pragma circom 2.0.0;
-// dataPath: field[66], 0: index, 1 - 60: path digests, 61 - 64: leaf value, 65 - root hash
-// commands: field[6], 0: op, 1: nonce, 2 - 3: 32bits args, 4 - 5: 252 bits args
+pragma circom 2.0.2;
 
-include "../utils/check_tree_root_hash.circom";
 include "../utils/bit.circom";
 
-template Num2Bits(n) {
-    signal input in;
-    signal output out[n];
-    var lc1=0;
+/*
+ * FE - False Negative.
+ *      If out is 1, then it must be correct.
+ *      But if out is 0, it is unknown (because prover can give bad witness).
+ * In some case, the condition is in a branch so we can not put an assert into circuits.
+ * However, we can use FE because the proofer want to prove that the out is 1 to pass the verifier.
+ * Use thses templates carefully.
+ */
 
-    var e2=1;
-    for (var i = 0; i<n; i++) {
-        out[i] <-- (in >> i) & 1;
-        out[i] * (out[i] -1 ) === 0;
-        lc1 += out[i] * e2;
-        e2 = e2+e2;
-    }
-
-    lc1 === in;
-}
-
-template LessThan(n) {
-    assert(n <= 252);
-    signal input in[2];
+// b01 Pool: (10bits) pool index + (18bits) 0 + (2bits) poolinfo (token0index, token1index, amount0, amount1)
+template CheckPoolInfoIndexFE() {
+    signal input index;
     signal output out;
 
-    component n2b = Num2Bits(n+1);
+    // Find 10 bits as value `a` in BE, check (1 << 30) + (a << 20) == index
+    component n2b = Num2Bits(10);
+    n2b.in <-- (index >> 20) & ((1 << 10) - 1);
 
-    n2b.in <== in[0]+ (1<<n) - in[1];
+    component eq = IsEqual();
+    eq.in[0] <== n2b.in * (1 << 20) + (1 << 30);
+    eq.in[1] <== index;
 
-    out <== 1-n2b.out[n];
+    out <== eq.out;
 }
 
-// check index of pool
-template checkPoolLeafInfoIndex() {
-    signal input index[32];
-    signal input poolIndex;
-    signal output res;
+template Check2PowerRangeFE(N) {
+    signal input in;
+    signal output out;
 
-    // [false, true]
-    var POOL_SELECTOR[2] = [0, 1];
-    index[31] === POOL_SELECTOR[0];
-    index[30] === POOL_SELECTOR[1];
+    component n2b = Num2Bits(N);
+    n2b.in <-- in & ((1 << N) - 1);
 
-    component btf = bits_to_field(10); // 10 is the length of the array passed to btf.bits
-    for(var i=29; i>19; i--) {
-        btf.bits[29-i] <== index[i];
-    }
+    component eq = IsEqual();
+    eq.in[0] <== n2b.in;
+    eq.in[1] <== in;
 
-    // the result of bits_to_field equal to pool, stub function in ../utils/dependency will be implemented later
-    btf.res === poolIndex;
-
-    for(var i=19; i>1; i--) {
-        index[i] === 0; // 0 means false
-    }
-
-    res <== 1; // true
+    out <== eq.out;
 }
 
-template addpool() {
+template AndMany(N) {
+    signal input in[N];
+    signal output out;
+
+    signal t[N - 1];
+
+    t[0] <== in[0] * in[1];
+    for (var i = 2; i < N; i++) {
+        t[i - 1] <== t[i - 2] * in[i];
+    }
+
+    out <== t[N - 2];
+}
+
+// b11 Account: (20bits) account index + (10bits) info data, (0 & 1 - public key, 2 - nonce, other -reserved)
+template CheckAccountInfoIndexFE() {
+    signal input index;
+    signal output out;
+    signal output caller;
+
+    // Find 20 bits as value `a` in BE, check (3 << 30) + (a << 10) + 2 == index
+    component n2b = Num2Bits(20);
+    n2b.in <-- (index >> 10) & ((1 << 20) - 1);
+
+    component eq = IsEqual();
+    eq.in[0] <== n2b.in * (1 << 10) + (3 << 30) + 2;
+    eq.in[1] <== index;
+
+    out <== eq.out;
+    caller <== n2b.in;
+}
+
+template CheckAndUpdateNonceAnonymousFE() {
+    var IndexOffset = 0;
+    var LeafStartOffset = 61;
+    var NonceOffset = LeafStartOffset + 2;
     var MaxTreeDataIndex = 66;
-    var CommandArgs = 6;
-
-    signal input commands[CommandArgs];
+    signal input nonce;
     signal input dataPath[MaxTreeDataIndex];
-    signal output newRootHash;
-    signal tokenInfo0;
-    signal tokenInfo1;
-	signal tokenIndex0;
-	signal tokenIndex1;
 
-    var poolIndex = commands[2];
-    tokenIndex0 <-- (commands[3] >> 0) & 65535;
-    tokenIndex1 <-- (commands[3] >> 16) & 65535;
-    
-    for(var i=4; i<CommandArgs; i++) {
-      commands[i] === 0;
-    }
+    signal output newDataPath[MaxTreeDataIndex];
+    signal output out;
+    signal output caller;
 
-    // check tokenIndex0 != tokenIndex1
-    assert(tokenIndex0 != tokenIndex1);
-    
-    component lt[2];
-    // check tokenIndex0 < 2 ^ 10
-    lt[0] = LessThan(16);
-    lt[0].in[0] <== tokenIndex0;
-    lt[0].in[1] <== 1024;
-    lt[0].out === 1;
+    component c = CheckAccountInfoIndexFE();
+    c.index <== dataPath[IndexOffset];
+    var out0 = c.out;
 
-    // check tokenIndex1 < 2 ^ 10
-    lt[1] = LessThan(16);
-    lt[1].in[0] <== tokenIndex0;
-    lt[1].in[1] <== 1024;
-    lt[1].out === 1;
+    component eq = IsEqual();
+    eq.in[0] <== nonce;
+    eq.in[1] <== dataPath[NonceOffset];
+    var out1 = eq.out;
 
-	// decompose pool index
-	component ntb = Num2Bits(32);
-	ntb.in <== dataPath[0];
-
-    // check index of pool
-    component pli = checkPoolLeafInfoIndex();
-    for(var i=0; i<32; i++) {
-        pli.index[i] <== ntb.out[i];
-    }
-    pli.poolIndex <== poolIndex;
-    pli.res === 1; // true
-
-    var TOKEN0_INFO_SELECTOR = 0;
-    tokenInfo0 <-- dataPath[61+TOKEN0_INFO_SELECTOR];
-    tokenInfo0 === 0;
-    var TOKEN1_INFO_SELECTOR = 1;
-    tokenInfo1 <-- dataPath[61+TOKEN1_INFO_SELECTOR];
-    tokenInfo1 === 0;
-    var TOKEN0_AMOUNT_SELECTOR = 2;
-    var token0Amount = dataPath[61+TOKEN0_AMOUNT_SELECTOR];
-    var TOKEN1_AMOUNT_SELECTOR = 2;
-    var token1Amount = dataPath[61+TOKEN1_AMOUNT_SELECTOR];
-
-    // generate new root hash
-    var arr[4] = [tokenIndex0, tokenIndex1, 0, 0];
-    component checkTreeRootHashComp = CheckTreeRootHash(1);
-    for(var i=0; i<MaxTreeDataIndex; i++) {
-        if(i>60 && i<65) {
-            checkTreeRootHashComp.treeData[i] <== arr[i-61];
+    out <== out0 * out1;
+    caller <== c.caller;
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        if (i == NonceOffset) {
+            newDataPath[i] <== dataPath[i] + 1;
         } else {
-            checkTreeRootHashComp.treeData[i] <== dataPath[i];
+            newDataPath[i] <== dataPath[i];
+        }
+    }
+}
+
+template CheckAndUpdateNonceFE() {
+    var MaxTreeDataIndex = 66;
+
+    signal input caller;
+    signal input nonce;
+    signal input dataPath[MaxTreeDataIndex];
+
+    signal output newDataPath[MaxTreeDataIndex];
+    signal output out;
+
+    component c = CheckAndUpdateNonceAnonymousFE();
+    c.nonce <== nonce;
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        c.dataPath[i] <== dataPath[i];
+    }
+
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        newDataPath[i] <== c.newDataPath[i];
+    }
+
+    component eq = IsEqual();
+    eq.in[0] <== caller;
+    eq.in[1] <== c.caller;
+
+    out <== eq.out * c.out;
+}
+
+template InitPoolInfoFE() {
+    var IndexOffset = 0;
+    var LeafStartOffset = 61;
+    var MaxTreeDataIndex = 66;
+
+    signal input tokenIndex0;
+    signal input tokenIndex1;
+    signal input dataPath[MaxTreeDataIndex];
+
+    signal output newDataPath[MaxTreeDataIndex];
+    signal output out;
+
+    component c = CheckPoolInfoIndexFE();
+    c.index <== dataPath[IndexOffset];
+    var out0 = c.out;
+
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        if (i == LeafStartOffset) {
+            newDataPath[i] <== tokenIndex0;
+        } else if (i == LeafStartOffset + 1) {
+            newDataPath[i] <== tokenIndex1;
+        } else {
+            newDataPath[i] <== dataPath[i];
         }
     }
 
-    newRootHash <== checkTreeRootHashComp.newRootHash;
+    component zero0 = IsZero();
+    zero0.in <== dataPath[LeafStartOffset];
+    component zero1 = IsZero();
+    zero1.in <== dataPath[LeafStartOffset + 1];
+
+    signal zerocheck;
+    zerocheck <== zero0.out * zero1.out;
+    out <== out0 * zerocheck;
+}
+
+template CheckPermission(privilege) {
+    signal input caller;
+    signal output out;
+
+    // TODO: fill privilege decision.
+
+    out <== 1;
+}
+
+template AddPool() {
+    var MaxStep = 5;
+    var MaxTreeDataIndex = 66;
+    var CommandArgs = 6;
+
+    signal input args[CommandArgs];
+    signal input dataPath[MaxStep][MaxTreeDataIndex];
+    signal output newDataPath[MaxStep][MaxTreeDataIndex];
+    signal output out;
+
+    component andmany = AndMany(8);
+
+    var nonce = args[1];
+    var tokenIndex0 = args[2];
+    var tokenIndex1 = args[3];
+
+    var andmanyOffset = 0;
+
+    // circuits: check tokenIndex0 < 2 ^ 10
+    component rangecheck0 = Check2PowerRangeFE(10);
+    rangecheck0.in <== tokenIndex0;
+    andmany.in[andmanyOffset] <== rangecheck0.out;
+    andmanyOffset++;
+
+    // circuits: check tokenIndex1 < 2 ^ 10
+    component rangecheck1 = Check2PowerRangeFE(10);
+    rangecheck1.in <== tokenIndex1;
+    andmany.in[andmanyOffset] <== rangecheck1.out;
+    andmanyOffset++;
+
+    // circuits: check tokenIndex0 != tokenIndex1
+    component tokenEq = IsEqual();
+    tokenEq.in[0] <== tokenIndex0;
+    tokenEq.in[1] <== tokenIndex1;
+    andmany.in[andmanyOffset] <== 1 - tokenEq.out;
+    andmanyOffset++;
+
+    // check if the other part of args is 0
+    component zeroarg[CommandArgs - 4];
+    var offset = 0;
+    for (var i = 4; i < CommandArgs; i++) {
+        zeroarg[offset] = IsZero();
+        zeroarg[offset].in <== args[i];
+        andmany.in[andmanyOffset] <== zeroarg[offset].out;
+        andmanyOffset++;
+        offset++;
+    }
+
+    // STEP1: udpate nonce
+    component checkNonce = CheckAndUpdateNonceAnonymousFE();
+    checkNonce.nonce <== nonce;
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        checkNonce.dataPath[i] <== dataPath[0][i];
+    }
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        newDataPath[0][i] <== checkNonce.newDataPath[i];
+    }
+    andmany.in[andmanyOffset] <== checkNonce.out;
+    andmanyOffset++;
+
+    // circuits: check caller permission
+    component perm = CheckPermission(1);
+    perm.caller <== checkNonce.caller;
+    andmany.in[andmanyOffset] <== perm.out;
+    andmanyOffset++;
+
+    // STEP2: init pool info
+    // circuits: check index of pool
+    // circuits: check leafValues[0] and leafValues[1] equal to 0
+    component init = InitPoolInfoFE();
+    init.tokenIndex0 <== tokenIndex0;
+    init.tokenIndex1 <== tokenIndex1;
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        init.dataPath[i] <== dataPath[1][i];
+    }
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        newDataPath[1][i] <== init.newDataPath[i];
+    }
+    andmany.in[andmanyOffset] <== init.out;
+    andmanyOffset++;
+
+    for (var i = 2; i < MaxStep; i++) {
+        for (var j = 0; j < MaxTreeDataIndex; j++) {
+            newDataPath[i][j] <== dataPath[i][j];
+        }
+    }
+
+    out <== andmany.out;
 }

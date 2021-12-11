@@ -6,7 +6,10 @@ template BiSelect() {
     signal output out;
     component iszero = IsZero();
     iszero.in <== cond;
-    out <== in[0] * iszero.out + in[1] * (1 - iszero.out);
+
+    signal r;
+    r <== in[1] * (1 - iszero.out);
+    out <== in[0] * iszero.out + r;
 }
 
 template NSelect(N) {
