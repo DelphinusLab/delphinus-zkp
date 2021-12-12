@@ -41,8 +41,8 @@ template CheckCommandSign() {
 template CheckCommandSignFromKeyPath() {
     var IndexOffset = 0;
     var LeafStartOffset = 61;
-    var AxOffsetInLeaves = LeafStartOffset + 0;
-    var AyOffsetInLeaves = LeafStartOffset + 1;
+    var AxOffset = LeafStartOffset + 0;
+    var AyOffset = LeafStartOffset + 1;
     var RootHashIndex = 65;
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
@@ -68,8 +68,8 @@ template CheckCommandSignFromKeyPath() {
     for (var i = 0; i < CommandArgs; i++) {
         checkSign.args[i] <== args[i];
     }
-    checkSign.ax <== keyPath[AxOffsetInLeaves];
-    checkSign.ay <== keyPath[AyOffsetInLeaves];
+    checkSign.ax <== keyPath[AxOffset];
+    checkSign.ay <== keyPath[AyOffset];
     checkSign.rx <== sign[0];
     checkSign.ry <== sign[1];
     checkSign.s <== sign[2];

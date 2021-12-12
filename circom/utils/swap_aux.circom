@@ -40,6 +40,101 @@ template AndMany(N) {
     out <== acc;
 }
 
+template GetValueFromTreePath() {
+    var IndexOffset = 0;
+    var NodesPerLevel = 4;
+    var LeafStartOffset = 61;
+    var MaxTreeDataIndex = 66;
+
+    signal input treeData[MaxTreeDataIndex];
+    signal output out;
+
+    component c = Num2Bits(32);
+    c.in <== treeData[IndexOffset];
+
+    var offset = c.out[0] + 2 * c.out[1];
+
+    component select = NSelect(NodesPerLevel);
+    select.cond = offset;
+    for (var i = 0; i < NodesPerLevel; i++) {
+        select.in[i] <== treeData[i + LeafStartOffset];
+    }
+
+    out <== select.out;
+}
+
+template SetValueFromTreePath() {
+    var IndexOffset = 0;
+    var NodesPerLevel = 4;
+    var LeafStartOffset = 61;
+    var MaxTreeDataIndex = 66;
+
+    signal input value;
+    signal input treeData[MaxTreeDataIndex];
+    signal output newTreeData[MaxTreeDataIndex];
+
+    component c = Num2Bits(32);
+    c.in <== treeData[IndexOffset];
+
+    var offset = c.out[0] + 2 * c.out[1];
+
+    component select[NodesPerLevel];
+    for (var i = 0; i < NodesPerLevel; i++) {
+        select[i] = BiSelect();
+        select[i].in[0] <== value;
+        select[i].in[1] <== treeData[i + LeafStartOffset];
+        select[i].cond <== offset - i;
+        newTreeData[i + LeafStartOffset] = select[i].out;
+    }
+
+    for (var i = 0; i < LeafStartOffset; i++) {
+        newTreeData[i] <== treeData[i];
+    }
+
+    for (var i = LeafStartOffset + NodesPerLevel; i < MaxTreeDataIndex; i++) {
+        newTreeData[i] <== treeData[i];
+    }
+}
+
+template ChangeValueFromTreePath() {
+    var MaxTreeDataIndex;
+
+    signal input treeData[MaxTreeDataIndex];
+    signal input diff;
+    signal output newTreeData[MaxTreeDataIndex];
+    signal output out;
+
+    component andmany = AndMany(8);
+    var andmanyOffset = 0;
+
+    component getValue = GetValueFromTreePath();
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        getValue.treeData[i] <== treeData[i];
+    }
+    var oldValue = getValue.out;
+
+    component rangecheck0 = Check2PowerRangeFE(250);
+    rangecheck0.in <== oldValue;
+    var out0 = rangecheck0.out;
+
+    var newValue = oldValue + diff;
+
+    component rangecheck1 = Check2PowerRangeFE(250);
+    rangecheck1.in <== newValue;
+    var out1 = rangecheck1.out;
+
+    component update = SetValueFromTreePath();
+    update.value <== newValue;
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        update.treeData[i] <== treeData[i];
+    }
+
+    out <== out0 * out1;
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        newTreeData[i] <== update.newTreeData[i];
+    }
+}
+
 // b01 Pool: (10bits) pool index + (18bits) 0 + (2bits) poolinfo (token0index, token1index, amount0, amount1)
 template CheckPoolInfoIndexFE() {
     signal input index;
@@ -51,6 +146,20 @@ template CheckPoolInfoIndexFE() {
 
     component eq = IsEqual();
     eq.in[0] <== n2b.in * (1 << 20) + (1 << 30);
+    eq.in[1] <== index;
+
+    out <== eq.out;
+}
+
+// b00 Balance: (20bits) account index + (10bits) token index
+template CheckBalanceIndex() {
+    signal input account;
+    signal input token;
+    signal input index;
+    signal output out;
+
+    component eq = IsEqual();
+    eq.in[0] <== account * (1 << 10) + token;
     eq.in[1] <== index;
 
     out <== eq.out;

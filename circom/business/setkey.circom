@@ -39,8 +39,11 @@ template InitPoolInfoFE() {
     out <== out0 * zerocheck;
 }
 
-template AddPool() {
+template SetKey() {
     var MaxStep = 5;
+    var LeafStartOffset = 61;
+    var AxOffset = LeafStartOffset + 0;
+    var AyOffset = LeafStartOffset + 1;
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
 
@@ -51,70 +54,53 @@ template AddPool() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(7);
+    component andmany = AndMany(10);
     var andmanyOffset = 0;
 
     var nonce = args[1];
-    var tokenIndex0 = args[2];
-    var tokenIndex1 = args[3];
+    var account = args[2];
+    var ax = args[5];
+    var ay = args[6];
 
-    // circuits: check tokenIndex0 < 2 ^ 10
-    component rangecheck0 = Check2PowerRangeFE(10);
-    rangecheck0.in <== tokenIndex0;
+    // circuits: check accountIndex < 2 ^ 20
+    component rangecheck0 = Check2PowerRangeFE(20);
+    rangecheck0.in <== account;
     andmany.in[andmanyOffset] <== rangecheck0.out;
     andmanyOffset++;
 
-    // circuits: check tokenIndex1 < 2 ^ 10
-    component rangecheck1 = Check2PowerRangeFE(10);
-    rangecheck1.in <== tokenIndex1;
-    andmany.in[andmanyOffset] <== rangecheck1.out;
+    // circuits: check (x, y) is a valid point
+    component pointCheck = PointCheck();
+    pointCheck.x <== ax;
+    pointCheck.y <== ay;
+    andmany.in[andmanyOffset] <== pointCheck.out;
     andmanyOffset++;
 
-    // circuits: check tokenIndex0 != tokenIndex1
-    component tokenEq = IsEqual();
-    tokenEq.in[0] <== tokenIndex0;
-    tokenEq.in[1] <== tokenIndex1;
-    andmany.in[andmanyOffset] <== 1 - tokenEq.out;
-    andmanyOffset++;
-
-    // STEP1: udpate nonce
+    // STEP1: init nonce and key
     component checkNonce = CheckAndUpdateNonceFE();
     checkNonce.nonce <== nonce;
-    checkNonce.caller <== signer;
+    checkNonce.caller <== account;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         checkNonce.dataPath[i] <== dataPath[0][i];
     }
     for (var i = 0; i < MaxTreeDataIndex; i++) {
-        newDataPath[0][i] <== checkNonce.newDataPath[i];
+        if (i == AxOffset) {
+            newDataPath[0][i] <== ax;
+        } else if (i == AyOffset) {
+            newDataPath[0][i] <== ay;
+        } else {
+            newDataPath[0][i] <== checkNonce.newDataPath[i];
+        }
     }
     andmany.in[andmanyOffset] <== checkNonce.out;
     andmanyOffset++;
 
     // circuits: check caller permission and signer
-    component perm = CheckPermission(1);
+    component perm = CheckPermission(0);
     perm.caller <== checkNonce.caller;
     andmany.in[andmanyOffset] <== perm.out;
     andmanyOffset++;
 
-    andmany.in[andmanyOffset] <== signed;
-    andmanyOffset++;
-
-    // STEP2: init pool info
-    // circuits: check index of pool
-    // circuits: check leafValues[0] and leafValues[1] equal to 0
-    component init = InitPoolInfoFE();
-    init.tokenIndex0 <== tokenIndex0;
-    init.tokenIndex1 <== tokenIndex1;
-    for (var i = 0; i < MaxTreeDataIndex; i++) {
-        init.dataPath[i] <== dataPath[1][i];
-    }
-    for (var i = 0; i < MaxTreeDataIndex; i++) {
-        newDataPath[1][i] <== init.newDataPath[i];
-    }
-    andmany.in[andmanyOffset] <== init.out;
-    andmanyOffset++;
-
-    for (var i = 2; i < MaxStep; i++) {
+    for (var i = 1; i < MaxStep; i++) {
         for (var j = 0; j < MaxTreeDataIndex; j++) {
             newDataPath[i][j] <== dataPath[i][j];
         }
