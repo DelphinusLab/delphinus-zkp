@@ -19,12 +19,16 @@ template NSelect(N) {
 
     component c[N];
 
-    var sum = 0;
+    signal sum[N];
+
+    var acc = 0;
+
     for (var i = 0; i < N; i++) {
         c[i] = IsZero();
         c[i].in <== cond - i;
-        sum += c[i].out * in[i];
+        sum[i] <== acc + c[i].out * in[i];
+        acc = sum[i];
     }
 
-    out <== sum;
+    out <== acc;
 }

@@ -15,23 +15,18 @@ template TestCheckCommandSign() {
     signal input ry;
     signal input s;
 
-    component c2b = Command2Bits();
+    component ccs = CheckCommandSign();
+    ccs.ax <== ax;
+    ccs.ay <== ay;
+    ccs.rx <== rx;
+    ccs.ry <== ry;
+    ccs.s <== s;
+
     for (var i = 0; i < CommandArgs; i++) {
-        c2b.args[i] <== args[i];
+        ccs.args[i] <== args[i];
     }
 
-    component cs = CheckSign(CommandsBits);
-    cs.ax <== ax;
-    cs.ay <== ay;
-    cs.rx <== rx;
-    cs.ry <== ry;
-    cs.s <== s;
-
-    for (var i = 0; i < CommandsBits; i++) {
-        cs.msg[i] <== c2b.out[i];
-    }
-
-    cs.out === 1;
+    ccs.out === 1;
 }
 
 

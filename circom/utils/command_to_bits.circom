@@ -28,7 +28,6 @@ template Command2Bits() {
 template Commands2Bits(N) {
     var CommandArgs = 6;
     var ByteBits = 8;
-    var ArgBytesList[CommandArgs] = [1, 8, 4, 4, 32, 32];
     var CommandBits = 81 * ByteBits;
 
     signal input args[N][CommandArgs];
