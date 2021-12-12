@@ -13,7 +13,7 @@ export interface Input {
   startRootHash: string;
   endRootHash: string;
   sign: string[][];
-  commands: string[][];
+  args: string[][];
   keyPath: string[][];
   dataPath: string[][][];
 }
@@ -21,7 +21,7 @@ export interface Input {
 class ZKPInputBuilder {
   input: Input = {
     commandHash: [],
-    commands: [],
+    args: [],
     sign: [],
     keyPath: [],
     dataPath: [],
@@ -67,7 +67,7 @@ class ZKPInputBuilder {
   pushCommand(command: [Field, Field[]]) {
     let data: string[] = [command[0].v.toString()];
     data = data.concat(command[1].slice(3, 8).map((x) => x.toString()));
-    this.input.commands.push(data);
+    this.input.args.push(data);
   }
 
   pushSign(command: [Field, Field[]]) {
