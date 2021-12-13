@@ -3,42 +3,6 @@ pragma circom 2.0.2;
 include "../utils/bit.circom";
 include "../utils/swap_aux.circom";
 
-template InitPoolInfoFE() {
-    var IndexOffset = 0;
-    var LeafStartOffset = 61;
-    var MaxTreeDataIndex = 66;
-
-    signal input tokenIndex0;
-    signal input tokenIndex1;
-    signal input dataPath[MaxTreeDataIndex];
-
-    signal output newDataPath[MaxTreeDataIndex];
-    signal output out;
-
-    component c = CheckPoolInfoIndexFE();
-    c.index <== dataPath[IndexOffset];
-    var out0 = c.out;
-
-    for (var i = 0; i < MaxTreeDataIndex; i++) {
-        if (i == LeafStartOffset) {
-            newDataPath[i] <== tokenIndex0;
-        } else if (i == LeafStartOffset + 1) {
-            newDataPath[i] <== tokenIndex1;
-        } else {
-            newDataPath[i] <== dataPath[i];
-        }
-    }
-
-    component zero0 = IsZero();
-    zero0.in <== dataPath[LeafStartOffset];
-    component zero1 = IsZero();
-    zero1.in <== dataPath[LeafStartOffset + 1];
-
-    signal zerocheck;
-    zerocheck <== zero0.out * zero1.out;
-    out <== out0 * zerocheck;
-}
-
 template SetKey() {
     var MaxStep = 5;
     var LeafStartOffset = 61;
@@ -54,13 +18,13 @@ template SetKey() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(10);
+    component andmany = AndMany(4);
     var andmanyOffset = 0;
 
     var nonce = args[1];
     var account = args[2];
-    var ax = args[5];
-    var ay = args[6];
+    var ax = args[4];
+    var ay = args[5];
 
     // circuits: check accountIndex < 2 ^ 20
     component rangecheck0 = Check2PowerRangeFE(20);

@@ -5,6 +5,7 @@ pragma circom 2.0.0;
 include "../node_modules/circomlib/circuits/sha256/sha256.circom";
 include "../node_modules/circomlib/circuits/poseidon.circom";
 include "business/addpool.circom";
+include "business/setkey.circom";
 include "utils/merkle_tree.circom";
 include "utils/select.circom";
 include "utils/command_hash.circom";
@@ -51,12 +52,12 @@ template RunCommand() {
     signal newDataPath[MaxStep][MaxTreeDataIndex];
 
     // 3. Dispatch to command
-    component commands[NCOMMANDS];
     component outSelect;
     component newDataPathSelect[MaxStep][MaxTreeDataIndex];
 
     outSelect = NSelect(NCOMMANDS);
     outSelect.cond <== args[0];
+
     for (var i = 0; i < MaxStep; i++) {
         for (var j = 0; j < MaxTreeDataIndex; j++) {
             newDataPathSelect[i][j] = NSelect(NCOMMANDS);
@@ -64,29 +65,147 @@ template RunCommand() {
         }
     }
 
-    for (var i = 0; i < NCOMMANDS; i++) {
-        commands[i] = AddPool();
+    var i = 0;
 
-        for (var j = 0; j < CommandArgs; j++) {
-            commands[i].args[j] <== args[j];
-        }
-
-        for (var j = 0; j < MaxStep; j++) {
-            for (var k = 0; k < MaxTreeDataIndex; k++) {
-                commands[i].dataPath[j][k] <== dataPath[j][k];
-            }
-        }
-
-        commands[i].signer <== signer;
-        commands[i].signed <== signed;
-
-        outSelect.in[i] <== commands[i].out;
-        for (var j = 0; j < MaxStep; j++) {
-            for (var k = 0; k < MaxTreeDataIndex; k++) {
-                newDataPathSelect[j][k].in[i] <== commands[i].newDataPath[j][k];
-            }
+    // 0 - 
+    component command0 = AddPool();
+    command0.signer <== signer;
+    command0.signed <== signed;
+    for (var j = 0; j < CommandArgs; j++) {
+        command0.args[j] <== args[j];
+    }
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            command0.dataPath[j][k] <== dataPath[j][k];
         }
     }
+    outSelect.in[i] <== command0.out;
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            newDataPathSelect[j][k].in[i] <== command0.newDataPath[j][k];
+        }
+    }
+    i++;
+
+    // 1 - 
+    component command1 = AddPool();
+    command1.signer <== signer;
+    command1.signed <== signed;
+    for (var j = 0; j < CommandArgs; j++) {
+        command1.args[j] <== args[j];
+    }
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            command1.dataPath[j][k] <== dataPath[j][k];
+        }
+    }
+    outSelect.in[i] <== command1.out;
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            newDataPathSelect[j][k].in[i] <== command1.newDataPath[j][k];
+        }
+    }
+    i++;
+
+    // 2 - 
+    component command2 = AddPool();
+    command2.signer <== signer;
+    command2.signed <== signed;
+    for (var j = 0; j < CommandArgs; j++) {
+        command2.args[j] <== args[j];
+    }
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            command2.dataPath[j][k] <== dataPath[j][k];
+        }
+    }
+    outSelect.in[i] <== command2.out;
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            newDataPathSelect[j][k].in[i] <== command2.newDataPath[j][k];
+        }
+    }
+    i++;
+    
+    // 3 - 
+    component command3 = AddPool();
+    command3.signer <== signer;
+    command3.signed <== signed;
+    for (var j = 0; j < CommandArgs; j++) {
+        command3.args[j] <== args[j];
+    }
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            command3.dataPath[j][k] <== dataPath[j][k];
+        }
+    }
+    outSelect.in[i] <== command3.out;
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            newDataPathSelect[j][k].in[i] <== command3.newDataPath[j][k];
+        }
+    }
+    i++;
+
+    // 4 - 
+    component command4 = AddPool();
+    command4.signer <== signer;
+    command4.signed <== signed;
+    for (var j = 0; j < CommandArgs; j++) {
+        command4.args[j] <== args[j];
+    }
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            command4.dataPath[j][k] <== dataPath[j][k];
+        }
+    }
+    outSelect.in[i] <== command4.out;
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            newDataPathSelect[j][k].in[i] <== command4.newDataPath[j][k];
+        }
+    }
+    i++;
+
+    // 5 - 
+    component command5 = AddPool();
+    command5.signer <== signer;
+    command5.signed <== signed;
+    for (var j = 0; j < CommandArgs; j++) {
+        command5.args[j] <== args[j];
+    }
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            command5.dataPath[j][k] <== dataPath[j][k];
+        }
+    }
+    outSelect.in[i] <== command5.out;
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            newDataPathSelect[j][k].in[i] <== command5.newDataPath[j][k];
+        }
+    }
+    i++;
+    
+    // 6 - 
+    component command6 = SetKey();
+    command6.signer <== signer;
+    command6.signed <== signed;
+    for (var j = 0; j < CommandArgs; j++) {
+        command6.args[j] <== args[j];
+    }
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            command6.dataPath[j][k] <== dataPath[j][k];
+        }
+    }
+    outSelect.in[i] <== command6.out;
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            newDataPathSelect[j][k].in[i] <== command6.newDataPath[j][k];
+        }
+    }
+    i++;
 
     outSelect.out === 1;
 
