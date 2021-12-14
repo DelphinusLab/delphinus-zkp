@@ -60,7 +60,7 @@ template CheckCommandSignFromKeyPath() {
     }
 
     // 2. check the path index's validation
-    component checkIndex = CheckAccountInfoIndexFE(0);
+    component checkIndex = CheckAccountInfoIndexFE();
     checkIndex.index <== keyPath[IndexOffset];
     checkIndex.out === 1;
 

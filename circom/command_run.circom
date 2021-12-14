@@ -4,6 +4,8 @@ pragma circom 2.0.0;
 
 include "../node_modules/circomlib/circuits/sha256/sha256.circom";
 include "../node_modules/circomlib/circuits/poseidon.circom";
+include "business/deposit.circom";
+include "business/withdraw.circom";
 include "business/addpool.circom";
 include "business/setkey.circom";
 include "utils/merkle_tree.circom";
@@ -34,10 +36,10 @@ template RunCommand() {
     // 1. Check all merkle tree path
     component checkTreeRootHashComp[MaxStep];
     for (var i = 0; i < MaxStep; i++) {
-      checkTreeRootHashComp[i] = CheckTreeRootHash(0);
-      for (var j = 0; j < MaxTreeDataIndex; j++) {
-        checkTreeRootHashComp[i].treeData[j] <== dataPath[i][j];
-      }
+        checkTreeRootHashComp[i] = CheckTreeRootHash(0);
+        for (var j = 0; j < MaxTreeDataIndex; j++) {
+            checkTreeRootHashComp[i].treeData[j] <== dataPath[i][j];
+        }
     }
 
     // 2. Check args range
@@ -68,7 +70,7 @@ template RunCommand() {
     var i = 0;
 
     // 0 - 
-    component command0 = AddPool();
+    component command0 = Deposit();
     command0.signer <== signer;
     command0.signed <== signed;
     for (var j = 0; j < CommandArgs; j++) {
@@ -88,7 +90,7 @@ template RunCommand() {
     i++;
 
     // 1 - 
-    component command1 = AddPool();
+    component command1 = Withdraw();
     command1.signer <== signer;
     command1.signed <== signed;
     for (var j = 0; j < CommandArgs; j++) {

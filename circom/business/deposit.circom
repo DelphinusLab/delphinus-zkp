@@ -5,6 +5,7 @@ include "../utils/swap_aux.circom";
 
 template Deposit() {
     var MaxStep = 5;
+    var IndexOffset = 0;
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
 
@@ -44,7 +45,7 @@ template Deposit() {
     // STEP1: udpate nonce
     component checkNonce = CheckAndUpdateNonceFE();
     checkNonce.nonce <== nonce;
-    checkNonce.signer <== signer;
+    checkNonce.caller <== signer;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         checkNonce.dataPath[i] <== dataPath[0][i];
     }
@@ -64,7 +65,6 @@ template Deposit() {
     andmanyOffset++;
 
     // STEP2: udpate balance
-    // circuits: check balance + amount doesn't overflow
     component balanceIndex = CheckBalanceIndex();
     balanceIndex.account <== account;
     balanceIndex.token <== token;
@@ -82,7 +82,6 @@ template Deposit() {
     }
     andmany.in[andmanyOffset] <== change.out;
     andmanyOffset++;
-
 
     for (var i = 2; i < MaxStep; i++) {
         for (var j = 0; j < MaxTreeDataIndex; j++) {

@@ -55,7 +55,7 @@ template GetValueFromTreePath() {
     var offset = c.out[0] + 2 * c.out[1];
 
     component select = NSelect(NodesPerLevel);
-    select.cond = offset;
+    select.cond <== offset;
     for (var i = 0; i < NodesPerLevel; i++) {
         select.in[i] <== treeData[i + LeafStartOffset];
     }
@@ -84,7 +84,7 @@ template SetValueFromTreePath() {
         select[i].in[0] <== value;
         select[i].in[1] <== treeData[i + LeafStartOffset];
         select[i].cond <== offset - i;
-        newTreeData[i + LeafStartOffset] = select[i].out;
+        newTreeData[i + LeafStartOffset] <== select[i].out;
     }
 
     for (var i = 0; i < LeafStartOffset; i++) {
@@ -97,15 +97,12 @@ template SetValueFromTreePath() {
 }
 
 template ChangeValueFromTreePath() {
-    var MaxTreeDataIndex;
+    var MaxTreeDataIndex = 66;
 
     signal input treeData[MaxTreeDataIndex];
     signal input diff;
     signal output newTreeData[MaxTreeDataIndex];
     signal output out;
-
-    component andmany = AndMany(8);
-    var andmanyOffset = 0;
 
     component getValue = GetValueFromTreePath();
     for (var i = 0; i < MaxTreeDataIndex; i++) {
@@ -166,21 +163,24 @@ template CheckBalanceIndex() {
 }
 
 // b11 Account: (20bits) account index + (10bits) info data, (0 & 1 - public key, 2 - nonce, other - reserved)
-template CheckAccountInfoIndexFE(OFFSET) {
+template CheckAccountInfoIndexFE() {
     signal input index;
     signal output out;
     signal output caller;
 
     // Find 20 bits as value `a` in BE, check (3 << 30) + (a << 10) + OFFSET == index
-    component n2b = Num2Bits(20);
-    n2b.in <-- (index >> 10) & ((1 << 20) - 1);
+    component n2bAccount = Num2Bits(20);
+    n2bAccount.in <-- (index >> 10) & ((1 << 20) - 1);
+
+    component n2bOffset = Num2Bits(2);
+    n2bOffset.in <-- index & 3;
 
     component eq = IsEqual();
-    eq.in[0] <== n2b.in * (1 << 10) + (3 << 30) + OFFSET;
+    eq.in[0] <== n2bAccount.in * (1 << 10) + (3 << 30) + n2bOffset.in;
     eq.in[1] <== index;
 
     out <== eq.out;
-    caller <== n2b.in;
+    caller <== n2bAccount.in;
 }
 
 template CheckAndUpdateNonceAnonymousFE() {
@@ -196,7 +196,7 @@ template CheckAndUpdateNonceAnonymousFE() {
     signal output out;
     signal output caller;
 
-    component c = CheckAccountInfoIndexFE(NonceOffsetInLeaves);
+    component c = CheckAccountInfoIndexFE();
     c.index <== dataPath[IndexOffset];
     var out0 = c.out;
 

@@ -5,6 +5,7 @@ include "../utils/swap_aux.circom";
 
 template Withdraw() {
     var MaxStep = 5;
+    var IndexOffset = 0;
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
 
@@ -51,7 +52,7 @@ template Withdraw() {
     // STEP1: udpate nonce
     component checkNonce = CheckAndUpdateNonceFE();
     checkNonce.nonce <== nonce;
-    checkNonce.signer <== signer;
+    checkNonce.caller <== signer;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         checkNonce.dataPath[i] <== dataPath[0][i];
     }
