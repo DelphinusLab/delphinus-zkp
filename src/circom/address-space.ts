@@ -55,11 +55,11 @@ export function getShareInfoIndex(
 }
 
 export function getAccountPublicKeyIndex(accountIndex: number | Field) {
-  return (AddressSpace.Account << 30) | (toNumber(accountIndex) << 20) | 0;
+  return (AddressSpace.Account << 30) | (toNumber(accountIndex) << 10) | 0;
 }
 
 export function getAccountNonceIndex(accountIndex: number | Field) {
-  return (AddressSpace.Account << 30) | (toNumber(accountIndex) << 20) | 2;
+  return (AddressSpace.Account << 30) | (toNumber(accountIndex) << 10) | 2;
 }
 
 export class L2Storage extends MerkleTree {

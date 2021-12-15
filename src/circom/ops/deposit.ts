@@ -16,6 +16,7 @@ export class DepositCommand extends Command {
     const amount = this.args[6];
     // circuits: check accountIndex < 2 ^ 20
     // circuits: check tokenIndex < 2 ^ 10
+    // circuits: check amount < 2 ^ 250
 
     // STEP1: udpate nonce
     // circuits: check nonce

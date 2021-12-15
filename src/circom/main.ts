@@ -25,25 +25,28 @@ export function zkpProofToArray(proof: Groth16Proof) {
     .concat(proof.inputs);
 }
 
-export async function writeInput(input: Input) {
-  return await fs.writeJSON(path.join(circomRoot, "input.json"), input);
+export async function writeInput(input: Input, rid: string) {
+  await fs.writeJSON(path.join(circomRoot, "input.json"), input);
+  await fs.writeJSON(path.join(circomRoot, `input.${rid}.json`), input);
 }
 
 export const ZKPPath = path.resolve(__dirname, "..", "..", "..", "circom");
 
 export async function runZkp(
-  op: Field,
-  args: Field[],
+  commands: [Field, Field[]][],
   storage: L2Storage,
+  rid: string,
   runProof = true
 ) {
-  const input = await genZKPInput([[op, args]], storage);
+  const input = await genZKPInput(commands, storage);
 
   if (!runProof) {
     return;
   }
 
-  await writeInput(input);
+  await writeInput(input, rid);
+
+  return;
 
   await new Promise((resolve, reject) =>
     exec(
