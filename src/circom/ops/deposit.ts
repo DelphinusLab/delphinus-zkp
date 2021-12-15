@@ -1,11 +1,10 @@
 import { PathInfo } from "delphinus-curves/src/merkle-tree-large";
-import { getBalanceInfoIndex, L2Storage } from "../address-space";
+import { L2Storage } from "../address-space";
 import { Command } from "../command";
-import { adminAccountIndex } from "../common";
 
 export class DepositCommand extends Command {
   get callerAccountIndex() {
-    return adminAccountIndex;
+    return this.args[8].v.toNumber();
   }
 
   async run(storage: L2Storage) {

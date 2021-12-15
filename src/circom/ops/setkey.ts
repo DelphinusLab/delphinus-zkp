@@ -21,6 +21,7 @@ export class SetKeyCommand extends Command {
 
     // STEP1: init nonce and key
     // circuits: check nonce
+    // circuits: check ax == 0 && ay == 0
     path.push(await storage.getAccountInfo(accountIndex));
 
     await storage.setLeaves(getAccountPublicKeyIndex(accountIndex), [

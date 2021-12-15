@@ -1,8 +1,7 @@
 import { Field } from "delphinus-curves/src/field";
 import { PathInfo } from "delphinus-curves/src/merkle-tree-large";
-import { getBalanceInfoIndex, L2Storage } from "../address-space";
+import { L2Storage } from "../address-space";
 import { Command } from "../command";
-import { adminAccountIndex } from "../common";
 
 export class WithdrawCommand extends Command {
   get callerAccountIndex() {
