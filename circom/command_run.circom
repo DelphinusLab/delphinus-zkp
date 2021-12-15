@@ -4,12 +4,17 @@ pragma circom 2.0.0;
 
 include "../node_modules/circomlib/circuits/sha256/sha256.circom";
 include "../node_modules/circomlib/circuits/poseidon.circom";
-include "business/deposit.circom";
-include "business/withdraw.circom";
-include "business/addpool.circom";
+
+include "business/swap.circom";
 include "business/setkey.circom";
-include "utils/merkle_tree.circom";
+include "business/supply.circom";
+include "business/addpool.circom";
+include "business/deposit.circom";
+include "business/retrieve.circom";
+include "business/withdraw.circom";
+
 include "utils/select.circom";
+include "utils/merkle_tree.circom";
 include "utils/command_hash.circom";
 include "utils/command_sign.circom";
 
@@ -110,7 +115,7 @@ template RunCommand() {
     i++;
 
     // 2 - 
-    component command2 = AddPool();
+    component command2 = Swap();
     command2.signer <== signer;
     command2.signed <== signed;
     for (var j = 0; j < CommandArgs; j++) {
@@ -130,7 +135,7 @@ template RunCommand() {
     i++;
     
     // 3 - 
-    component command3 = AddPool();
+    component command3 = Retrieve();
     command3.signer <== signer;
     command3.signed <== signed;
     for (var j = 0; j < CommandArgs; j++) {
@@ -150,7 +155,7 @@ template RunCommand() {
     i++;
 
     // 4 - 
-    component command4 = AddPool();
+    component command4 = Supply();
     command4.signer <== signer;
     command4.signed <== signed;
     for (var j = 0; j < CommandArgs; j++) {

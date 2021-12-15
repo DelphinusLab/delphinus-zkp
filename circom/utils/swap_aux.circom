@@ -133,7 +133,7 @@ template ChangeValueFromTreePath() {
 }
 
 // b01 Pool: (10bits) pool index + (18bits) 0 + (2bits) poolinfo (token0index, token1index, amount0, amount1)
-template CheckPoolInfoIndexFE() {
+template CheckPoolInfoIndexAnonymousFE() {
     signal input index;
     signal output out;
 
@@ -143,6 +143,18 @@ template CheckPoolInfoIndexFE() {
 
     component eq = IsEqual();
     eq.in[0] <== n2b.in * (1 << 20) + (1 << 30);
+    eq.in[1] <== index;
+
+    out <== eq.out;
+}
+
+template CheckPoolInfoIndexFE() {
+    signal input pool;
+    signal input index;
+    signal output out;
+
+    component eq = IsEqual();
+    eq.in[0] <== pool * (1 << 20) + (1 << 30);
     eq.in[1] <== index;
 
     out <== eq.out;
@@ -161,6 +173,21 @@ template CheckBalanceIndex() {
 
     out <== eq.out;
 }
+
+// b10 Share: (20bits) account index + (10bits) pool index
+template CheckShareIndex() {
+    signal input account;
+    signal input pool;
+    signal input index;
+    signal output out;
+
+    component eq = IsEqual();
+    eq.in[0] <== account * (1 << 10) + pool + (2 << 30);
+    eq.in[1] <== index;
+
+    out <== eq.out;
+}
+
 
 // b11 Account: (20bits) account index + (10bits) info data, (0 & 1 - public key, 2 - nonce, other - reserved)
 template CheckAccountInfoIndexFE() {

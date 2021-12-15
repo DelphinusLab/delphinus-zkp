@@ -15,7 +15,7 @@ template InitPoolInfoFE() {
     signal output newDataPath[MaxTreeDataIndex];
     signal output out;
 
-    component c = CheckPoolInfoIndexFE();
+    component c = CheckPoolInfoIndexAnonymousFE();
     c.index <== dataPath[IndexOffset];
     var out0 = c.out;
 
