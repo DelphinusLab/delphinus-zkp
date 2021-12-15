@@ -46,11 +46,9 @@ export async function runZkp(
 
   await writeInput(input, rid);
 
-  return;
-
   await new Promise((resolve, reject) =>
     exec(
-      "node main_js/generate_witness.js main_js/main.wasm input.json witness.wtns",
+      "bash tools/run.sh",
       {
         cwd: ZKPPath,
       },
@@ -65,7 +63,7 @@ export async function runZkp(
 
   await new Promise((resolve, reject) =>
     exec(
-      "snarkjs groth16 prove main_0000.zkey witness.wtns proof.json public.json",
+      "bash tools/proof.sh",
       {
         cwd: ZKPPath,
       },
