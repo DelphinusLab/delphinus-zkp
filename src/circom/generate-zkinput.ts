@@ -6,7 +6,8 @@ import { Field } from "delphinus-curves/src/field";
 import { MaxHeight, PathInfo } from "delphinus-curves/src//merkle-tree";
 import { Command } from "../circom/command";
 import { createCommand } from "../circom/command-factory";
-import { getAccountPublicKeyIndex, L2Storage } from "./address-space";
+import { L2Storage } from "./address-space";
+import { Account } from "./address/account";
 
 export interface Input {
   commandHash: string[];
@@ -142,7 +143,8 @@ export async function genZKPInput(
 
       // input: key path
       const accountIndex = commandWorker.callerAccountIndex;
-      const keyIndex = getAccountPublicKeyIndex(accountIndex);
+      const account = new Account(storage, accountIndex);
+      const keyIndex = account.getAccountPublicKeyIndex();
       builder.pushKeyData(await storage.getPath(keyIndex));
 
       // input: data path

@@ -1,7 +1,8 @@
 import { Field } from "delphinus-curves/src/field";
 import { PathInfo } from "delphinus-curves/src/merkle-tree-large";
-import { getAccountPublicKeyIndex, L2Storage } from "../address-space";
+import { L2Storage } from "../address-space";
 import { Command } from "../command";
+import { Account } from "../address/account";
 
 export class SetKeyCommand extends Command {
   get callerAccountIndex() {
@@ -16,15 +17,17 @@ export class SetKeyCommand extends Command {
     const x = this.args[6];
     const y = this.args[7];
 
+    const account = new Account(storage, accountIndex);
+
     // circuits: check accountIndex < 2 ^ 20
     // circuits: check (x, y) is a valid point
 
     // STEP1: init nonce and key
     // circuits: check nonce
     // circuits: check ax == 0 && ay == 0
-    path.push(await storage.getAccountInfo(accountIndex));
+    path.push(await account.getAccountInfo());
 
-    await storage.setLeaves(getAccountPublicKeyIndex(accountIndex), [
+    await storage.setLeaves(account.getAccountPublicKeyIndex(), [
       x,
       y,
       nonce.add(new Field(1)),

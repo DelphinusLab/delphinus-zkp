@@ -1,6 +1,8 @@
 import { Field } from "delphinus-curves/src/field";
 import { PathInfo } from "delphinus-curves/src/merkle-tree-large";
-import { getPoolInfoIndex, L2Storage } from "../address-space";
+import { L2Storage } from "../address-space";
+import { Pool } from "../address/pool";
+import { Account } from "../address/account";
 import { Command } from "../command";
 
 export class AddPoolCommand extends Command {
@@ -21,23 +23,19 @@ export class AddPoolCommand extends Command {
     // check if the other part of args is 0
     // omit poolIndex in circuits args, we can get it from merkle tree path
     const poolIndex = this.args[8];
+    const pool = new Pool(storage, poolIndex);
+    const account = new Account(storage, this.callerAccountIndex);
 
     // STEP1: udpate nonce
     // circuits: check nonce
     // circuits: check caller permission
-    path.push(await storage.getAndUpdateNonce(this.callerAccountIndex, nonce));
+    path.push(await account.getAndUpdateNonce(nonce));
 
     // STEP2: init pool info
     // circuits: check index of pool
     // circuits: check leafValues[0] and leafValues[1] equal to 0
-    path.push(await storage.getPoolInfo(poolIndex));
-    const zero = new Field(0);
-    await storage.setLeaves(getPoolInfoIndex(poolIndex), [
-      tokenIndex0,
-      tokenIndex1,
-      zero,
-      zero,
-    ]);
+    path.push(await pool.getPoolPath());
+    await pool.resetPool(tokenIndex0, tokenIndex1);
 
     return path;
   }
