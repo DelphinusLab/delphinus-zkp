@@ -9,18 +9,21 @@ export class Pool  {
   amount0_index: number;
   amount1_index: number;
   storage: MerkleTree;
+
   constructor(storage: MerkleTree, index: number | Field) {
     this.storage = storage;
     this.index = index;
-    this.info_index = getSpaceIndex(AddressSpace.Pool) | (toNumber(this.index) << 10);
+    this.info_index = getSpaceIndex(AddressSpace.Pool) | (toNumber(this.index) << 20);
     this.token0_index = this.info_index | 0;
     this.token1_index = this.info_index | 1;
     this.amount0_index = this.info_index | 2;
     this.amount1_index = this.info_index | 3;
   }
+
   async getPoolPath() {
     return this.storage.getPath(this.info_index);
   }
+
   async getAndAddLiq(
     amount0: Field,
     amount1: Field
@@ -41,6 +44,7 @@ export class Pool  {
     ]);
     return [tokenIndex0, tokenIndex1, path];
   }
+
   async resetPool(
       tokenIndex0: Field,
       tokenIndex1: Field,

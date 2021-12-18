@@ -3,7 +3,12 @@ export enum AddressSpace {
   Balance = 0,
   Pool = 1,
   Share = 2,
-  Account = 3,
+  Meta = 3,
+}
+
+export enum MetaType {
+  Account = 0,
+  NFT = 1,
 }
 
 export function getSpaceIndex (space: AddressSpace) {
@@ -12,4 +17,8 @@ export function getSpaceIndex (space: AddressSpace) {
 
 export function toNumber(v: number | Field) {
   return v instanceof Field ? v.v.toNumber() : v;
+}
+
+export function getMetaIndex (index:number | Field, meta: MetaType) {
+  return (AddressSpace.Meta << 30) | (toNumber(index) << 10) | (meta << 6)
 }

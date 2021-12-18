@@ -1,5 +1,5 @@
 import { Field } from "delphinus-curves/src/field";
-import { AddressSpace, getSpaceIndex, toNumber } from "./space";
+import { AddressSpace, MetaType, getMetaIndex, toNumber } from "./space";
 import { MerkleTree, PathInfo } from "delphinus-curves/src/merkle-tree-large";
 export class Account {
   index: number;
@@ -28,11 +28,11 @@ export class Account {
   }
 
   getAccountPublicKeyIndex() {
-    return (AddressSpace.Account << 30) | (this.index << 10) | 0;
+    return getMetaIndex(this.index << 10, MetaType.Account) | 0;
   }
 
   getAccountNonceIndex() {
-    return (AddressSpace.Account << 30) | (this.index << 10) | 2;
+    return getMetaIndex(this.index << 10, MetaType.Account) | 2;
   }
 
   async getAndUpdateNonce(nonce: Field) {
