@@ -13,7 +13,8 @@ Giving root hash and digest path for validation
 1. b00 Balance: (20bits) account index + (10bits) token index
 2. b01 Pool: (10bits) pool index + (18bits) 0 + (2bits) poolinfo (token0index, token1index, amount0, amount1)
 3. b10 Share: (20bits) account index + (10bits) pool index
-4. b11 Account: (20bits) account index + (10bits) info data, (0 & 1 - public key, 2 - nonce, other -reserved)
+4. b11 Account: (20bits) account index + (4bits) MetaType(0) + (6bits) info data (0 & 1 - public key, 2 - nonce, other -reserved)
+4. b11 NFT: (20bits) nft index + (4bits) MetaType(1) + (6bits) info data (owner, bidder, biddingAmount, reserved)
 
 ## Circom Plan
 
@@ -33,6 +34,11 @@ Assue admin's account index is 0.
 - supply(4)/retrieve(3) - accountIndex(32 bits) poolIndex(32 bits) amount0(256 bits) amount1(256 bits)
 - addpool(5) - tokenIndex0(32 bits) tokenIndex1(32bits) reserved(256 bits) reserved(256bits)
 - setkey(6) - accountIndex(32 bits) reserve(32 bits) x(256 bits) y(256bits)
+- deposit_nft(7) - owner(32 bits) bidder(32 bits) biddingAmount(256 bits) reserved(256bits)
+- withdraw_nft(8) - owner(32 bits) bidder(32 bits) biddingAmount(256 bits) reserved(256bits)
+- transfer_nft(9) - owner(32 bits) bidder(32 bits) biddingAmount(256 bits) reserved(256bits)
+- bid_nft(10) - owner(32 bits) bidder(32 bits) biddingAmount(256 bits) reserved(256bits)
+- finalize_nft(11) - owner(32 bits) bidder(32 bits) biddingAmount(256 bits) reserved(256bits)
 
 ## Additional Args (not in circuits)
 
