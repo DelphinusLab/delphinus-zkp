@@ -210,6 +210,27 @@ template CheckAccountInfoIndexFE() {
     caller <== n2bAccount.in;
 }
 
+// b11 NFT: (20bits) nft index + (4bits) MetaType(1) + (6bits) info data (owner, bidder, biddingAmount, reserved)
+template CheckNFTIndex() {
+    signal input index;
+    signal output out;
+    signal output caller;
+
+    // Find 20 bits as value `a` in BE, check (3 << 30) + (a << 10) + (1 << 6) + OFFSET == index
+    component n2bAccount = Num2Bits(20);
+    n2bAccount.in <-- (index >> 10) & ((1 << 20) - 1);
+
+    component n2bOffset = Num2Bits(2);
+    n2bOffset.in <-- index & 3;
+
+    component eq = IsEqual();
+    eq.in[0] <== n2bAccount.in * (1 << 10) + (3 << 30) + (1 << 6) + n2bOffset.in;
+    eq.in[1] <== index;
+
+    out <== eq.out;
+    caller <== n2bAccount.in;
+}
+
 template CheckAndUpdateNonceAnonymousFE() {
     var IndexOffset = 0;
     var LeafStartOffset = 61;
