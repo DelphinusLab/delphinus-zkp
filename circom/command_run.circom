@@ -15,7 +15,7 @@ include "business/withdraw.circom";
 include "business/deposit_nft.circom";
 include "business/withdraw_nft.circom";
 include "business/transfer_nft.circom";
-//include "business/bid_nft.circom";
+include "business/bid_nft.circom";
 //include "business/finalize_nft.circom";
 
 include "utils/select.circom";
@@ -35,7 +35,7 @@ template RunCommand() {
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
     var MaxStep = 5;
-    var NCOMMANDS = 10;
+    var NCOMMANDS = 11;
 
     signal input args[CommandArgs];
     signal input dataPath[MaxStep][MaxTreeDataIndex];
@@ -278,7 +278,7 @@ template RunCommand() {
         }
     }
     i++;
-    /**
+
     // 10 -
     component command10 = BidNFT();
     command10.signer <== signer;
@@ -298,7 +298,7 @@ template RunCommand() {
         }
     }
     i++;
-
+    /*
     // 11 -
     component command11 = FinalizeNFT();
     command11.signer <== signer;
