@@ -16,7 +16,7 @@ include "business/deposit_nft.circom";
 include "business/withdraw_nft.circom";
 include "business/transfer_nft.circom";
 include "business/bid_nft.circom";
-//include "business/finalize_nft.circom";
+include "business/finalize_nft.circom";
 
 include "utils/select.circom";
 include "utils/merkle_tree.circom";
@@ -35,7 +35,7 @@ template RunCommand() {
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
     var MaxStep = 5;
-    var NCOMMANDS = 11;
+    var NCOMMANDS = 12;
 
     signal input args[CommandArgs];
     signal input dataPath[MaxStep][MaxTreeDataIndex];
@@ -298,7 +298,7 @@ template RunCommand() {
         }
     }
     i++;
-    /*
+   
     // 11 -
     component command11 = FinalizeNFT();
     command11.signer <== signer;
@@ -317,7 +317,7 @@ template RunCommand() {
             newDataPathSelect[j][k].in[i] <== command11.newDataPath[j][k];
         }
     }
-    */
+    
     outSelect.out === 1;
 
     // 4. Check all new merkle tree path
