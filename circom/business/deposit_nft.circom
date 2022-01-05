@@ -32,7 +32,7 @@ template DepositNFT() {
     bidderIs0.in <== bidder;
     biddingAmountIs0.in <== biddingAmount;
     args5Is0.in <== args[5];
-    andmany.in[andmanyOffset] <== bidderIs0.out * biddingAmountIs0.out * args5Is0.out;
+    andmany.in[andmanyOffset] <== (bidderIs0.out + biddingAmountIs0.out + args5Is0.out)/3;
     andmanyOffset++;
 
     // check owner < 2 ^ 20
@@ -56,7 +56,7 @@ template DepositNFT() {
     leaf2Is0.in <== dataPath[1][LeaveStartOffset+1];
     leaf3Is0.in <== dataPath[1][LeaveStartOffset+2];
     leaf4Is0.in <== dataPath[1][LeaveStartOffset+3];
-    andmany.in[andmanyOffset] <== leaf1Is0.out * leaf2Is0.out * leaf3Is0.out * leaf4s0.out;
+    andmany.in[andmanyOffset] <== (leaf1Is0.out + leaf2Is0.out + leaf3Is0.out + leaf4Is0.out)/4;
     andmanyOffset++;
 
     // STEP1: udpate nonce
@@ -102,26 +102,4 @@ template DepositNFT() {
     }
 
     out <== andmany.out;
-}
-
-//b11 NFT: (20bits) nft index + (4bits) MetaType(1) + (6bits) info data (owner, bidder, biddingAmount, reserved)
-template CheckNFTInfoIndexFE() {
-    signal input index;
-    signal output out;
-    signal output caller;
-
-    // Find 20 bits as value `a` in BE, check (3 << 30) + (a << 10) + (1 << 6) + OFFSET == index
-    component n2bNFT = Num2Bits(20);
-    n2bNFT.in <-- (index >> 10) & ((1 << 20) - 1);
-
-    component n2bOffset = Num2Bits(2);
-    n2bOffset.in <-- index & 3;
-
-    component eq = IsEqual();
-    eq.in[0] <== n2bNFT.in * (1 << 10) + (3 << 30) + (1 << 6) + n2bOffset.in;
-    eq.in[1] <== index;
-
-    out <== eq.out;
-    caller <== n2bNFT.in;
-}
 }
