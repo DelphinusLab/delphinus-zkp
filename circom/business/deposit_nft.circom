@@ -17,7 +17,8 @@ template DepositNFT() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(7);
+    component andmany = AndMany(5);   //Check All
+
     var andmanyOffset = 0;
 
     var nonce = args[1];
@@ -25,7 +26,7 @@ template DepositNFT() {
     var bidder = args[3];
     var biddingAmount = args[4];
 
-    // check if bidder, biddingAmount and args[5] are 0s and check if dataPath[61]-dataPath[64] are 0s
+    // check if bidder, biddingAmount, args[5], dataPath[61]--dataPath[64] are 0s and owner != 0
     component bidderIs0 = IsZero();
     component biddingAmountIs0 = IsZero();
     component args5Is0 = IsZero();
@@ -33,14 +34,13 @@ template DepositNFT() {
     component leaf2Is0 = IsZero();
     component leaf3Is0 = IsZero();
     component leaf4Is0 = IsZero();
+    component ownerIs0 = IsZero();
 
-    component check0s = AndMany(7);
-
+    component check0s = AndMany(8);   //Check all 0s
 
     bidderIs0.in <== bidder;
     biddingAmountIs0.in <== biddingAmount;
     args5Is0.in <== args[5];
-
     leaf1Is0.in <== dataPath[1][LeaveStartOffset];
     leaf2Is0.in <== dataPath[1][LeaveStartOffset+1];
     leaf3Is0.in <== dataPath[1][LeaveStartOffset+2];
@@ -53,6 +53,7 @@ template DepositNFT() {
     check0s.in[4] <== leaf2Is0.out;
     check0s.in[5] <== leaf3Is0.out;
     check0s.in[6] <== leaf4Is0.out;
+    check0s.in[7] <== 1 - ownerIs0.out;
 
     andmany.in[andmanyOffset] <== check0s.out;
     andmanyOffset++;
@@ -61,12 +62,6 @@ template DepositNFT() {
     component rangecheck = Check2PowerRangeFE(20);
     rangecheck.in <== owner;
     andmany.in[andmanyOffset] <== rangecheck.out;
-    andmanyOffset++;
-
-    // check owner != 0
-    component ownerIs0 = IsZero();
-    ownerIs0.in <== owner;
-    andmany.in[andmanyOffset] <== 1 - ownerIs0.out;
     andmanyOffset++;
 
     // STEP1: udpate nonce
@@ -85,10 +80,7 @@ template DepositNFT() {
     // circuits: check caller permission and signer
     component perm = CheckPermission(1);
     perm.caller <== checkNonce.caller;
-    andmany.in[andmanyOffset] <== perm.out;
-    andmanyOffset++;
-
-    andmany.in[andmanyOffset] <== signed;
+    andmany.in[andmanyOffset] <== perm.out * signed;
     andmanyOffset++;
 
     // STEP2: udpate nft info
