@@ -45,6 +45,7 @@ template DepositNFT() {
     leaf2Is0.in <== dataPath[1][LeaveStartOffset+1];
     leaf3Is0.in <== dataPath[1][LeaveStartOffset+2];
     leaf4Is0.in <== dataPath[1][LeaveStartOffset+3];
+    ownerIs0.in <== owner;
 
     check0s.in[0] <== bidderIs0.out;
     check0s.in[1] <== biddingAmountIs0.out;
