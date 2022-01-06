@@ -17,7 +17,7 @@ template DepositNFT() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(8);
+    component andmany = AndMany(7);
     var andmanyOffset = 0;
 
     var nonce = args[1];
@@ -25,14 +25,36 @@ template DepositNFT() {
     var bidder = args[3];
     var biddingAmount = args[4];
 
-    // check if bidder, biddingAmount and args[5] are 0s
+    // check if bidder, biddingAmount and args[5] are 0s and check if dataPath[61]-dataPath[64] are 0s
     component bidderIs0 = IsZero();
     component biddingAmountIs0 = IsZero();
     component args5Is0 = IsZero();
+    component leaf1Is0 = IsZero();
+    component leaf2Is0 = IsZero();
+    component leaf3Is0 = IsZero();
+    component leaf4Is0 = IsZero();
+
+    component check0s = AndMany(7);
+
+
     bidderIs0.in <== bidder;
     biddingAmountIs0.in <== biddingAmount;
     args5Is0.in <== args[5];
-    andmany.in[andmanyOffset] <== (bidderIs0.out + biddingAmountIs0.out + args5Is0.out)/3;
+
+    leaf1Is0.in <== dataPath[1][LeaveStartOffset];
+    leaf2Is0.in <== dataPath[1][LeaveStartOffset+1];
+    leaf3Is0.in <== dataPath[1][LeaveStartOffset+2];
+    leaf4Is0.in <== dataPath[1][LeaveStartOffset+3];
+
+    check0s.in[0] <== bidderIs0.out;
+    check0s.in[1] <== biddingAmountIs0.out;
+    check0s.in[2] <== args5Is0.out;
+    check0s.in[3] <== leaf1Is0.out;
+    check0s.in[4] <== leaf2Is0.out;
+    check0s.in[5] <== leaf3Is0.out;
+    check0s.in[6] <== leaf4Is0.out;
+
+    andmany.in[andmanyOffset] <== check0s.out;
     andmanyOffset++;
 
     // check owner < 2 ^ 20
@@ -45,18 +67,6 @@ template DepositNFT() {
     component ownerIs0 = IsZero();
     ownerIs0.in <== owner;
     andmany.in[andmanyOffset] <== 1 - ownerIs0.out;
-    andmanyOffset++;
-
-    // check if dataPath[61]-dataPath[64] is 0
-    component leaf1Is0 = IsZero();
-    component leaf2Is0 = IsZero();
-    component leaf3Is0 = IsZero();
-    component leaf4Is0 = IsZero();
-    leaf1Is0.in <== dataPath[1][LeaveStartOffset];
-    leaf2Is0.in <== dataPath[1][LeaveStartOffset+1];
-    leaf3Is0.in <== dataPath[1][LeaveStartOffset+2];
-    leaf4Is0.in <== dataPath[1][LeaveStartOffset+3];
-    andmany.in[andmanyOffset] <== (leaf1Is0.out + leaf2Is0.out + leaf3Is0.out + leaf4Is0.out)/4;
     andmanyOffset++;
 
     // STEP1: udpate nonce
