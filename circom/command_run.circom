@@ -13,6 +13,7 @@ include "business/deposit.circom";
 include "business/retrieve.circom";
 include "business/withdraw.circom";
 include "business/deposit_nft.circom";
+include "business/withdraw_nft.circom";
 
 include "utils/select.circom";
 include "utils/merkle_tree.circom";
@@ -31,7 +32,7 @@ template RunCommand() {
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
     var MaxStep = 5;
-    var NCOMMANDS = 8;
+    var NCOMMANDS = 9;
 
     signal input args[CommandArgs];
     signal input dataPath[MaxStep][MaxTreeDataIndex];
@@ -231,6 +232,26 @@ template RunCommand() {
     for (var j = 0; j < MaxStep; j++) {
         for (var k = 0; k < MaxTreeDataIndex; k++) {
             newDataPathSelect[j][k].in[i] <== command7.newDataPath[j][k];
+        }
+    }
+    i++;
+
+    // 8 -
+    component command8 = WithdrawNFT();
+    command8.signer <== signer;
+    command8.signed <== signed;
+    for (var j = 0; j < CommandArgs; j++) {
+        command8.args[j] <== args[j];
+    }
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            command8.dataPath[j][k] <== dataPath[j][k];
+        }
+    }
+    outSelect.in[i] <== command8.out;
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            newDataPathSelect[j][k].in[i] <== command8.newDataPath[j][k];
         }
     }
     i++;
