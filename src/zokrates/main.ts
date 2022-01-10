@@ -10,6 +10,15 @@ import { MaxHeight, PathInfo } from "delphinus-curves/src//merkle-tree";
 import { Command, L2Storage } from "./command";
 import { createCommand } from "./command-factory";
 
+export interface Groth16Proof {
+  proof: {
+    a: string[];
+    b: string[][];
+    c: string[];
+  };
+  inputs: string[];
+}
+
 const ZKPPath = path.resolve(__dirname, "..", "..", "..");
 
 class ZKPInputBuilder {
@@ -90,6 +99,14 @@ export async function genZKPInput(
   return builder.inputs;
 }
 
+export function zkpProofToArray(proof: Groth16Proof) {
+  return proof.proof.a
+    .concat(proof.proof.b[0])
+    .concat(proof.proof.b[1])
+    .concat(proof.proof.c)
+    .concat(proof.inputs);
+}
+
 export async function runZkp(
   op: Field,
   args: Field[],
@@ -149,15 +166,11 @@ export async function runZkp(
     )
   );
 
-  const proof = await fs.readJson(
+  const proof: Groth16Proof = await fs.readJson(
     path.resolve(ZKPPath, "proof.json")
   );
 
   console.log(JSON.stringify(proof));
 
-  return proof.proof.a
-    .concat(proof.proof.b[0])
-    .concat(proof.proof.b[1])
-    .concat(proof.proof.c)
-    .concat(proof.inputs);
+  return proof;
 }
