@@ -43,7 +43,7 @@ export class DepositNFTCommand extends Command {
 
     /*
       For circom:
-        1. Check bidder, biddingAmount and args[5] in circom (args[7] in TS file), they should be 0;
+        1. Check bidder, biddingAmount， they should be 0;
         2. Check owner < 2 ^ 20 & owner != 0
     */
 
