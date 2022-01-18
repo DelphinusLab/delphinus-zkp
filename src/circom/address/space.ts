@@ -19,6 +19,6 @@ export function toNumber(v: number | Field) {
   return v instanceof Field ? v.v.toNumber() : v;
 }
 
-export function getMetaIndex (index:number | Field, meta: MetaType) {
+export function getMetaAddress (index:number | Field, meta: MetaType) {
   return (AddressSpace.Meta << 30) | (toNumber(index) << 10) | (meta << 6)
 }
