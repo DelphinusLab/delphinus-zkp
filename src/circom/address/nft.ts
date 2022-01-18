@@ -1,11 +1,11 @@
 import { Field } from "delphinus-curves/src/field";
-import { MetaType, getMetaIndex, toNumber } from "./space";
+import { MetaType, getMetaAddress, toNumber } from "./space";
 import { MerkleTree } from "delphinus-curves/src/merkle-tree-large";
 import { Account } from "./account";
 
 export class NFT {
     index: number | Field;
-    info_index: number;
+    address: number;
     owner: number;
     bidder: number;
     biddingAmount: number;
@@ -14,14 +14,14 @@ export class NFT {
     constructor(storage: MerkleTree, index: number | Field) {
         this.storage = storage;
         this.index = index;
-        this.info_index = getMetaIndex(this.index, MetaType.NFT);
-        this.owner = this.info_index | 0;
-        this.bidder = this.info_index | 1;
-        this.biddingAmount = this.info_index | 2;
+        this.address = getMetaAddress(this.index, MetaType.NFT);
+        this.owner = this.address | 0;
+        this.bidder = this.address | 1;
+        this.biddingAmount = this.address | 2;
     }
-    
+
     async getNFTPath() {
-        return this.storage.getPath(this.info_index);
+        return this.storage.getPath(this.address);
     }
 
     async getAndUpdateNFT(
@@ -31,23 +31,22 @@ export class NFT {
     ) {
         const path = await this.getNFTPath();
 
-        const zero = new Field(0); 
-        await this.storage.setLeaves(this.info_index, [
+        await this.storage.setLeaves(this.address, [
             owner,
             bidder,
-            biddingAmount,
-            zero
+            biddingAmount
         ]);
         return path;
     }
 
-    async getBidderBalance(
-        bidder: Field
+	async getBidderBalance(
+        tokenIndex: number | Field,
+        _bidder: Field
     ) {
-        const _bidder = new Account(this.storage, bidder);
-        const index = toNumber(this.info_index);
-        const balanceInfoIndex = _bidder.getBalanceInfoIndex(index);
-        const balance = await _bidder.storage.getLeave(balanceInfoIndex);
+        const bidder = new Account(this.storage, _bidder);
+        const index = toNumber(tokenIndex);
+        const balanceInfoIndex = bidder.getBalanceInfoIndex(index);
+        const balance = await bidder.storage.getLeave(balanceInfoIndex);
 
         return balance;
     }
