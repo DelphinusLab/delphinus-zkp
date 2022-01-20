@@ -8,33 +8,53 @@ import { NFT } from "../address/nft"
 // start auction
 export class DepositNFTCommand extends Command {
   get callerAccountIndex() {
-    return this.args[9].v.toNumber();
+    return this.args[8].v.toNumber();
   }
 
   async run(storage: L2Storage) {
+    /*
+      Description for circom:
+        This function is for initialing nft nodes. It will try to update the Nonce of caller and update the nft nodes' owner.
+      Input/Output of circom:
+        signal input args[6];
+        signal input dataPath[5][66];
+        signal input signer;
+        signal input signed;
+        signal output newDataPath[5][66];
+        signal output out;
+      In TS file, this.args is Array[9]. [0], [3] - [7] will be passed to circom.
+      In circom, signal input args[6]
+        args[0] is the command code.
+        args[1] = this.args[3], which is nonce.
+        args[2] = this.args[4], which is owner.
+        args[3] = this.args[5], which is bidder.
+        args[4] = this.args[6], which is biddingAmount.
+        args[5] = this.args[7], which is nftIndex.
+    */
     const path = [] as PathInfo[];
 
+    // bidder and biddingAmount have not participanted in deposit_nft, omit them
     const nonce = this.args[3];
     const owner = this.args[4];
-    const bidder = this.args[5];
-    const biddingAmount = this.args[6];
+    const nftIndex = this.args[7];
 
-    // circuits: check if bidder, biddingAmount and args[7] is 0
+    // circuits: check nftIndex < 2 ^ 20 & nftIndex != 0
+    // circuits: check nftIndex == CheckNFTIndexFE's output nftIndex
     // circuits: check owner < 2 ^ 20 & owner != 0
-    const nftIndex = this.args[8];
     const nft = new NFT(storage, nftIndex);
     const account = new Account(storage, this.callerAccountIndex);
 
-    // circuits: check if leafValues[0]-leafValues[3] is 0
-    const leafValues = await storage.getLeaves(nft.info_index);
+    // circuits: check dataPath[1][66]'s leafValues[0]-leafValues[2] is 0
+    const leafValues = await storage.getLeaves(nft.address);
 
     // STEP1: udpate nonce
     // circuits: check nonce
     path.push(await account.getAndUpdateNonce(nonce));
-    
-    // STEP2: update nft info
-    path.push(await nft.getAndUpdateNFT(owner, bidder, biddingAmount));
-    
+
+    // STEP2: update nft info with new owner
+    const zero = new Field(0);
+    path.push(await nft.getAndUpdateNFT(owner, zero, zero));
+
     return path;
   }
 }
