@@ -210,11 +210,58 @@ template CheckAccountInfoIndexFE() {
     caller <== n2bAccount.in;
 }
 
+// b11 NFT: (20bits) nft index + (4bits) MetaType(1) + (6bits) info data (owner, bidder, biddingAmount)
+template CheckNFTIndexFE() {
+    signal input index;
+    signal output out;
+    signal output nftIndex;
+
+    // Find 20 bits as value `a` in BE, check (3 << 30) + (a << 10) + (1 << 6) + OFFSET == index
+    component n2bAccount = Num2Bits(20);
+    n2bAccount.in <-- (index >> 10) & ((1 << 20) - 1);
+
+    component n2bOffset = Num2Bits(2);
+    n2bOffset.in <-- index & 3; // 0-owner, 1-bidder, 2-biddingAmount
+
+    component eq = IsEqual();
+    eq.in[0] <== n2bAccount.in * (1 << 10) + (3 << 30) + (1 << 6) + n2bOffset.in;
+    eq.in[1] <== index;
+
+    out <== eq.out;
+    nftIndex <== n2bAccount.in;
+}
+
+template SetNFTValueFromTreePath() {
+    var LeafStartOffset = 61;
+    var OwnerOffset = LeafStartOffset;
+    var BidderOffset = LeafStartOffset + 1;
+    var BiddingAmountOffset = LeafStartOffset + 2;
+    var MaxTreeDataIndex = 66;
+
+    signal input owner;
+    signal input bidder;
+    signal input biddingAmount;
+    signal input treeData[MaxTreeDataIndex];
+    signal output newTreeData[MaxTreeDataIndex];
+
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        if(i == OwnerOffset) {
+            newTreeData[i] <== owner;
+        } else if(i == BidderOffset) {
+            newTreeData[i] <== bidder;
+        } else if(i == BiddingAmountOffset) {
+            newTreeData[i] <== biddingAmount;
+        } else {
+            newTreeData[i] <== treeData[i];
+        }
+    }
+}
+
 template CheckAndUpdateNonceAnonymousFE() {
     var IndexOffset = 0;
     var LeafStartOffset = 61;
-    var NonceOffsetInLeaves = 2;
-    var NonceOffset = LeafStartOffset + NonceOffsetInLeaves;
+    var NonceOffsetInLeafs = 2;
+    var NonceOffset = LeafStartOffset + NonceOffsetInLeafs;
     var MaxTreeDataIndex = 66;
     signal input nonce;
     signal input dataPath[MaxTreeDataIndex];
