@@ -23,7 +23,7 @@ template WithdrawNFT() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(10);
+    component andmany = AndMany(11);
     var andmanyOffset = 0;
 
     var nonce = args[1];
@@ -128,6 +128,12 @@ template WithdrawNFT() {
     andmanyOffset++;
 
     // STEP3: update nft with new owner, bidder and, biddingAmount
+    // circuits : check align
+    component nftCheckAlign = CheckAlign();
+    nftCheckAlign.index <== dataPath[2][IndexOffset];
+    andmany.in[andmanyOffset] <== nftCheckAlign.out;
+    andmanyOffset++;   
+
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         if(i == OwnerOffset) {
             newDataPath[2][i] <== 0;

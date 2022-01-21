@@ -231,6 +231,21 @@ template CheckAndGetNFTIndexFromPath() {
     nftIndex <== n2bAccount.in;
 }
 
+template CheckAlign() {
+    signal input index;
+    signal output out;
+    
+    component c = Num2Bits(2);
+    c.in <== index;
+
+    var offset = c.out[0] + 2 * c.out[1];
+
+    component isAlign = IsZero();
+    isAlign.in <== offset;
+    
+    out <== isAlign.out;
+}
+
 template CheckAndUpdateNonceAnonymousFE() {
     var IndexOffset = 0;
     var LeafStartOffset = 61;
