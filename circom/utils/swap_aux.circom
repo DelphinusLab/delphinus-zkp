@@ -211,10 +211,10 @@ template CheckAccountInfoIndexFE() {
 }
 
 // b11 NFT: (20bits) nft index + (4bits) MetaType(1) + (6bits) info data (owner, bidder, biddingAmount, reserved)
-template CheckNFTIndex() {
+template CheckAndGetNFTIndexFromPath() {
     signal input index;
     signal output out;
-    signal output caller;
+    signal output nftIndex;
 
     // Find 20 bits as value `a` in BE, check (3 << 30) + (a << 10) + (1 << 6) + OFFSET == index
     component n2bAccount = Num2Bits(20);
@@ -228,7 +228,7 @@ template CheckNFTIndex() {
     eq.in[1] <== index;
 
     out <== eq.out;
-    caller <== n2bAccount.in;
+    nftIndex <== n2bAccount.in;
 }
 
 template CheckAndUpdateNonceAnonymousFE() {

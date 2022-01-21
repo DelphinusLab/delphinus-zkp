@@ -136,7 +136,7 @@ template FinalizeNFT() {
     andmanyOffset++;
     
     // STEP3: udpate nft info
-    component nftIndex = CheckNFTIndex();
+    component nftIndex = CheckAndGetNFTIndexFromPath();
     nftIndex.index <== dataPath[2][IndexOffset];
     andmany.in[andmanyOffset] <== nftIndex.out;
     andmanyOffset++;

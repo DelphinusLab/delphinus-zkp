@@ -1,16 +1,18 @@
 pragma circom 2.0.2;
 
-include "../utils/bit.circom";
 include "../utils/swap_aux.circom";
+include "../../node_modules/circomlib/circuits/bitify.circom";
 
 template WithdrawNFT() {
+    var TokenIndex = 1;
     var MaxStep = 5;
     var IndexOffset = 0;
     var LeaveStartOffset = 61;
+    // In general, OwnerOffset = LeaveStartOffset + the last two bits of nftIndex (Only in this case, 00)
+    // OwnerOffset = LeaveStartOffset + 00 which is equivalent to OwnerOffset = LeaveStartOffset
     var OwnerOffset = LeaveStartOffset;
-    var BidderOffset = LeaveStartOffset + 1;
-    var BiddingAmountOffset = LeaveStartOffset + 2;
-    var ReservedOffset = LeaveStartOffset + 3;
+    var BidderOffset = OwnerOffset + 1;
+    var BiddingAmountOffset = OwnerOffset + 2;
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
 
@@ -21,61 +23,62 @@ template WithdrawNFT() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(8);
+    component andmany = AndMany(10);
     var andmanyOffset = 0;
 
     var nonce = args[1];
-    var owner = args[2];
-    var bidder = args[3];
-    var biddingAmount = args[4];
+    var nftIndex = args[5];
 
-    // check if owner, bidder, biddingAmount and args[5] is 0
-    component zero0 = IsZero();
-    zero0.in <== owner;
-    component zero1 = IsZero();
-    zero1.in <== bidder;
-    component zero2 = IsZero();
-    zero2.in <== biddingAmount;
-    component zero3 = IsZero();
-    zero3.in <== args[5];
+    // circuits: check dataPath[2][66]'s leafValues[0] != 0 & leafValues[0] < 2 ^ 20
+    component nftleaf0RangeCheck = Check2PowerRangeFE(20);
+    nftleaf0RangeCheck.in <== dataPath[2][OwnerOffset];
+    component nftleaf0IsZero = IsZero();
+    nftleaf0IsZero.in <== dataPath[2][OwnerOffset];
 
-    signal zerocheck0;
-    signal mul0;
-    signal mul1;
-    mul0 <== zero0.out * zero1.out;
-    mul1 <== zero2.out * zero3.out;
-    zerocheck0 <== mul0 * mul1;
-    andmany.in[andmanyOffset] <== zerocheck0;
+    andmany.in[andmanyOffset] <== nftleaf0RangeCheck.out * (1 - nftleaf0IsZero.out);
     andmanyOffset++;
 
-    // circuits: check dataPath[61] != 0
-    component zero4 = IsZero();
-    zero4.in <== dataPath[1][OwnerOffset];
-    andmany.in[andmanyOffset] <== 1 - zero4.out;
+    // circuits: check dataPath[2]'s leafValues[1] < 2 ^ 20
+    component nftleaf1RangeCheck = Check2PowerRangeFE(20);
+    nftleaf1RangeCheck.in <== dataPath[2][OwnerOffset];
+
+    andmany.in[andmanyOffset] <== nftleaf1RangeCheck.out;
     andmanyOffset++;
 
-    // circuits: dataPath[61] < 2 ^ 20
-    component rangecheck = Check2PowerRangeFE(20);
-    rangecheck.in <== dataPath[1][OwnerOffset];
-    andmany.in[andmanyOffset] <== rangecheck.out;
-    andmanyOffset++;
-    
-    // check if dataPath[62]-dataPath[64] is 0
-    component zero5 = IsZero();
-    zero5.in <== dataPath[1][BidderOffset];
-    component zero6 = IsZero();
-    zero6.in <== dataPath[1][BiddingAmountOffset];
-    component zero7 = IsZero();
-    zero7.in <== dataPath[1][ReservedOffset];
+    // circuits: check dataPath[2]'s leafValues[2] < 2 ^ 250
+    component nftleaf2RangeCheck = Check2PowerRangeFE(250);
+    nftleaf2RangeCheck.in <== dataPath[2][OwnerOffset];
 
-    signal zerocheck1;
-    signal mul2;
-    mul2 <== zero5.out * zero6.out;
-    zerocheck1 <== mul2 * zero7.out;
-    andmany.in[andmanyOffset] <== zerocheck1;
+    andmany.in[andmanyOffset] <== nftleaf2RangeCheck.out;
     andmanyOffset++;
+
+    // circuits: check signer == dataPath[2]'s leafValues[0]
+    component nftleaf0IsSigner = IsEqual();
+    nftleaf0IsSigner.in[0] <== dataPath[2][OwnerOffset];
+    nftleaf0IsSigner.in[1] <== signer;
+
+    andmany.in[andmanyOffset] <== nftleaf0IsSigner.out;
+    andmanyOffset++;
+
+    // circuits: check nftIndex < 2 ^ 20 & nftIndex != 0
+    component nftIndexRangeCheck = Check2PowerRangeFE(20);
+    nftIndexRangeCheck.in <== dataPath[2][IndexOffset];
+    component nftIndexIsZero = IsZero();
+    nftIndexIsZero.in <== dataPath[2][IndexOffset];
+    andmany.in[andmanyOffset] <== nftIndexRangeCheck.out * (1 - nftIndexIsZero.out);
+    andmanyOffset++;
+
+    // circuits: check nftIndex == CheckNFTIndexFE's output nftIndex
+    component nftIndexcheck = IsEqual();
+    component nftIndexFromTreePath = CheckAndGetNFTIndexFromPath();
+    nftIndexFromTreePath.index <== dataPath[2][IndexOffset];
+    nftIndexcheck.in[0] <== nftIndexFromTreePath.nftIndex;
+    nftIndexcheck.in[1] <== nftIndex;
+    andmany.in[andmanyOffset] <== nftIndexFromTreePath.out * nftIndexcheck.out;
+    andmanyOffset++;    
 
     // STEP1: udpate nonce
+    // circuits: check nonce
     component checkNonce = CheckAndUpdateNonceFE();
     checkNonce.nonce <== nonce;
     checkNonce.caller <== signer;
@@ -91,27 +94,53 @@ template WithdrawNFT() {
     // circuits: check caller permission and signer
     component perm = CheckPermission(1);
     perm.caller <== checkNonce.caller;
-    andmany.in[andmanyOffset] <== perm.out;
+    andmany.in[andmanyOffset] <== perm.out * signed;
     andmanyOffset++;
 
-    andmany.in[andmanyOffset] <== signed;
-    andmanyOffset++;
+    // STEP2: if dataPath[2]'s leafValues[1] != 0, check nft_Bidder Index
+    component nftleaf1IsZero = IsZero();
+    nftleaf1IsZero.in <== dataPath[2][BidderOffset];
+    component nftBidderIndexCheck = CheckBalanceIndex();
+    nftBidderIndexCheck.account <== dataPath[2][BidderOffset];
+    nftBidderIndexCheck.token <== TokenIndex;
+    nftBidderIndexCheck.index <== dataPath[1][IndexOffset];
 
-    // STEP2: udpate nft info
-    component nftIndex = CheckNFTIndex();
-    nftIndex.index <== dataPath[1][IndexOffset];
-    andmany.in[andmanyOffset] <== nftIndex.out;
+    component nftBidderExist = BiSelect();
+
+    nftBidderExist.in[0] <== nftBidderIndexCheck.out;
+    nftBidderExist.in[1] <== nftleaf1IsZero.out;
+    nftBidderExist.cond <== nftleaf1IsZero.out;
+
+    andmany.in[andmanyOffset] <== nftBidderExist.out;
     andmanyOffset++;
     
+    // Return nft_biddingAmount to nft_bidder's balance
+    // circuits: check balance of current bidder dosen't overflow(< 2 ^ 250)
+    component changeNftBidderbalance = ChangeValueFromTreePath();
+    changeNftBidderbalance.diff <== dataPath[2][BiddingAmountOffset];
     for (var i = 0; i < MaxTreeDataIndex; i++) {
-        if (i == OwnerOffset) {
-            newDataPath[1][i] <== owner;
+        changeNftBidderbalance.treeData[i] <== dataPath[1][i];
+    }
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        newDataPath[1][i] <== changeNftBidderbalance.newTreeData[i];
+    }
+    andmany.in[andmanyOffset] <== changeNftBidderbalance.out;
+    andmanyOffset++;
+
+    // STEP3: update nft with new owner, bidder and, biddingAmount
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        if(i == OwnerOffset) {
+            newDataPath[2][i] <== 0;
+        } else if (i == BidderOffset) {
+            newDataPath[2][i] <== 0;
+        } else if (i == BiddingAmountOffset) {
+            newDataPath[2][i] <== 0;
         } else {
-            newDataPath[1][i] <== dataPath[1][i];
+            newDataPath[2][i] <== dataPath[2][i];
         }
     }
 
-    for (var i = 2; i < MaxStep; i++) {
+    for (var i = 3; i < MaxStep; i++) {
         for (var j = 0; j < MaxTreeDataIndex; j++) {
             newDataPath[i][j] <== dataPath[i][j];
         }

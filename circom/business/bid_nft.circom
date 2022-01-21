@@ -174,7 +174,7 @@ template BidNFT() {
     andmanyOffset++;
 
     // STEP4: udpate nft info
-    component nftIndex = CheckNFTIndex();
+    component nftIndex = CheckAndGetNFTIndexFromPath();
     nftIndex.index <== dataPath[1][IndexOffset];
     andmany.in[andmanyOffset] <== nftIndex.out;
     andmanyOffset++;
