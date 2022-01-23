@@ -22,7 +22,7 @@ template DepositNFT() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(6);
+    component andmany = AndMany(7);
     var andmanyOffset = 0;
 
     var nonce = args[1];
@@ -90,13 +90,17 @@ template DepositNFT() {
     andmanyOffset++;
 
     // STEP2: update nft info with new owner
-    component addOwner = SetValueFromTreePath();
-    addOwner.value <== owner;
+    component nftCheckAlign = CheckAlign();
+    nftCheckAlign.index <== dataPath[1][IndexOffset];
+    andmany.in[andmanyOffset] <== nftCheckAlign.out;
+    andmanyOffset++;  
+
     for (var i = 0; i < MaxTreeDataIndex; i++) {
-        addOwner.treeData[i] <== dataPath[1][i];
-    }
-    for (var i = 0; i < MaxTreeDataIndex; i++) {
-        newDataPath[1][i] <== addOwner.newTreeData[i];
+        if(i == OwnerOffset) {
+            newDataPath[1][i] <== owner;
+        } else {
+            newDataPath[1][i] <== dataPath[1][i];
+        }
     }
 
     for (var i = 2; i < MaxStep; i++) {
