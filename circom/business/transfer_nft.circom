@@ -70,9 +70,9 @@ template TransferNFT() {
 
     // circuits: check nftIndex < 2 ^ 20 & nftIndex != 0
     component nftIndexRangeCheck = Check2PowerRangeFE(20);
-    nftIndexRangeCheck.in <== dataPath[1][IndexOffset];
+    nftIndexRangeCheck.in <== nftIndex;
     component nftIndexIsZero = IsZero();
-    nftIndexIsZero.in <== dataPath[1][IndexOffset];
+    nftIndexIsZero.in <== nftIndex;
     andmany.in[andmanyOffset] <== nftIndexRangeCheck.out * (1 - nftIndexIsZero.out);
     andmanyOffset++;
 
@@ -114,10 +114,11 @@ template TransferNFT() {
     andmanyOffset++;
 
     // STEP2: update nft info with new owner  
+    // circuits : check align
     component nftCheckAlign = CheckAlign();
     nftCheckAlign.index <== dataPath[1][IndexOffset];
     andmany.in[andmanyOffset] <== nftCheckAlign.out;
-    andmanyOffset++;
+    andmanyOffset++;  
 
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         if(i == OwnerOffset) {

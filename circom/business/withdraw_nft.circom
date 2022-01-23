@@ -23,10 +23,13 @@ template WithdrawNFT() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(11);
+    component andmany = AndMany(12);
     var andmanyOffset = 0;
 
     var nonce = args[1];
+    var owner = args[2];
+    var bidder = args[3];
+    var biddingAmount = args[4];
     var nftIndex = args[5];
 
     // circuits: check dataPath[2][66]'s leafValues[0] != 0 & leafValues[0] < 2 ^ 20
@@ -52,6 +55,21 @@ template WithdrawNFT() {
     andmany.in[andmanyOffset] <== nftleaf2RangeCheck.out;
     andmanyOffset++;
 
+    // circuits: check owner, bidder and biddingAmount are 0
+    component ownerIsZero = IsZero();
+    ownerIsZero.in <== owner;
+    component bidderIsZero = IsZero();
+    bidderIsZero.in <== bidder;
+    component biddingAmountIsZero = IsZero();
+    biddingAmountIsZero.in <== biddingAmount;
+
+    component zerochecks = AndMany(3);
+    zerochecks.in[0] <== ownerIsZero.out;
+    zerochecks.in[1] <== bidderIsZero.out;
+    zerochecks.in[2] <== biddingAmountIsZero.out;
+    andmany.in[andmanyOffset] <== zerochecks.out;
+    andmanyOffset++;
+
     // circuits: check signer == dataPath[2]'s leafValues[0]
     component nftleaf0IsSigner = IsEqual();
     nftleaf0IsSigner.in[0] <== dataPath[2][OwnerOffset];
@@ -62,9 +80,9 @@ template WithdrawNFT() {
 
     // circuits: check nftIndex < 2 ^ 20 & nftIndex != 0
     component nftIndexRangeCheck = Check2PowerRangeFE(20);
-    nftIndexRangeCheck.in <== dataPath[2][IndexOffset];
+    nftIndexRangeCheck.in <== nftIndex;
     component nftIndexIsZero = IsZero();
-    nftIndexIsZero.in <== dataPath[2][IndexOffset];
+    nftIndexIsZero.in <== nftIndex;
     andmany.in[andmanyOffset] <== nftIndexRangeCheck.out * (1 - nftIndexIsZero.out);
     andmanyOffset++;
 
