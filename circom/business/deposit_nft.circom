@@ -40,7 +40,7 @@ template DepositNFT() {
     // circuits: check nftIndex == CheckNFTIndexFE's output nftIndex
     component nftIndexcheck = IsEqual();
     component nftIndexFromTreePath = CheckAndGetNFTIndexFromPath();
-    nftIndexFromTreePath.index <== dataPath[1][IndexOffset];
+    nftIndexFromTreePath.address <== dataPath[1][IndexOffset];
     nftIndexcheck.in[0] <== nftIndexFromTreePath.nftIndex;
     nftIndexcheck.in[1] <== nftIndex;
     andmany.in[andmanyOffset] <== nftIndexFromTreePath.out * nftIndexcheck.out;
@@ -92,7 +92,7 @@ template DepositNFT() {
     // STEP2: update nft info with new owner
     // circuits : check align
     component nftCheckAlign = CheckAlign();
-    nftCheckAlign.index <== dataPath[1][IndexOffset];
+    nftCheckAlign.address <== dataPath[1][IndexOffset];
     andmany.in[andmanyOffset] <== nftCheckAlign.out;
     andmanyOffset++;  
 

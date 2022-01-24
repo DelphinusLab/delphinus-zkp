@@ -231,11 +231,11 @@ template CheckAndGetNFTIndexFromPath() {
 }
 
 template CheckAlign() {
-    signal input index;
+    signal input address;
     signal output out;
     signal offset;
 
-    offset <-- index & 3;
+    offset <-- address & 3;
 
     component isAlign = IsZero();
     isAlign.in <== offset;

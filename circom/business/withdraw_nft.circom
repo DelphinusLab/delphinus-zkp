@@ -89,7 +89,7 @@ template WithdrawNFT() {
     // circuits: check nftIndex == CheckNFTIndexFE's output nftIndex
     component nftIndexcheck = IsEqual();
     component nftIndexFromTreePath = CheckAndGetNFTIndexFromPath();
-    nftIndexFromTreePath.index <== dataPath[2][IndexOffset];
+    nftIndexFromTreePath.address <== dataPath[2][IndexOffset];
     nftIndexcheck.in[0] <== nftIndexFromTreePath.nftIndex;
     nftIndexcheck.in[1] <== nftIndex;
     andmany.in[andmanyOffset] <== nftIndexFromTreePath.out * nftIndexcheck.out;
@@ -148,7 +148,7 @@ template WithdrawNFT() {
     // STEP3: update nft with new owner, bidder and, biddingAmount
     // circuits : check align
     component nftCheckAlign = CheckAlign();
-    nftCheckAlign.index <== dataPath[2][IndexOffset];
+    nftCheckAlign.address <== dataPath[2][IndexOffset];
     andmany.in[andmanyOffset] <== nftCheckAlign.out;
     andmanyOffset++;   
 

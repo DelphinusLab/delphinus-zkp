@@ -1,8 +1,7 @@
 pragma circom 2.0.2;
-// dataPath[0]-nonce, dataPath[1]-last owner's balance, dataPath[2]-nft
 
-include "../utils/bit.circom";
 include "../utils/swap_aux.circom";
+include "../../node_modules/circomlib/circuits/bitify.circom";
 
 template FinalizeNFT() {
     var TokenIndex = 1;
@@ -10,9 +9,8 @@ template FinalizeNFT() {
     var IndexOffset = 0;
     var LeaveStartOffset = 61;
     var OwnerOffset = LeaveStartOffset;
-    var BidderOffset = LeaveStartOffset + 1;
-    var BiddingAmountOffset = LeaveStartOffset + 2;
-    var ReservedOffset = LeaveStartOffset + 3;
+    var BidderOffset = OwnerOffset + 1;
+    var BiddingAmountOffset = OwnerOffset + 2;
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
 
@@ -23,78 +21,86 @@ template FinalizeNFT() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(16);
+    component andmany = AndMany(13);
     var andmanyOffset = 0;
 
     var nonce = args[1];
     var owner = args[2];
     var bidder = args[3];
     var biddingAmount = args[4];
+    var nftIndex = args[5];
 
-    // circuits: check dataPath[61] != 0
-    component zero0 = IsZero();
-    zero0.in <== dataPath[2][OwnerOffset];
-    andmany.in[andmanyOffset] <== 1 - zero0.out;
-    andmanyOffset++;
+    // circuits: check dataPath[2]'s leafValues[0] < 2 ^ 20 & leafValues[0] != 0
+    component nftleaf0RangeCheck = Check2PowerRangeFE(20);
+    nftleaf0RangeCheck.in <== dataPath[2][OwnerOffset];
+    component nftleaf0IsZero = IsZero();
+    nftleaf0IsZero.in <== dataPath[2][OwnerOffset];
 
-    // circuits: dataPath[61] < 2 ^ 20
-    component rangecheck0 = Check2PowerRangeFE(20);
-    rangecheck0.in <== dataPath[2][OwnerOffset];
-    andmany.in[andmanyOffset] <== rangecheck0.out;
-    andmanyOffset++;
-    
-    // circuits: check dataPath[62] != 0
-    component zero1 = IsZero();
-    zero1.in <== dataPath[2][BidderOffset];
-    andmany.in[andmanyOffset] <== 1 - zero1.out;
+    andmany.in[andmanyOffset] <== nftleaf0RangeCheck.out * (1 - nftleaf0IsZero.out);
     andmanyOffset++;
 
-    // circuits: dataPath[62] < 2 ^ 20
-    component rangecheck1 = Check2PowerRangeFE(20);
-    rangecheck1.in <== dataPath[2][BidderOffset];
-    andmany.in[andmanyOffset] <== rangecheck1.out;
-    andmanyOffset++;
-    
-    // circuits: check dataPath[63] != 0
-    component zero2 = IsZero();
-    zero2.in <== dataPath[2][BiddingAmountOffset];
-    andmany.in[andmanyOffset] <== 1 - zero2.out;
-    andmanyOffset++;
+    // circuits: check dataPath[2]'s leafValues[1] < 2 ^ 20 & leafValues[1] != 0
+    component nftleaf1RangeCheck = Check2PowerRangeFE(20);
+    nftleaf1RangeCheck.in <== dataPath[2][BidderOffset];
+    component nftleaf1IsZero = IsZero();
+    nftleaf1IsZero.in <== dataPath[2][BidderOffset];
 
-    // circuits: dataPath[63] < 2 ^ 250
-    component rangecheck2 = Check2PowerRangeFE(250);
-    rangecheck2.in <== dataPath[2][BiddingAmountOffset];
-    andmany.in[andmanyOffset] <== rangecheck2.out;
-    andmanyOffset++;
-    
-    // circuits: check dataPath[64] == 0
-    component zero3 = IsZero();
-    zero3.in <== dataPath[2][ReservedOffset];
-    andmany.in[andmanyOffset] <== zero3.out;
-    andmanyOffset++;
-    
-    // circuits: check if args[5] is 0
-    component zero4 = IsZero();
-    zero4.in <== args[5];
-    andmany.in[andmanyOffset] <== zero4.out;
-    andmanyOffset++;
+    andmany.in[andmanyOffset] <== nftleaf1RangeCheck.out * (1 - nftleaf1IsZero.out);
+    andmanyOffset++;    
 
-    // circuits: check owner is equal to leafValues[1]
-    component ownerEq = IsEqual();
-    ownerEq.in[0] <== dataPath[2][BidderOffset];
-    ownerEq.in[1] <== owner;
-    andmany.in[andmanyOffset] <== ownerEq.out;
+    // circuits: check dataPath[2]'s leafValues[2] < 2 ^ 250 & leafValues[2] != 0
+    component nftleaf2RangeCheck = Check2PowerRangeFE(250);
+    nftleaf2RangeCheck.in <== dataPath[2][BiddingAmountOffset];
+    component nftleaf2IsZero = IsZero();
+    nftleaf2IsZero.in <== dataPath[2][BiddingAmountOffset];
+
+    andmany.in[andmanyOffset] <== nftleaf2RangeCheck.out * (1 - nftleaf2IsZero.out);
+    andmanyOffset++;     
+
+    // circuits: check owner is equal to dataPath[2]'s leafValues[1]
+    component nftleaf1IsOwner = IsEqual();
+    nftleaf1IsOwner.in[0] <== dataPath[2][BidderOffset];
+    nftleaf1IsOwner.in[1] <== owner;
+
+    andmany.in[andmanyOffset] <== nftleaf1IsOwner.out;
     andmanyOffset++;
 
     // circuits: check bidder and biddingAmount is equal to 0
-    component zero5 = IsZero();
-    zero5.in <== bidder;
-    component zero6 = IsZero();
-    zero6.in <== biddingAmount;
-    andmany.in[andmanyOffset] <== zero5.out * zero6.out;
+    component bidderIsZero = IsZero();
+    bidderIsZero.in <== bidder;
+    component biddingAmountIsZero = IsZero();
+    biddingAmountIsZero.in <== biddingAmount;
+
+    andmany.in[andmanyOffset] <== bidderIsZero.out * biddingAmountIsZero.out;
+    andmanyOffset++;
+
+    // circuits: check nftIndex < 2 ^ 20 & nftIndex != 0
+    component nftIndexRangeCheck = Check2PowerRangeFE(20);
+    nftIndexRangeCheck.in <== nftIndex;
+    component nftIndexIsZero = IsZero();
+    nftIndexIsZero.in <== nftIndex;
+    andmany.in[andmanyOffset] <== nftIndexRangeCheck.out * (1 - nftIndexIsZero.out);
+    andmanyOffset++;
+
+    // circuits: check nftIndex == CheckNFTIndexFE's output nftIndex
+    component nftIndexcheck = IsEqual();
+    component nftIndexFromTreePath = CheckAndGetNFTIndexFromPath();
+    nftIndexFromTreePath.address <== dataPath[2][IndexOffset];
+    nftIndexcheck.in[0] <== nftIndexFromTreePath.nftIndex;
+    nftIndexcheck.in[1] <== nftIndex;
+    andmany.in[andmanyOffset] <== nftIndexFromTreePath.out * nftIndexcheck.out;
+    andmanyOffset++;    
+
+    // circuits: check signer == dataPath[2]'s leafValues[0]
+    component nftleaf0IsSigner = IsEqual();
+    nftleaf0IsSigner.in[0] <== dataPath[2][OwnerOffset];
+    nftleaf0IsSigner.in[1] <== signer;
+
+    andmany.in[andmanyOffset] <== nftleaf0IsSigner.out;
     andmanyOffset++;
 
     // STEP1: udpate nonce
+    // circuits: check nonce
     component checkNonce = CheckAndUpdateNonceFE();
     checkNonce.nonce <== nonce;
     checkNonce.caller <== signer;
@@ -110,18 +116,16 @@ template FinalizeNFT() {
     // circuits: check caller permission and signer
     component perm = CheckPermission(1);
     perm.caller <== checkNonce.caller;
-    andmany.in[andmanyOffset] <== perm.out;
+    andmany.in[andmanyOffset] <== perm.out * signed;
     andmanyOffset++;
 
-    andmany.in[andmanyOffset] <== signed;
-    andmanyOffset++;
-
-    // STEP2: update balance of last owner
-    component balanceIndex = CheckBalanceIndex();
-    balanceIndex.account <== dataPath[2][OwnerOffset];
-    balanceIndex.token <== TokenIndex;
-    balanceIndex.index <== dataPath[1][IndexOffset];
-    andmany.in[andmanyOffset] <== balanceIndex.out;
+    // STEP2: update balance of current owner
+    // circuits: check balance dosen't overflow
+    component checkOwnerBalance = CheckBalanceIndex();
+    checkOwnerBalance.account <== dataPath[2][OwnerOffset];
+    checkOwnerBalance.token <== TokenIndex;
+    checkOwnerBalance.index <== dataPath[1][IndexOffset];
+    andmany.in[andmanyOffset] <== checkOwnerBalance.out;
     andmanyOffset++;
 
     component change = ChangeValueFromTreePath();
@@ -135,19 +139,20 @@ template FinalizeNFT() {
     andmany.in[andmanyOffset] <== change.out;
     andmanyOffset++;
     
-    // STEP3: udpate nft info
-    component nftIndex = CheckAndGetNFTIndexFromPath();
-    nftIndex.index <== dataPath[2][IndexOffset];
-    andmany.in[andmanyOffset] <== nftIndex.out;
-    andmanyOffset++;
-    
+    // STEP3: update nft with new owner, bidder and, biddingAmount
+    // circuits : check align
+    component nftCheckAlign = CheckAlign();
+    nftCheckAlign.address <== dataPath[2][IndexOffset];
+    andmany.in[andmanyOffset] <== nftCheckAlign.out;
+    andmanyOffset++;   
+
     for (var i = 0; i < MaxTreeDataIndex; i++) {
-        if (i == OwnerOffset) {
-            newDataPath[2][i] <== owner;
-        } else if(i == BidderOffset) {
-            newDataPath[2][i] <== bidder;
-        } else if(i == BiddingAmountOffset) {
-            newDataPath[2][i] <== biddingAmount;
+        if(i == OwnerOffset) {
+            newDataPath[2][i] <== dataPath[2][BidderOffset];
+        } else if (i == BidderOffset) {
+            newDataPath[2][i] <== 0;
+        } else if (i == BiddingAmountOffset) {
+            newDataPath[2][i] <== 0;
         } else {
             newDataPath[2][i] <== dataPath[2][i];
         }
