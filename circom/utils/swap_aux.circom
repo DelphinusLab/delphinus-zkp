@@ -212,19 +212,19 @@ template CheckAccountInfoIndexFE() {
 
 // b11 NFT: (20bits) nft index + (4bits) MetaType(1) + (6bits) info data (owner, bidder, biddingAmount, reserved)
 template CheckAndGetNFTIndexFromPath() {
-    signal input index;
+    signal input address;
     signal output out;
     signal output nftIndex;
     signal accountIndex;
     signal offset;
 
     // Find 20 bits as value `a` in BE, check (3 << 30) + (a << 10) + (1 << 6) + OFFSET == index
-    accountIndex <-- (index >> 10) & ((1 << 20) - 1);
-    offset <-- index & 3;
+    accountIndex <-- (address >> 10) & ((1 << 20) - 1);
+    offset <-- address & 3;
 
     component eq = IsEqual();
     eq.in[0] <== accountIndex * (1 << 10) + (3 << 30) + (1 << 6) + offset;
-    eq.in[1] <== index;
+    eq.in[1] <== address;
 
     out <== eq.out;
     nftIndex <== accountIndex;
