@@ -215,30 +215,27 @@ template CheckAndGetNFTIndexFromPath() {
     signal input index;
     signal output out;
     signal output nftIndex;
+    signal accountIndex;
+    signal offset;
 
     // Find 20 bits as value `a` in BE, check (3 << 30) + (a << 10) + (1 << 6) + OFFSET == index
-    component n2bAccount = Num2Bits(20);
-    n2bAccount.in <-- (index >> 10) & ((1 << 20) - 1);
-
-    component n2bOffset = Num2Bits(2);
-    n2bOffset.in <-- index & 3;
+    accountIndex <-- (index >> 10) & ((1 << 20) - 1);
+    offset <-- index & 3;
 
     component eq = IsEqual();
-    eq.in[0] <== n2bAccount.in * (1 << 10) + (3 << 30) + (1 << 6) + n2bOffset.in;
+    eq.in[0] <== accountIndex * (1 << 10) + (3 << 30) + (1 << 6) + offset;
     eq.in[1] <== index;
 
     out <== eq.out;
-    nftIndex <== n2bAccount.in;
+    nftIndex <== accountIndex;
 }
 
 template CheckAlign() {
     signal input index;
     signal output out;
-    
-    component c = Num2Bits(2);
-    c.in <== index;
+    signal offset;
 
-    var offset = c.out[0] + 2 * c.out[1];
+    offset <-- index & 3;
 
     component isAlign = IsZero();
     isAlign.in <== offset;
