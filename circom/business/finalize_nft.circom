@@ -21,13 +21,10 @@ template FinalizeNFT() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(13);
+    component andmany = AndMany(11);
     var andmanyOffset = 0;
 
     var nonce = args[1];
-    var owner = args[2];
-    var bidder = args[3];
-    var biddingAmount = args[4];
     var nftIndex = args[5];
 
     // circuits: check dataPath[2]'s leafValues[0] < 2 ^ 20 & leafValues[0] != 0
@@ -55,23 +52,6 @@ template FinalizeNFT() {
     nftleaf2IsZero.in <== dataPath[2][BiddingAmountOffset];
 
     andmany.in[andmanyOffset] <== nftleaf2RangeCheck.out * (1 - nftleaf2IsZero.out);
-    andmanyOffset++;     
-
-    // circuits: check owner is equal to dataPath[2]'s leafValues[1]
-    component nftleaf1IsOwner = IsEqual();
-    nftleaf1IsOwner.in[0] <== dataPath[2][BidderOffset];
-    nftleaf1IsOwner.in[1] <== owner;
-
-    andmany.in[andmanyOffset] <== nftleaf1IsOwner.out;
-    andmanyOffset++;
-
-    // circuits: check bidder and biddingAmount is equal to 0
-    component bidderIsZero = IsZero();
-    bidderIsZero.in <== bidder;
-    component biddingAmountIsZero = IsZero();
-    biddingAmountIsZero.in <== biddingAmount;
-
-    andmany.in[andmanyOffset] <== bidderIsZero.out * biddingAmountIsZero.out;
     andmanyOffset++;
 
     // circuits: check nftIndex < 2 ^ 20 & nftIndex != 0

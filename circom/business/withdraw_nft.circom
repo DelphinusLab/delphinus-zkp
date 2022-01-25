@@ -23,13 +23,10 @@ template WithdrawNFT() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(12);
+    component andmany = AndMany(11);
     var andmanyOffset = 0;
 
     var nonce = args[1];
-    var owner = args[2];
-    var bidder = args[3];
-    var biddingAmount = args[4];
     var nftIndex = args[5];
 
     // circuits: check dataPath[2][66]'s leafValues[0] != 0 & leafValues[0] < 2 ^ 20
@@ -43,31 +40,16 @@ template WithdrawNFT() {
 
     // circuits: check dataPath[2]'s leafValues[1] < 2 ^ 20
     component nftleaf1RangeCheck = Check2PowerRangeFE(20);
-    nftleaf1RangeCheck.in <== dataPath[2][OwnerOffset];
+    nftleaf1RangeCheck.in <== dataPath[2][BidderOffset];
 
     andmany.in[andmanyOffset] <== nftleaf1RangeCheck.out;
     andmanyOffset++;
 
     // circuits: check dataPath[2]'s leafValues[2] < 2 ^ 250
     component nftleaf2RangeCheck = Check2PowerRangeFE(250);
-    nftleaf2RangeCheck.in <== dataPath[2][OwnerOffset];
+    nftleaf2RangeCheck.in <== dataPath[2][BiddingAmountOffset];
 
     andmany.in[andmanyOffset] <== nftleaf2RangeCheck.out;
-    andmanyOffset++;
-
-    // circuits: check owner, bidder and biddingAmount are 0
-    component ownerIsZero = IsZero();
-    ownerIsZero.in <== owner;
-    component bidderIsZero = IsZero();
-    bidderIsZero.in <== bidder;
-    component biddingAmountIsZero = IsZero();
-    biddingAmountIsZero.in <== biddingAmount;
-
-    component zerochecks = AndMany(3);
-    zerochecks.in[0] <== ownerIsZero.out;
-    zerochecks.in[1] <== bidderIsZero.out;
-    zerochecks.in[2] <== biddingAmountIsZero.out;
-    andmany.in[andmanyOffset] <== zerochecks.out;
     andmanyOffset++;
 
     // circuits: check signer == dataPath[2]'s leafValues[0]
@@ -115,7 +97,7 @@ template WithdrawNFT() {
     andmany.in[andmanyOffset] <== perm.out * signed;
     andmanyOffset++;
 
-    // STEP2: if dataPath[2]'s leafValues[1] != 0, check nft_Bidder Index
+    // STEP2: if dataPath[2]'s leafValues[1] != 0, check bidder's balance Index
     component nftleaf1IsZero = IsZero();
     nftleaf1IsZero.in <== dataPath[2][BidderOffset];
     component nftBidderIndexCheck = CheckBalanceIndex();
@@ -133,7 +115,7 @@ template WithdrawNFT() {
     andmanyOffset++;
     
     // Return nft_biddingAmount to nft_bidder's balance
-    // circuits: check balance of current bidder dosen't overflow(< 2 ^ 250)
+    // circuits: check balance of nft_bidder's balance dosen't overflow(< 2 ^ 250)
     component changeNftBidderbalance = ChangeValueFromTreePath();
     changeNftBidderbalance.diff <== dataPath[2][BiddingAmountOffset];
     for (var i = 0; i < MaxTreeDataIndex; i++) {
