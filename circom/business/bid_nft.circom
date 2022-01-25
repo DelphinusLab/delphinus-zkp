@@ -99,7 +99,7 @@ template BidNFT() {
     component bidderBalanceIndexCheck = CheckBalanceIndex();
     bidderBalanceIndexCheck.account <== bidder;
     bidderBalanceIndexCheck.token <== TokenIndex;
-    bidderBalanceIndexCheck.index <== dataPath[3][IndexOffset];
+    bidderBalanceIndexCheck.index <== dataPath[2][IndexOffset];
 
     component getBalance = GetValueFromTreePath();
     for (var i = 0; i < MaxTreeDataIndex; i++) {
