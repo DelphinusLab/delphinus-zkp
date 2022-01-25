@@ -40,14 +40,14 @@ template BidNFT() {
 
     // circuits: check dataPath[3]'s leafValues[1] < 2 ^ 20
     component nftleaf1RangeCheck = Check2PowerRangeFE(20);
-    nftleaf1RangeCheck.in <== dataPath[3][OwnerOffset];
+    nftleaf1RangeCheck.in <== dataPath[3][BidderOffset];
 
     andmany.in[andmanyOffset] <== nftleaf1RangeCheck.out;
     andmanyOffset++;
 
     // circuits: check dataPath[3]'s leafValues[2] < 2 ^ 250
     component nftleaf2RangeCheck = Check2PowerRangeFE(250);
-    nftleaf2RangeCheck.in <== dataPath[3][OwnerOffset];
+    nftleaf2RangeCheck.in <== dataPath[3][BiddingAmountOffset];
 
     andmany.in[andmanyOffset] <== nftleaf2RangeCheck.out;
     andmanyOffset++;
