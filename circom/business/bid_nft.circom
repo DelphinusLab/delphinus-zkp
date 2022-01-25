@@ -25,7 +25,6 @@ template BidNFT() {
     var andmanyOffset = 0;
 
     var nonce = args[1];
-    var owner = args[2];
     var bidder = args[3];
     var biddingAmount = args[4];
     var nftIndex = args[5];
