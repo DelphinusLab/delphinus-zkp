@@ -41,7 +41,6 @@ export class WithdrawNFTCommand extends Command {
     // circuits: check dataPath[2][66]'s leafValues[0] != 0 & leafValues[0] < 2 ^ 20
     // circuits: check dataPath[2]'s leafValues[1] < 2 ^ 20
     // circuits: check dataPath[2]'s leafValues[2] < 2 ^ 250
-    // circuits: check owner, bidder and biddingAmount is 0
     // circuits: check signer == dataPath[2]'s leafValues[0]
     // circuits: check nftIndex < 2 ^ 20 & nftIndex != 0
     // circuits: check nftIndex == CheckNFTIndexFE's output nftIndex

@@ -41,8 +41,6 @@ export class FinalizeNFTCommand extends Command {
     // circuits: check dataPath[2]'s leafValues[0] < 2 ^ 20 & leafValues[0] != 0
     // circuits: check dataPath[2]'s leafValues[1] < 2 ^ 20 & leafValues[1] != 0
     // circuits: check dataPath[2]'s leafValues[2] < 2 ^ 250 & leafValues[2] != 0
-    // circuits: check owner is equal to dataPath[2]'s leafValues[1]
-    // circuits: check bidder and biddingAmount is equal to 0
     // circuits: check nftIndex < 2 ^ 20 & nftIndex != 0
     // circuits: check nftIndex == CheckNFTIndexFE's output nftIndex
     // circuits: check signer == dataPath[2]'s leafValues[0]
