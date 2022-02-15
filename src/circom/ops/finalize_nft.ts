@@ -59,7 +59,7 @@ export class FinalizeNFTCommand extends Command {
 
     // STEP3: update nft info with new owner, bidder and biddingAmount
     const zero = new Field(0);
-    path.push(await nft.getAndUpdateNFT(leafValues[1], zero, zero));
+    path.push(await nft.getAndUpdateNFT(leafValues[1], zero, zero,zero));
 
     return path;
   }

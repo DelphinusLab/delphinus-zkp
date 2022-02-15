@@ -27,14 +27,16 @@ export class NFT {
     async getAndUpdateNFT(
         owner: Field,
         bidder: Field,
-        biddingAmount: Field
+        biddingAmount: Field,
+        emptyNode: Field
     ) {
         const path = await this.getNFTPath();
 
         await this.storage.setLeaves(this.address, [
             owner,
             bidder,
-            biddingAmount
+            biddingAmount,
+            emptyNode
         ]);
         return path;
     }

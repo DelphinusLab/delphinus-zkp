@@ -7,6 +7,7 @@ import { WithdrawCommand } from "./ops/withdraw";
 import { SwapCommand } from "./ops/swap";
 import { RetrieveCommand } from "./ops/retrieve";
 import { SupplyCommand } from "./ops/supply";
+import { DepositNFTCommand } from "./ops/deposit_nft";
 
 export function createCommand(op: Field, args: Field[]) {
   if (op.v.eqn(CommandOp.AddPool)) {
@@ -35,6 +36,10 @@ export function createCommand(op: Field, args: Field[]) {
 
   if (op.v.eqn(CommandOp.Supply)) {
     return new SupplyCommand(args);
+  }
+
+  if (op.v.eqn(7)) {
+    return new DepositNFTCommand(args);
   }
 
   throw new Error("Not implemented yet");

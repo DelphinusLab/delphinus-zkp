@@ -53,7 +53,7 @@ export class DepositNFTCommand extends Command {
 
     // STEP2: update nft info with new owner
     const zero = new Field(0);
-    path.push(await nft.getAndUpdateNFT(owner, zero, zero));
+    path.push(await nft.getAndUpdateNFT(owner, zero, zero, zero));
 
     return path;
   }

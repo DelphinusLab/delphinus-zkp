@@ -71,7 +71,8 @@ export class BidNFTCommand extends Command {
     path.push(await _bidder.getAndAddBalance(tokenIndex, new Field(0).sub(biddingAmount)));
 
     // STEP4: update nft info with new bidder and biddingAmount
-    path.push(await nft.getAndUpdateNFT(leafValues[0], bidder, biddingAmount));
+    const zero = new Field(0);
+    path.push(await nft.getAndUpdateNFT(leafValues[0], bidder, biddingAmount, zero));
 
     return path;
   }
