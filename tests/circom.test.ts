@@ -14,8 +14,8 @@ let n = new Field(y);
 async function main() {
   await storage.startSnapshot("1");
   const _0 = await runZkp(
-    [[new Field(CommandOp.SetKey),[new Field(0),new Field(0),new Field(0),
-    new Field(0),new Field(0),new Field(0), m , n ,new Field(0),
+    [[new Field(CommandOp.SetKey),[new Field(1),new Field(2),new Field(3),
+    new Field(0),new Field(1),new Field(0), m , n ,new Field(0),
     new Field(0)]]],
     storage,
     "0",
@@ -24,18 +24,18 @@ async function main() {
   const _1 = await runZkp(
     [[new Field(7),[new Field(1),new Field(2),new Field(3),
     new Field(1),new Field(1),new Field(0),new Field(0),new Field(1),
-    new Field(0),new Field(0)]]],
+    new Field(1),new Field(0)]]],
     storage,
     "1",
   ); 
 
-  // const _2 = await runZkp(
-  //   [[new Field(CommandOp.TransferNFT),[new Field(1),new Field(2),new Field(3),
-  //   new Field(2),new Field(1),new Field(0),new Field(0),new Field(1),
-  //   new Field(0),new Field(0)]]],
-  //   storage,
-  //   "2",
-  // );
+  const _2 = await runZkp(
+    [[new Field(9),[new Field(1),new Field(2),new Field(3),
+    new Field(2),new Field(2),new Field(0),new Field(0),new Field(1),
+    new Field(1),new Field(0)]]],
+    storage,
+    "2",
+  );
 
   // const _3 = await runZkp(
   //   [[new Field(CommandOp.BidNFT),[new Field(1),new Field(2),new Field(3),

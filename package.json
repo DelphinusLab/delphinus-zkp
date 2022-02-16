@@ -15,8 +15,8 @@
     "bn.js": "^5.2.0",
     "circomlib": "^2.0.2",
     "crypto-js": "^4.1.1",
-    "delphinus-curves": "*",
-    "delphinus-l2-client-helper": "*",
+    "delphinus-curves": "DelphinusLab/delphinus-curves",
+    "delphinus-l2-client-helper": "DelphinusLab/delphinus-l2-client-helper",
     "fs-extra": "^10.0.0",
     "sha256": "^0.2.0",
     "snarkjs": "^0.4.7"

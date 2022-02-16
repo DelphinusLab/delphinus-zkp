@@ -87,7 +87,7 @@ template TransferNFT() {
 
     // circuits: check signer == dataPath[1]'s leafValues[0]
     component nftleaf0IsSigner = IsEqual();
-    nftleaf0IsSigner.in[0] <== dataPath[1][OwnerOffset];
+    nftleaf0IsSigner.in[0] <== dataPath[1][OwnerOffset] * (1 << 10);
     nftleaf0IsSigner.in[1] <== signer;
 
     andmany.in[andmanyOffset] <== nftleaf0IsSigner.out;
