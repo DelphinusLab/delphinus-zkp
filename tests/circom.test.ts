@@ -18,7 +18,7 @@ async function main() {
     new Field(0),new Field(1),new Field(0), m , n ,new Field(0),
     new Field(0)]]],
     storage,
-    "0",
+    "setkey_signer1",
   );
 
   const _1 = await runZkp(
@@ -26,7 +26,7 @@ async function main() {
     new Field(1),new Field(1),new Field(0),new Field(0),new Field(1),
     new Field(1),new Field(0)]]],
     storage,
-    "1",
+    "deposit_signer1",
   ); 
 
   const _2 = await runZkp(
@@ -34,32 +34,40 @@ async function main() {
     new Field(2),new Field(2),new Field(0),new Field(0),new Field(1),
     new Field(1),new Field(0)]]],
     storage,
-    "2",
+    "transfer_signer1",
   );
 
-  // const _3 = await runZkp(
-  //   [[new Field(CommandOp.BidNFT),[new Field(1),new Field(2),new Field(3),
-  //   new Field(3),new Field(0),new Field(2),new Field(100),new Field(1),
-  //   new Field(0),new Field(0)]]],
-  //   storage,
-  //   "3",
-  // );
+  const _3 = await runZkp(
+    [[new Field(CommandOp.SetKey),[new Field(1),new Field(2),new Field(3),
+    new Field(0),new Field(3),new Field(0), m , n ,new Field(0),
+    new Field(0)]]],
+    storage,
+    "setkey_bidder",
+  );
 
-  // const _4 = await runZkp(
-  //   [[new Field(CommandOp.FinalizeNFT),[new Field(1),new Field(2),new Field(3),
-  //   new Field(4),new Field(0),new Field(0),new Field(0),new Field(1),
-  //   new Field(0),new Field(0)]]],
-  //   storage,
-  //   "4",
-  // );
+  const _4 = await runZkp(
+    [[new Field(CommandOp.AddPool),[new Field(1),new Field(2),new Field(3),
+    new Field(1),new Field(0),new Field(1), new Field(0) , new Field(0) ,new Field(1),
+    new Field(3)]]],
+    storage,
+    "addpool_bidder",
+  );
 
-  // const _5 = await runZkp(
-  //   [[new Field(CommandOp.WithdrawNFT),[new Field(1),new Field(2),new Field(3),
-  //   new Field(5),new Field(0),new Field(0),new Field(0),new Field(1),
-  //   new Field(0),new Field(0)]]],
-  //   storage,
-  //   "5",
-  // );
+  const _5= await runZkp(
+    [[new Field(CommandOp.Deposit),[new Field(1),new Field(2),new Field(3),
+    new Field(2),new Field(3),new Field(1), new Field(100) , new Field(0) ,new Field(3),
+    new Field(0)]]],
+    storage,
+    "deposit_bidder",
+  );
+
+  const _6= await runZkp(
+    [[new Field(10),[new Field(1),new Field(2),new Field(3),
+    new Field(3),new Field(0),new Field(3), new Field(99) , new Field(1) ,new Field(3),
+    new Field(0)]]],
+    storage,
+    "bid_bidder",
+  );
   
   await storage.endSnapshot();
 }
