@@ -69,11 +69,11 @@ template FinalizeNFT() {
     nftIndexcheck.in[0] <== nftIndexFromTreePath.nftIndex;
     nftIndexcheck.in[1] <== nftIndex;
     andmany.in[andmanyOffset] <== nftIndexFromTreePath.out * nftIndexcheck.out;
-    andmanyOffset++;    
+    andmanyOffset++;
 
     // circuits: check signer == dataPath[2]'s leafValues[0]
     component nftleaf0IsSigner = IsEqual();
-    nftleaf0IsSigner.in[0] <== dataPath[2][OwnerOffset];
+    nftleaf0IsSigner.in[0] <== dataPath[2][OwnerOffset] * (1 << 10);
     nftleaf0IsSigner.in[1] <== signer;
 
     andmany.in[andmanyOffset] <== nftleaf0IsSigner.out;
