@@ -28,11 +28,11 @@ export class Account {
   }
 
   getAccountPublicKeyIndex() {
-    return getMetaAddress(this.index << 10, MetaType.Account) | 0;
+    return getMetaAddress(this.index, MetaType.Account) | 0;
   }
 
   getAccountNonceIndex() {
-    return getMetaAddress(this.index << 10, MetaType.Account) | 2;
+    return getMetaAddress(this.index, MetaType.Account) | 2;
   }
 
   async getAndUpdateNonce(nonce: Field) {
