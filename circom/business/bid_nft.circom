@@ -90,7 +90,7 @@ template BidNFT() {
     // circuits: check signer == bidder
     component signerIsBidder = IsEqual();
     signerIsBidder.in[0] <== signer;
-    signerIsBidder.in[1] <== bidder * (1 << 10);
+    signerIsBidder.in[1] <== bidder;
     andmany.in[andmanyOffset] <== signerIsBidder.out;
     andmanyOffset++;
     

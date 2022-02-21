@@ -6,16 +6,26 @@ import { BN } from "bn.js";
 
 const storage = new L2Storage(true);
 
-let x = new BN("18286556006624988188459076439754166425504153729857832093767351799416214369637",10);
-let y = new BN("14203775919540404381118757529550330561546795534205349960791458225690969705472",10);
-let m = new Field(x);
-let n = new Field(y);
+//keys:
+// let x = new BN("18286556006624988188459076439754166425504153729857832093767351799416214369637",10);
+// let y = new BN("14203775919540404381118757529550330561546795534205349960791458225690969705472",10);
+let x = new BN("4");
+let y = new BN("5");
+let ax = new Field(x);
+let ay = new Field(y);
+
+//op:
+let deposit_nft =  new Field(7);
+let bid_nft =  new Field(10);
+let finalize_nft = new Field(11);
+let transfer_nft = new Field(9);
+let withdraw_nft =  new Field(8);
 
 async function main() {
   await storage.startSnapshot("1");
   const _0 = await runZkp(
     [[new Field(CommandOp.SetKey),[new Field(1),new Field(2),new Field(3),
-    new Field(0),new Field(1),new Field(0), m , n ,new Field(0),
+    new Field(0),new Field(1),new Field(0), ax , ay ,new Field(0),
     new Field(0)]]],
     storage,
     "setkey_account1_owner1",
@@ -38,7 +48,7 @@ async function main() {
   );
 
   const _3 = await runZkp(
-    [[new Field(7),[new Field(1),new Field(2),new Field(3),
+    [[deposit_nft,[new Field(1),new Field(2),new Field(3),
     new Field(3),new Field(1),new Field(0),new Field(0),new Field(1),
     new Field(1),new Field(0)]]],
     storage,
@@ -47,7 +57,7 @@ async function main() {
 
   const _4 = await runZkp(
     [[new Field(CommandOp.SetKey),[new Field(1),new Field(2),new Field(3),
-    new Field(0),new Field(2),new Field(0), m , n ,new Field(0),
+    new Field(0),new Field(2),new Field(0), ax , ay ,new Field(0),
     new Field(0)]]],
     storage,
     "setkey_account2_bidder",
@@ -70,7 +80,7 @@ async function main() {
   );
 
   const _7= await runZkp(
-    [[new Field(10),[new Field(1),new Field(2),new Field(3),
+    [[bid_nft,[new Field(1),new Field(2),new Field(3),
     new Field(3),new Field(0),new Field(2), new Field(99) , new Field(1) ,new Field(2),
     new Field(0)]]],
     storage,
@@ -78,7 +88,7 @@ async function main() {
   );
 
   const _8= await runZkp(
-    [[new Field(9),[new Field(1),new Field(2),new Field(3),
+    [[transfer_nft,[new Field(1),new Field(2),new Field(3),
     new Field(4),new Field(5),new Field(0), new Field(0) , new Field(1) ,new Field(1),
     new Field(0)]]],
     storage,
@@ -87,7 +97,7 @@ async function main() {
 
   const _9 = await runZkp(
     [[new Field(CommandOp.SetKey),[new Field(1),new Field(2),new Field(3),
-    new Field(0),new Field(5),new Field(0), m , n ,new Field(0),
+    new Field(0),new Field(5),new Field(0), ax , ay ,new Field(0),
     new Field(0)]]],
     storage,
     "setkey_account5_tfOwner",
@@ -110,22 +120,22 @@ async function main() {
   );
 
   // op: finalize
-  // const _12= await runZkp(
-  //   [[new Field(11),[new Field(1),new Field(2),new Field(3),
-  //   new Field(3),new Field(0),new Field(0), new Field(0) , new Field(1) ,new Field(5),
-  //   new Field(0)]]],
-  //   storage,
-  //   "finalize_by_account5",
-  // );
-  
-  // op: withdraw
   const _12= await runZkp(
-    [[new Field(8),[new Field(1),new Field(2),new Field(3),
+    [[finalize_nft,[new Field(1),new Field(2),new Field(3),
     new Field(3),new Field(0),new Field(0), new Field(0) , new Field(1) ,new Field(5),
     new Field(0)]]],
     storage,
-    "withdraw_by_tfOwner",
+    "finalize_by_account5",
   );
+  
+  // op: withdraw
+  // const _12= await runZkp(
+  //   [[withdraw_nft,[new Field(1),new Field(2),new Field(3),
+  //   new Field(3),new Field(0),new Field(0), new Field(0) , new Field(1) ,new Field(5),
+  //   new Field(0)]]],
+  //   storage,
+  //   "withdraw_by_tfOwner",
+  // );
   
   await storage.endSnapshot();
 }
