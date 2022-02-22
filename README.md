@@ -58,6 +58,6 @@ Assue admin's account index is 0.
 - run `tsc`
 - Run `node dist/tests/circom.test.js` to generate input json files under circom folder.
 - copy `input.addpool_account1_poolindex2` to unit_tests/addpool and rename to `input.json`.
-- under `circom` folder, run `bash tools/unit_run.sh unit_tests/addpool/`. It should pass.
+- under `circom` folder, run `bash tools/unit_run_full.sh unit_tests/addpool/`. It should pass.
 - We would continuously improve the steps.
 
