@@ -52,6 +52,12 @@ Assue admin's account index is 0.
 
 ## How to contribute
 
-- Run `node dist/tests/circom.test.js` to see how many tests would fail.
-- Implement circom/main.circom to pass those test.
-- We would continuously add more tests.
+- Under `zkp` folder, run `tsc`
+- Run `node dist/tests/generateSignPubKey.js` to generate publicKey.json and AddPool_sign.json
+- Copy the publick key and sign numbers from the json files to the tests/circom.test.ts
+- run `tsc`
+- Run `node dist/tests/circom.test.js` to generate input json files under circom folder.
+- copy `input.addpool_account1_poolindex2` to unit_tests/addpool and rename to `input.json`.
+- under `circom` folder, run `bash tools/unit_run.sh unit_tests/addpool/`. It should pass.
+- We would continuously improve the steps.
+
