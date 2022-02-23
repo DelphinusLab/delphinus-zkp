@@ -20,10 +20,8 @@ let withdraw_nft =  new Field(8);
 async function main() {
   await storage.startSnapshot("1");
 
-  let x = new BN(public_Key.publicKey[0], 10);
-  let y = new BN(public_Key.publicKey[1], 10);
-  let ax = new Field(x);
-  let ay = new Field(y);
+  let ax = new Field(new BN(public_Key.publicKey[0], 10));
+  let ay = new Field(new BN(public_Key.publicKey[1], 10));
   const _0 = await runZkp(
     [[new Field(CommandOp.SetKey),[new Field(0),new Field(0),new Field(0),
     new Field(0),new Field(1),new Field(0), ax , ay ,new Field(0),
@@ -32,12 +30,9 @@ async function main() {
     "setkey_account1_owner1",
   );
 
-  let rxBN = new BN(AddPool_sign.Sign[0], 10);
-  let ryBN = new BN(AddPool_sign.Sign[1], 10);
-  let sBN = new BN(AddPool_sign.Sign[2], 10);
-  let rx = new Field(rxBN);
-  let ry = new Field(ryBN);
-  let s = new Field(sBN);
+  let rx = new Field(new BN(AddPool_sign.Sign[0], 10));
+  let ry = new Field(new BN(AddPool_sign.Sign[1], 10));
+  let s = new Field(new BN(AddPool_sign.Sign[2], 10));
   const _1 = await runZkp(
     [[new Field(CommandOp.AddPool),[rx, ry, s,
     new Field(1),new Field(0),new Field(1), new Field(0) , new Field(0) ,new Field(2),
