@@ -7,14 +7,8 @@ import { BN } from "bn.js";
 const storage = new L2Storage(true);
 
 //keys:
-// let x = new BN("18286556006624988188459076439754166425504153729857832093767351799416214369637",10);
-// let y = new BN("14203775919540404381118757529550330561546795534205349960791458225690969705472",10);
-//let x = new BN("4");
-//let y = new BN("5");
-let x = new BN("6007917696815269238531550114325527957405874938691566744937892533010653814060", 10);
-let y = new BN("3142920979918082788135884767769360379923986240411018581057932854191487759390", 10)
-let ax = new Field(x);
-let ay = new Field(y);
+const public_Key = require("./publicKey.json");
+const AddPool_sign = require("./AddPool_sign.json");
 
 //op:
 let deposit_nft =  new Field(7);
@@ -25,6 +19,11 @@ let withdraw_nft =  new Field(8);
 
 async function main() {
   await storage.startSnapshot("1");
+
+  let x = new BN(public_Key.publicKey[0], 10);
+  let y = new BN(public_Key.publicKey[1], 10);
+  let ax = new Field(x);
+  let ay = new Field(y);
   const _0 = await runZkp(
     [[new Field(CommandOp.SetKey),[new Field(0),new Field(0),new Field(0),
     new Field(0),new Field(1),new Field(0), ax , ay ,new Field(0),
@@ -33,10 +32,9 @@ async function main() {
     "setkey_account1_owner1",
   );
 
-
-  let rxBN = new BN("8182035152698871811002043922968989613050898691938737539656283841835275358717", 10);
-  let ryBN = new BN("4650491426348371649292920846357169771443722164255409656418929687694202191100", 10);
-  let sBN = new BN("9674992305337421695801376652746333056174761904595188023135831486653772458241", 10);
+  let rxBN = new BN(AddPool_sign.Sign[0], 10);
+  let ryBN = new BN(AddPool_sign.Sign[1], 10);
+  let sBN = new BN(AddPool_sign.Sign[2], 10);
   let rx = new Field(rxBN);
   let ry = new Field(ryBN);
   let s = new Field(sBN);
