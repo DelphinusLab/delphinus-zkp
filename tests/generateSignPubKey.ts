@@ -15,7 +15,7 @@ export interface CryptoUtil {
   sign: (msg: Uint8Array, publicKey: Uint8Array) => Uint8Array;
 }
 
-class SignatureHelper {
+export class SignatureHelper {
   privateKey: Uint8Array;
   publicKey: Uint8Array;
   cryptoUtil: CryptoUtil;
@@ -96,7 +96,8 @@ class SignatureHelper {
 
     let [rxField, ryField, sField] = this.DoSignFromBuf(buf);
 
-    this.PrintSignJSON("AddPool_sign.json", rxField, ryField, sField);
+    return [rxField, ryField, sField]
+    // this.PrintSignJSON("AddPool_sign.json", rxField, ryField, sField);
   }
 
   GenerateSignForDepositNFT(
@@ -167,10 +168,10 @@ class SignatureHelper {
 
   GenerateJSONFromPublicKey()
   {
-    this.GenerateAXAYJSONFromPublicKey(this.publicKey);
+    this.GenerateAXAYFromPublicKey(this.publicKey);
   }
 
-  GenerateAXAYJSONFromPublicKey(pubKey: Uint8Array)
+  GenerateAXAYFromPublicKey(pubKey: Uint8Array)
   {
     console.log("privatekey:" + this.privateKey);
     console.log("public key: " + this.publicKey);
@@ -184,51 +185,51 @@ class SignatureHelper {
     let ayField = new Field(ayBN);
     console.log("ay: " + ay);
     console.log("ayField: " + ayField.toString());
-
-    this.PrintPubKeyJSON("publicKey.json", axField, ayField);
+    
+    return [axField, ayField];
   }
 
 }
 
-async function main() {
-  let cryptoUtil: CryptoUtil;
-  let cryptoUtilPromise = import(
-    __dirname + "/../../../crypto-rust/node/pkg/delphinus_crypto"
-    ).then((module) => {
-    cryptoUtil = module;
-    return module;
-  });
+// async function main() {
+//   let cryptoUtil: CryptoUtil;
+//   let cryptoUtilPromise = import(
+//     __dirname + "/../../../crypto-rust/node/pkg/delphinus_crypto"
+//     ).then((module) => {
+//     cryptoUtil = module;
+//     return module;
+//   });
 
-  async function getCryptoUtil() {
-    if (cryptoUtil) {
-      return cryptoUtil;
-    }
-    return await cryptoUtilPromise;
-  }
+//   async function getCryptoUtil() {
+//     if (cryptoUtil) {
+//       return cryptoUtil;
+//     }
+//     return await cryptoUtilPromise;
+//   }
 
-  const util = await getCryptoUtil();
+//   const util = await getCryptoUtil();
 
-  const signatureHelper = new SignatureHelper("Bob", "/delphinus/nft", util);
+//   const signatureHelper = new SignatureHelper("Bob", "/delphinus/nft", util);
 
-  //generate publicKey.json
-  signatureHelper.GenerateJSONFromPublicKey();
+//   //generate publicKey.json
+//   signatureHelper.GenerateJSONFromPublicKey();
 
-  //generate sign json for Addpool
-  console.log("GetSignForAddPool");
-  let nonce = new BN(1);
-  const tokenIndex0 = new BN(0);
-  const tokenIndex1 = new BN(1);
-  signatureHelper.GetSignForAddPool(nonce, tokenIndex0, tokenIndex1);
+//   //generate sign json for Addpool
+//   console.log("GetSignForAddPool");
+//   let nonce = new BN(1);
+//   const tokenIndex0 = new BN(0);
+//   const tokenIndex1 = new BN(1);
+//   signatureHelper.GetSignForAddPool(nonce, tokenIndex0, tokenIndex1);
 
-  //generate sign json for DepositNFT
-  /*console.log("GenerateSignForDepositNFT");
-  nonce = new BN(3);
-  const owner = new BN(1);
-  const bidder = new BN(0);
-  const biddingAmount = new BN(0);
-  const nftIndex = new BN(1);
+//   //generate sign json for DepositNFT
+//   /*console.log("GenerateSignForDepositNFT");
+//   nonce = new BN(3);
+//   const owner = new BN(1);
+//   const bidder = new BN(0);
+//   const biddingAmount = new BN(0);
+//   const nftIndex = new BN(1);
   
-  signatureHelper.GenerateSignForDepositNFT(owner, bidder, biddingAmount, nftIndex, nonce);*/
-}
+//   signatureHelper.GenerateSignForDepositNFT(owner, bidder, biddingAmount, nftIndex, nonce);*/
+// }
 
-main();
+// main();

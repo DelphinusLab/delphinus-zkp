@@ -3,16 +3,31 @@ import { L2Storage } from "../src/circom/address-space";
 import { runZkp } from "../src/circom/main";
 import { CommandOp } from "delphinus-l2-client-helper/src/swap";
 import { BN } from "bn.js";
+import { SignatureHelper } from "./generateSignPubKey";
+import { CryptoUtil } from "./generateSignPubKey";
 
 const storage = new L2Storage(true);
 
 //config:
 const config = require("./config.json");
 
-//keys:
-const public_Key = require("./publicKey.json");
-let ax = new Field(new BN(public_Key.publicKey[0], 10));
-let ay = new Field(new BN(public_Key.publicKey[1], 10));
+//generate keys:
+let cryptoUtil: CryptoUtil;
+let cryptoUtilPromise = import(
+  __dirname + "/../../../crypto-rust/node/pkg/delphinus_crypto"
+  ).then((module) => {
+  cryptoUtil = module;
+  return module;
+});
+
+async function getCryptoUtil() {
+  if (cryptoUtil) {
+    return cryptoUtil;
+  }
+  return await cryptoUtilPromise;
+}
+
+//Random keys:
 let rx = new Field(0);
 let ry = new Field(0);
 let s = new Field(0);
@@ -24,8 +39,14 @@ let finalize_nft = new Field(11);
 let transfer_nft = new Field(9);
 let withdraw_nft = new Field(8);
 
+//generate Input.json for all process
 async function main() {
     await storage.startSnapshot("1");
+    //pubKey:
+    const util = await getCryptoUtil();
+    const signatureHelper = new SignatureHelper("Bob", "/delphinus/nft", util);
+    let [ax, ay] = signatureHelper.GenerateAXAYFromPublicKey(signatureHelper.publicKey);
+
     //set accounts
     interface nonce {
         [key: string]: any
@@ -40,9 +61,12 @@ async function main() {
             `Setkey_for_accout_${config.Accounts[i].accountIndex}`
         );
         nonce_count++;
-
+        
+        //GerateSign for addpool:
+        let [rx_a,ry_a,s_a] = signatureHelper.GetSignForAddPool(new BN(nonce_count),new BN(config.Accounts[i].tokenIndex0),new BN(config.Accounts[i].tokenIndex1));
+        //GerateInput for addpool:
         await runZkp(
-            [[new Field(CommandOp.AddPool), [rx, ry, s, new Field(nonce_count), new Field(config.Accounts[i].tokenIndex0), new Field(config.Accounts[i].tokenIndex1), new Field(0), new Field(0), new Field(config.Accounts[i].poolIndex), new Field(config.Accounts[i].accountIndex)]]],
+            [[new Field(CommandOp.AddPool), [rx_a, ry_a, s_a, new Field(nonce_count), new Field(config.Accounts[i].tokenIndex0), new Field(config.Accounts[i].tokenIndex1), new Field(0), new Field(0), new Field(config.Accounts[i].poolIndex), new Field(config.Accounts[i].accountIndex)]]],
             storage,
             `Addpool_for_account_${config.Accounts[i].accountIndex}`
         );
