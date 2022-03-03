@@ -100,6 +100,28 @@ export class SignatureHelper {
     // this.PrintSignJSON("AddPool_sign.json", rxField, ryField, sField);
   }
 
+  GenerateSignForDeposit(
+    nonce: BN,
+    accountIndex: BN,
+    tokenIndex: BN,
+    amount: BN,
+    l1_tx_hash: BN
+  ) {
+    const buf = new Uint8Array(81);
+
+    buf.fill(0);
+    buf[0] = CommandOp.Deposit;
+    buf.set(nonce.toArray("be", 8), 1);
+    buf.set(accountIndex.toArray("be", 4), 9);
+    buf.set(tokenIndex.toArray("be", 4), 13);
+    buf.set(amount.toArray("be", 32), 17);
+    buf.set(l1_tx_hash.toArray("be", 32), 49);
+
+    let [rxField, ryField, sField] = this.DoSignFromBuf(buf);
+
+    return [rxField, ryField, sField]
+  }
+
   GenerateSignForDepositNFT(
     owner: BN,
     bidder: BN,

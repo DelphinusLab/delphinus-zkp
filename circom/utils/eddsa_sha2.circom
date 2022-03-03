@@ -156,6 +156,6 @@ template CheckSign(N) {
 
     t[1] <== yeq.out * xeq.out;
     
-    // out <== t[0] * t[1];
-    out <== 1;
+    out <== t[0] * t[1];
+    // out <== 1;
 }

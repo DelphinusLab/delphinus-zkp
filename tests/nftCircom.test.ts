@@ -71,9 +71,10 @@ async function main() {
             `Addpool_for_account_${config.Accounts[i].accountIndex}`
         );
         nonce_count++;
-
+        
+        let [rx_d,ry_d,s_d] = signatureHelper.GenerateSignForDeposit(new BN(nonce_count),new BN(config.Accounts[i].accountIndex),new BN(config.Accounts[i].tokenIndex1), new BN(config.Accounts[i].tokenIndex1amount),new BN(0));
         await runZkp(
-            [[new Field(CommandOp.Deposit), [rx, ry, s, new Field(nonce_count), new Field(config.Accounts[i].accountIndex), new Field(config.Accounts[i].tokenIndex1), new Field(config.Accounts[i].tokenIndex1amount), new Field(0), new Field(config.Accounts[i].accountIndex), new Field(0)]]],
+            [[new Field(CommandOp.Deposit), [rx_d, ry_d, s_d, new Field(nonce_count), new Field(config.Accounts[i].accountIndex), new Field(config.Accounts[i].tokenIndex1), new Field(config.Accounts[i].tokenIndex1amount), new Field(0), new Field(config.Accounts[i].accountIndex), new Field(0)]]],
             storage,
             `Deposit_for_account_${config.Accounts[i].accountIndex}`
         );
