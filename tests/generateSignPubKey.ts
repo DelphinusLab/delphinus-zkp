@@ -1,6 +1,4 @@
 import BN from "bn.js";
-import path from "path";
-import fs from "fs-extra";
 import { CommandOp } from "delphinus-l2-client-helper/src/swap";
 import { Field } from "delphinus-curves/src/field";
 
@@ -83,21 +81,17 @@ export class SignatureHelper {
   GetSignForAddPool(
     nonce: BN,
     tokenIndex0: BN,
-    tokenIndex1: BN,
+    tokenIndex1: BN
   ) {
     const buf = new Uint8Array(81);
 
     buf.fill(0);
-    // buf[0] = CommandOp.AddPool;
-    buf.set(new BN(5).toArray("be",1),0);
+    buf[0] = CommandOp.AddPool;
     buf.set(nonce.toArray("be", 8), 1);
     buf.set(tokenIndex0.toArray("be", 4), 9);
     buf.set(tokenIndex1.toArray("be", 4), 13);
 
-    let [rxField, ryField, sField] = this.DoSignFromBuf(buf);
-
-    return [rxField, ryField, sField]
-    // this.PrintSignJSON("AddPool_sign.json", rxField, ryField, sField);
+    return this.DoSignFromBuf(buf);
   }
 
   GenerateSignForDeposit(
@@ -105,7 +99,7 @@ export class SignatureHelper {
     accountIndex: BN,
     tokenIndex: BN,
     amount: BN,
-    l1_tx_hash: BN
+    l1_tx_hash: BN,
   ) {
     const buf = new Uint8Array(81);
 
@@ -117,31 +111,107 @@ export class SignatureHelper {
     buf.set(amount.toArray("be", 32), 17);
     buf.set(l1_tx_hash.toArray("be", 32), 49);
 
-    let [rxField, ryField, sField] = this.DoSignFromBuf(buf);
-
-    return [rxField, ryField, sField]
+    return this.DoSignFromBuf(buf);
   }
 
-  GenerateSignForDepositNFT(
+	GenerateSignForDepositNFT(
+    nonce: BN,
     owner: BN,
     bidder: BN,
     biddingAmount: BN,
-    nftIndex: BN,
-    nonce: BN
+    nftIndex: BN
   ) {
     const buf = new Uint8Array(81);
 
     buf.fill(0);
-    buf[0] = 7; //deposit_nft
+    buf[0] = 7;
     buf.set(nonce.toArray("be", 8), 1);
     buf.set(owner.toArray("be", 4), 9);
     buf.set(bidder.toArray("be", 4), 13);
     buf.set(biddingAmount.toArray("be", 32), 17);
     buf.set(nftIndex.toArray("be", 32), 49);
 
-    let [rxField, ryField, sField] = this.DoSignFromBuf(buf);
+    return this.DoSignFromBuf(buf);
+  }
 
-    this.PrintSignJSON("DepositNFT_sign.json", rxField, ryField, sField);
+	GenerateSignForBidNFT(
+    nonce: BN,
+    owner: BN,
+    bidder: BN,
+    biddingAmount: BN,
+    nftIndex: BN
+  ) {
+    const buf = new Uint8Array(81);
+
+    buf.fill(0);
+    buf[0] = 10;
+    buf.set(nonce.toArray("be", 8), 1);
+    buf.set(owner.toArray("be", 4), 9);
+    buf.set(bidder.toArray("be", 4), 13);
+    buf.set(biddingAmount.toArray("be", 32), 17);
+    buf.set(nftIndex.toArray("be", 32), 49);
+
+    return this.DoSignFromBuf(buf);
+  }
+
+	GenerateSignForTransferNFT(
+    nonce: BN,
+    owner: BN,
+    bidder: BN,
+    biddingAmount: BN,
+    nftIndex: BN
+  ) {
+    const buf = new Uint8Array(81);
+
+    buf.fill(0);
+    buf[0] = 9;
+    buf.set(nonce.toArray("be", 8), 1);
+    buf.set(owner.toArray("be", 4), 9);
+    buf.set(bidder.toArray("be", 4), 13);
+    buf.set(biddingAmount.toArray("be", 32), 17);
+    buf.set(nftIndex.toArray("be", 32), 49);
+
+    return this.DoSignFromBuf(buf);
+  }
+
+	GenerateSignForFinalizeNFT(
+    nonce: BN,
+    owner: BN,
+    bidder: BN,
+    biddingAmount: BN,
+    nftIndex: BN
+  ) {
+    const buf = new Uint8Array(81);
+
+    buf.fill(0);
+    buf[0] = 11;
+    buf.set(nonce.toArray("be", 8), 1);
+    buf.set(owner.toArray("be", 4), 9);
+    buf.set(bidder.toArray("be", 4), 13);
+    buf.set(biddingAmount.toArray("be", 32), 17);
+    buf.set(nftIndex.toArray("be", 32), 49);
+
+		return this.DoSignFromBuf(buf);
+  }
+
+	GenerateSignForWithdrawNFT(
+    nonce: BN,
+    owner: BN,
+    bidder: BN,
+    biddingAmount: BN,
+    nftIndex: BN
+  ) {
+    const buf = new Uint8Array(81);
+
+    buf.fill(0);
+    buf[0] = 8;
+    buf.set(nonce.toArray("be", 8), 1);
+    buf.set(owner.toArray("be", 4), 9);
+    buf.set(bidder.toArray("be", 4), 13);
+    buf.set(biddingAmount.toArray("be", 32), 17);
+    buf.set(nftIndex.toArray("be", 32), 49);
+
+    return this.DoSignFromBuf(buf);
   }
 
   DoSignFromBuf(buf: Uint8Array)
@@ -158,7 +228,7 @@ export class SignatureHelper {
     let ryBN = new BN(ry,10,"le");
     let ryField = new Field(ryBN);
     console.log("ry: " + ry);
-    console.log("rxField: " + rxField.toString());
+    console.log("ryField: " + ryField.toString());
     const s = this.getS(sign);
     let sBN = new BN(s,10,"le");
     let sField = new Field(sBN);
@@ -168,34 +238,8 @@ export class SignatureHelper {
     return [rxField, ryField, sField];
   }
 
-  PrintSignJSON(name:string, rx:Field, ry:Field, s:Field)
-  {
-    let json = {
-      "Sign" : [rx.toString(), ry.toString(), s.toString()]
-    };
-
-    const circomRoot = path.join(__dirname);
-    fs.writeJSON(path.join(circomRoot, name), json);
-  }
-
-  PrintPubKeyJSON(name:string, ax:Field, ay:Field)
-  {
-    let json = {
-      "publicKey" : [ax.toString(), ay.toString()]
-    };
-
-    const circomRoot = path.join(__dirname);
-    fs.writeJSON(path.join(circomRoot, name), json);
-  }
-
-  GenerateJSONFromPublicKey()
-  {
-    this.GenerateAXAYFromPublicKey(this.publicKey);
-  }
-
   GenerateAXAYFromPublicKey(pubKey: Uint8Array)
   {
-    console.log("privatekey:" + this.privateKey);
     console.log("public key: " + this.publicKey);
     const ax = this.getAX();
     let axBN = new BN(ax,10,"le");
@@ -207,51 +251,7 @@ export class SignatureHelper {
     let ayField = new Field(ayBN);
     console.log("ay: " + ay);
     console.log("ayField: " + ayField.toString());
-    
+
     return [axField, ayField];
   }
-
 }
-
-// async function main() {
-//   let cryptoUtil: CryptoUtil;
-//   let cryptoUtilPromise = import(
-//     __dirname + "/../../../crypto-rust/node/pkg/delphinus_crypto"
-//     ).then((module) => {
-//     cryptoUtil = module;
-//     return module;
-//   });
-
-//   async function getCryptoUtil() {
-//     if (cryptoUtil) {
-//       return cryptoUtil;
-//     }
-//     return await cryptoUtilPromise;
-//   }
-
-//   const util = await getCryptoUtil();
-
-//   const signatureHelper = new SignatureHelper("Bob", "/delphinus/nft", util);
-
-//   //generate publicKey.json
-//   signatureHelper.GenerateJSONFromPublicKey();
-
-//   //generate sign json for Addpool
-//   console.log("GetSignForAddPool");
-//   let nonce = new BN(1);
-//   const tokenIndex0 = new BN(0);
-//   const tokenIndex1 = new BN(1);
-//   signatureHelper.GetSignForAddPool(nonce, tokenIndex0, tokenIndex1);
-
-//   //generate sign json for DepositNFT
-//   /*console.log("GenerateSignForDepositNFT");
-//   nonce = new BN(3);
-//   const owner = new BN(1);
-//   const bidder = new BN(0);
-//   const biddingAmount = new BN(0);
-//   const nftIndex = new BN(1);
-  
-//   signatureHelper.GenerateSignForDepositNFT(owner, bidder, biddingAmount, nftIndex, nonce);*/
-// }
-
-// main();
