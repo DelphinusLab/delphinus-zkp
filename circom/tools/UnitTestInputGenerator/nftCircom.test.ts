@@ -1,11 +1,11 @@
-import { L2Storage } from "../src/circom/address-space";
+import { L2Storage } from "../../../src/circom/address-space";
 import { GenerateInput } from "./generateInput";
 import { CryptoUtil } from "./generateSignPubKey";
 
 const storage = new L2Storage(true);
 
 //config:
-const config = require("./config.json");
+const config = require("../../circom/tools/UnitTestInputGenerator/config.json");
 
 //generate keys:
 let cryptoUtil: CryptoUtil;

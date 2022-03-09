@@ -1,7 +1,7 @@
 import { Field } from "delphinus-curves/src/field";
-import { L2Storage } from "../src/circom/address-space";
+import { L2Storage } from "../../../src/circom/address-space";
 import { BN } from "bn.js";
-import { runZkp } from "../src/circom/main";
+import { runZkp } from "../../../src/circom/main";
 import { CommandOp } from "delphinus-l2-client-helper/src/swap";
 import { SignatureHelper } from "./generateSignPubKey";
 import { CryptoUtil } from "./generateSignPubKey";
