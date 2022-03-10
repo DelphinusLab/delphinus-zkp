@@ -1,16 +1,15 @@
 import { L2Storage } from "../../../src/circom/address-space";
 import { GenerateInput } from "./generateInput";
 import { CryptoUtil } from "./generateSignPubKey";
+import { readFileSync } from "fs-extra";
 
 const storage = new L2Storage(true);
-
-//config:
-const config = require("../../circom/tools/UnitTestInputGenerator/config.json");
+const config = JSON.parse(readFileSync(process.argv[2], "utf8"));
 
 //generate keys:
 let cryptoUtil: CryptoUtil;
 let cryptoUtilPromise = import(
-  __dirname + "/../../../crypto-rust/node/pkg/delphinus_crypto"
+  __dirname + "/../../../../../crypto-rust/node/pkg/delphinus_crypto"
   ).then((module) => {
   cryptoUtil = module;
   return module;
