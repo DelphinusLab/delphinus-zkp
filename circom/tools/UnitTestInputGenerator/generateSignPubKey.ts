@@ -114,6 +114,122 @@ export class SignatureHelper {
     return this.DoSignFromBuf(buf);
   }
 
+  // withdraw(
+  //   accountIndex: BN,
+  //   tokenIndex: BN,
+  //   amount: BN,
+  //   l1Account: BN,
+  //   nonce: BN
+  // ) {
+  //   const buf = new Uint8Array(81);
+
+  //   buf.fill(0);
+  //   buf[0] = CommandOp.Withdraw;
+  //   buf.set(nonce.toArray("be", 8), 1);
+  //   buf.set(accountIndex.toArray("be", 4), 9);
+  //   buf.set(tokenIndex.toArray("be", 4), 13);
+  //   buf.set(amount.toArray("be", 32), 17);
+  //   buf.set(l1Account.toArray("be", 32), 49);
+
+  //   const s = this.cryptoUtil.sign(buf, this.privateKey);
+
+  //   return this.send(
+  //     "withdraw",
+  //     s,
+  //     tokenIndex.toString(10),
+  //     amount.toString(10),
+  //     l1Account.toString(10),
+  //     nonce.toString(10)
+  //   );
+  // }
+
+  // swap(
+  //   accountIndex: BN,
+  //   poolIndex: BN,
+  //   reverse: BN,
+  //   amount: BN,
+  //   nonce: BN
+  // ) {
+  //   const buf = new Uint8Array(81);
+
+  //   buf.fill(0);
+  //   buf[0] = CommandOp.Swap;
+  //   buf.set(nonce.toArray("be", 8), 1);
+  //   buf.set(accountIndex.toArray("be", 4), 9);
+  //   buf.set(poolIndex.toArray("be", 4), 13);
+  //   buf.set(reverse.toArray("be", 32), 17);
+  //   buf.set(amount.toArray("be", 32), 49);
+
+  //   const s = this.cryptoUtil.sign(buf, this.privateKey);
+
+  //   return this.send(
+  //     "swap",
+  //     s,
+  //     poolIndex.toString(10),
+  //     reverse.toString(10),
+  //     amount.toString(10),
+  //     nonce.toString(10)
+  //   );
+  // }
+
+  // poolSupply(
+  //   accountIndex: BN,
+  //   poolIndex: BN,
+  //   amount0: BN,
+  //   amount1: BN,
+  //   nonce: BN
+  // ) {
+  //   const buf = new Uint8Array(81);
+
+  //   buf.fill(0);
+  //   buf[0] = CommandOp.Supply;
+  //   buf.set(nonce.toArray("be", 8), 1);
+  //   buf.set(accountIndex.toArray("be", 4), 9);
+  //   buf.set(poolIndex.toArray("be", 4), 13);
+  //   buf.set(amount0.toArray("be", 32), 17);
+  //   buf.set(amount1.toArray("be", 32), 49);
+
+  //   const s = this.cryptoUtil.sign(buf, this.privateKey);
+
+  //   return this.send(
+  //     "poolSupply",
+  //     s,
+  //     poolIndex.toString(10),
+  //     amount0.toString(10),
+  //     amount1.toString(10),
+  //     nonce.toString(10)
+  //   );
+  // }
+
+  // poolRetrieve(
+  //   accountIndex: BN,
+  //   poolIndex: BN,
+  //   amount0: BN,
+  //   amount1: BN,
+  //   nonce: BN
+  // ) {
+  //   const buf = new Uint8Array(81);
+
+  //   buf.fill(0);
+  //   buf[0] = CommandOp.Retrieve;
+  //   buf.set(nonce.toArray("be", 8), 1);
+  //   buf.set(accountIndex.toArray("be", 4), 9);
+  //   buf.set(poolIndex.toArray("be", 4), 13);
+  //   buf.set(amount0.toArray("be", 32), 17);
+  //   buf.set(amount1.toArray("be", 32), 49);
+
+  //   const s = this.cryptoUtil.sign(buf, this.privateKey);
+
+  //   return this.send(
+  //     "poolRetrieve",
+  //     s,
+  //     poolIndex.toString(10),
+  //     amount0.toString(10),
+  //     amount1.toString(10),
+  //     nonce.toString(10)
+  //   );
+  // }
+
 	GenerateSignForDepositNFT(
     nonce: BN,
     owner: BN,
