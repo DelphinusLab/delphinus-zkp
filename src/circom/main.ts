@@ -6,7 +6,7 @@ import { Field } from "delphinus-curves/src/field";
 import { L2Storage } from "./address-space";
 import { genZKPInput, Input } from "./generate-zkinput";
 
-const circomRoot = path.join(__dirname, "..", "..", "..", "circom","tools","UnitTestInputGenerator");
+const circomRoot = path.join(__dirname, "..", "..", "..", "circom");
 
 export interface Groth16Proof {
   proof: {
@@ -45,7 +45,7 @@ export async function runZkp(
   }
 
   await writeInput(input, rid);
-  
+
   await new Promise((resolve, reject) =>
     exec(
       "bash tools/run.sh",
@@ -61,33 +61,33 @@ export async function runZkp(
     )
   );
 
- await new Promise((resolve, reject) =>
-   exec(
-     "bash tools/proof.sh",
-     {
-       cwd: ZKPPath,
-     },
-     (error, stdout, stderr) => {
-       if (error) {
-         reject(error);
-       }
-       resolve(stdout);
-     }
-   )
- );
+  await new Promise((resolve, reject) =>
+    exec(
+      "bash tools/proof.sh",
+      {
+        cwd: ZKPPath,
+      },
+      (error, stdout, stderr) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(stdout);
+      }
+    )
+  );
 
- const proof: any = await fs.readJson(path.resolve(ZKPPath, "proof.json"));
+  const proof: any = await fs.readJson(path.resolve(ZKPPath, "proof.json"));
 
- const publicInput: any = await fs.readJSON(
-   path.resolve(ZKPPath, "public.json")
- );
+  const publicInput: any = await fs.readJSON(
+    path.resolve(ZKPPath, "public.json")
+  );
 
- return {
-   proof: {
-     a: proof.pi_a.slice(0, 2),
-     // see https://github.com/iden3/snarkjs/issues/13
-     b: proof.pi_b.slice(0, 2).map((x: string[]) => x.reverse()),
-     c: proof.pi_c.slice(0, 2),
+  return {
+    proof: {
+      a: proof.pi_a.slice(0, 2),
+      // see https://github.com/iden3/snarkjs/issues/13
+      b: proof.pi_b.slice(0, 2).map((x: string[]) => x.reverse()),
+      c: proof.pi_c.slice(0, 2),
     },
     inputs: publicInput,
   } as Groth16Proof;
