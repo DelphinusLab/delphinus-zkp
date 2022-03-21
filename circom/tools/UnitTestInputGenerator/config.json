@@ -18,8 +18,51 @@
             {
                 "op_name": "deposit",
                 "accountIndex":"1",
-                "tokenIndex1":"1",
-                "tokenIndex1amount":"100",
+                "tokenIndex":"1",
+                "amount":"1000",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "deposit",
+                "accountIndex":"1",
+                "tokenIndex":"0",
+                "amount":"1000",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "withdraw",
+                "accountIndex":"1",
+                "tokenIndex":"1",
+                "amount":"100",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "supply",
+                "accountIndex":"1",
+                "poolIndex":"1",
+                "amount0":"100",
+                "amount1":"100",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "retrieve",
+                "accountIndex":"1",
+                "poolIndex":"1",
+                "amount0":"10",
+                "amount1":"10",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "swap",
+                "accountIndex":"1",
+                "poolIndex":"1",
+                "reverse":"1",
+                "amount":"10",
                 "msg":"Bob",
                 "derive_key":"/delphinus/nft"
             },

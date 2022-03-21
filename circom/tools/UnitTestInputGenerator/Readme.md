@@ -1,5 +1,5 @@
 ### 1. Before using this tool
-Make sure each relevent operation folder in unit_tests are clean (only main.circom)
+Make sure each relevent operation folder in unit_tests are clean (only main.circom/main.circom & input.json)
 
 ### 2. Edit Config.json: obj format for each type of operation
 > setkey:   {
@@ -73,4 +73,4 @@ Make sure each relevent operation folder in unit_tests are clean (only main.circ
               }
 
 ### 3. run command: 
-> bash circom_test.sh ${path of config.json}
+> bash circom_test.sh

@@ -1,7 +1,7 @@
 import { Field } from "delphinus-curves/src/field";
 import { L2Storage } from "../../../src/circom/address-space";
 import { BN } from "bn.js";
-import { runZkp } from "../../../src/circom/main";
+import { runZkp } from "../../../src/circom/generate-jsonInput";
 import { CommandOp } from "delphinus-l2-client-helper/src/swap";
 import { SignatureHelper } from "./generateSignPubKey";
 import { CryptoUtil } from "./generateSignPubKey";
@@ -43,7 +43,7 @@ async function GenerateSetkeyInput(
             ]
         ],
         storage,
-        `Setkey_for_accout_${args[1]}`
+        `Setkey_caller${args[1]}`
     )
 }
 
@@ -82,12 +82,12 @@ async function GenerateAddpoolInput(
             ]
         ],
         storage,
-        `Addpool_by_signer_${args[1]}`
+        `Addpool_caller${args[1]}_nonce${nonce}`
     )
 }
 
-// args[0]: op_name, args[1]:accountIndex, args[2]:tokenIndex1,
-// args[3]: tokenIndex1amount, args[4]:msg, args[5]:derive_key
+// args[0]: op_name, args[1]:accountIndex, args[2]:tokenIndex,
+// args[3]: amount, args[4]:msg, args[5]:derive_key
 async function GenerateDepositInput(
     args: any[],
     nonce: number,
@@ -123,7 +123,171 @@ async function GenerateDepositInput(
             ]
         ],
         storage,
-        `Deposit_for_account_${args[1]}`
+        `Deposit_caller${args[1]}_nonce${nonce}`
+    )
+}
+
+// args[0]: op_name, args[1]:accountIndex, args[2]:tokenIndex,
+// args[3]: amount, args[4]:msg, args[5]:derive_key
+async function GenerateWithdrawInput(
+    args: any[],
+    nonce: number,
+    storage: L2Storage,
+    util: CryptoUtil
+) {
+    const signatureHelper = new SignatureHelper(args[4], args[5], util);
+
+    let [rx, ry, s] = signatureHelper.GenerateSignForWithdraw(
+        new BN(nonce),
+        new BN(args[1]),
+        new BN(args[2]),
+        new BN(args[3]),
+        new BN(1)
+    )
+
+    await runZkp(
+        [
+            [
+                new Field(CommandOp.Withdraw),
+                [
+                    rx,
+                    ry,
+                    s,
+                    new Field(nonce),
+                    new Field(args[1]),
+                    new Field(args[2]),
+                    new Field(args[3]),
+                    new Field(1),
+                    new Field(0),
+                    new Field(0)
+                ]
+            ]
+        ],
+        storage,
+        `Withdraw_caller${args[1]}_nonce${nonce}`
+    )
+}
+
+// args[0]: op_name, args[1]:accountIndex, args[2]:poolIndex,
+// args[3]: reverse 1/0, args[4]: amount, args[5]:msg, args[6]:derive_key
+async function GenerateSwapInput(
+    args: any[],
+    nonce: number,
+    storage: L2Storage,
+    util: CryptoUtil
+) {
+    const signatureHelper = new SignatureHelper(args[5], args[6], util);
+
+    let [rx, ry, s] = signatureHelper.GenerateSignForSwap(
+        new BN(nonce),
+        new BN(args[1]),
+        new BN(args[2]),
+        new BN(args[3]),
+        new BN(args[4])
+    )
+
+    await runZkp(
+        [
+            [
+                new Field(CommandOp.Swap),
+                [
+                    rx,
+                    ry,
+                    s,
+                    new Field(nonce),
+                    new Field(args[1]),
+                    new Field(args[2]),
+                    new Field(args[3]),
+                    new Field(args[4]),
+                    new Field(0),
+                    new Field(0)
+                ]
+            ]
+        ],
+        storage,
+        `Swap_caller${args[1]}_nonce${nonce}`
+    )
+}
+
+// args[0]: op_name, args[1]:accountIndex, args[2]:poolIndex,
+// args[3]: amount0, args[4]: amount1, args[5]:msg, args[6]:derive_key
+async function GenerateSupplyInput(
+    args: any[],
+    nonce: number,
+    storage: L2Storage,
+    util: CryptoUtil
+) {
+    const signatureHelper = new SignatureHelper(args[5], args[6], util);
+
+    let [rx, ry, s] = signatureHelper.GenerateSignForSupply(
+        new BN(nonce),
+        new BN(args[1]),
+        new BN(args[2]),
+        new BN(args[3]),
+        new BN(args[4])
+    )
+
+    await runZkp(
+        [
+            [
+                new Field(CommandOp.Supply),
+                [
+                    rx,
+                    ry,
+                    s,
+                    new Field(nonce),
+                    new Field(args[1]),
+                    new Field(args[2]),
+                    new Field(args[3]),
+                    new Field(args[4]),
+                    new Field(0),
+                    new Field(0)
+                ]
+            ]
+        ],
+        storage,
+        `Supply_caller${args[1]}_nonce${nonce}`
+    )
+}
+
+// args[0]: op_name, args[1]:accountIndex, args[2]:poolIndex,
+// args[3]: amount0, args[4]: amount1, args[5]:msg, args[6]:derive_key
+async function GenerateRetrieveInput(
+    args: any[],
+    nonce: number,
+    storage: L2Storage,
+    util: CryptoUtil
+) {
+    const signatureHelper = new SignatureHelper(args[5], args[6], util);
+
+    let [rx, ry, s] = signatureHelper.GenerateSignForRetrieve(
+        new BN(nonce),
+        new BN(args[1]),
+        new BN(args[2]),
+        new BN(args[3]),
+        new BN(args[4])
+    )
+
+    await runZkp(
+        [
+            [
+                new Field(CommandOp.Retrieve),
+                [
+                    rx,
+                    ry,
+                    s,
+                    new Field(nonce),
+                    new Field(args[1]),
+                    new Field(args[2]),
+                    new Field(args[3]),
+                    new Field(args[4]),
+                    new Field(0),
+                    new Field(0)
+                ]
+            ]
+        ],
+        storage,
+        `Retrieve_caller${args[1]}_nonce${nonce}`
     )
 }
 
@@ -163,7 +327,7 @@ async function GenerateDepositNFTInput(
             ]
         ],
         storage,
-        `Depo_NFTIndex${args[3]}_owner${args[2]}`,
+        `DepoNFT_caller${args[1]}_nonce${nonce}`,
     )
 }
 
@@ -203,7 +367,7 @@ async function GenerateBidNFTInput(
             ]
         ],
         storage,
-        `Bid_NFTIndex${args[4]}_Bidder${args[2]}`,
+        `BidNFT_caller${args[1]}_nonce${nonce}`,
     )
 }
 
@@ -240,7 +404,7 @@ async function GenerateTransferNFTInput(
                     new Field(args[1]), 
                     new Field(0)]]],
         storage,
-        `Trans_NFTIndex${args[3]}_from_owner${args[1]}_to_owner${args[2]}`,
+        `TransNFT_caller${args[1]}_nonce${nonce}`,
     )
 }
 
@@ -280,7 +444,7 @@ async function GenerateFinalizeNFTInput(
             ]
         ],
         storage,
-        `Finali_NFTIndex${args[2]}_by_${args[1]}`,
+        `FinaliNFT_caller${args[1]}_nonce${nonce}`,
     )
 }
 
@@ -321,7 +485,7 @@ async function GenerateWithdrawNFTInput(
             ]
         ],
         storage,
-        `Withd_NFTIndex${args[2]}_by_${args[1]}`,
+        `WithdNFT_caller${args[1]}_nonce${nonce}`,
     )
 }
 
@@ -334,11 +498,23 @@ export async function GenerateInput(
     if (args[0] == "setkey") {
         await GenerateSetkeyInput(args, nonce, storage, util)
     }
-    if (args[0] == "addpool"){
+    else if (args[0] == "addpool"){
         await GenerateAddpoolInput(args, nonce, storage, util)
+    }
+    else if (args[0] == "swap"){
+        await GenerateSwapInput(args, nonce, storage, util)
+    }
+    else if (args[0] == "supply"){
+        await GenerateSupplyInput(args, nonce, storage, util)
+    }
+    else if (args[0] == "retrieve"){
+        await GenerateRetrieveInput(args, nonce, storage, util)
     }
     else if (args[0] == "deposit") {
         await GenerateDepositInput(args, nonce, storage, util)
+    }
+    else if (args[0] == "withdraw") {
+        await GenerateWithdrawInput(args, nonce, storage, util)
     }
     else if (args[0] == "deposit_nft") {
         await GenerateDepositNFTInput(args, nonce, storage, util)
