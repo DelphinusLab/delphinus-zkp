@@ -72,5 +72,44 @@ Make sure each relevent operation folder in unit_tests are clean (only main.circ
                 "derive_key":"~"
               }
 
+>withdraw:    {
+                "op_name": "withdraw",
+                "accountIndex":"~",
+                "tokenIndex":"~",
+                "amount":"~",
+                "msg":"~",
+                "derive_key":"~"
+              }
+
+>supply:      {
+                "op_name": "supply",
+                "accountIndex":"~",
+                "poolIndex":"~",
+                "amount0":"~",
+                "amount1":"~",
+                "msg":"~",
+                "derive_key":"~"
+              }
+
+>retrieve:    {
+                "op_name": "retrieve",
+                "accountIndex":"~",
+                "poolIndex":"~",
+                "amount0":"~",
+                "amount1":"~",
+                "msg":"~",
+                "derive_key":"~"
+              }
+
+>swap:        {
+                "op_name": "swap",
+                "accountIndex":"~",
+                "poolIndex":"~",
+                "reverse":"~",
+                "amount":"~",
+                "msg":"~",
+                "derive_key":"~"
+              }
+
 ### 3. run command: 
 > bash circom_test.sh
