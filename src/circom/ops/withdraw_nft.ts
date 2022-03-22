@@ -60,7 +60,7 @@ export class WithdrawNFTCommand extends Command {
 
     // STEP3: update nft with new owner, bidder and, biddingAmount
     const zero = new Field(0);
-    path.push(await nft.getAndUpdateNFT(zero, zero, zero,zero));
+    path.push(await nft.getAndUpdateNFT(zero, zero, zero));
 
     return path;
   }

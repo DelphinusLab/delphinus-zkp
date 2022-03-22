@@ -54,8 +54,7 @@ export class TransferNFTCommand extends Command {
     path.push(await account.getAndUpdateNonce(nonce));
     
     // STEP2: update nft info with new owner
-    const zero = new Field(0);
-    path.push(await nft.getAndUpdateNFT(owner, leafValues[1], leafValues[2],zero));
+    path.push(await nft.getAndUpdateNFT(owner, leafValues[1], leafValues[2]));
 
     return path;
   }
