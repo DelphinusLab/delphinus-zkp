@@ -1,5 +1,6 @@
 ### 1. Before using this tool
-Make sure each relevent operation folder in unit_tests are clean (only main.circom/main.circom & input.json)
+1. Make sure each relevent operation folder in unit_tests are clean (only main.circom/main.circom & input.json)
+2. Run `bash setup20.sh 20` if pot20_0000ptau，pot20_0001.ptau, pot20_final.ptau are not in circom folder.
 
 ### 2. Edit Config.json: obj format for each type of operation
 > setkey:   {
