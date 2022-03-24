@@ -1,11 +1,11 @@
 import { L2Storage } from "../../../src/circom/address-space";
 import { GenerateInput } from "./generateInput";
 import { CryptoUtil } from "./generateSignPubKey";
-import { readFileSync } from "fs-extra";
+import fs from "fs-extra";
 import { preTest, CreateResultFile } from "../../../src/circom/generate-jsonInput";
 
 const storage = new L2Storage(true);
-const config = JSON.parse(readFileSync(process.argv[2], "utf8"));
+const config = fs.readJsonSync(process.argv[2]);
 
 //generate keys:
 let cryptoUtil: CryptoUtil;
