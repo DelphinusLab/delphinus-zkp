@@ -2,6 +2,7 @@ import { L2Storage } from "../../../src/circom/address-space";
 import { GenerateInput } from "./generateInput";
 import { CryptoUtil } from "./generateSignPubKey";
 import { readFileSync } from "fs-extra";
+import { preTest, CreateResultFile } from "../../../src/circom/generate-jsonInput";
 
 const storage = new L2Storage(true);
 const config = JSON.parse(readFileSync(process.argv[2], "utf8"));
@@ -30,23 +31,24 @@ async function main() {
     interface nonce {
         [key: string]: any
     }
-    var nonce_signer: nonce = {};
+    const nonce_signer: nonce = {};
 
     //crypto
     const util = await getCryptoUtil();
 
+    //pre-test
+    console.log('Compiling Circom');
+    await CreateResultFile();
+    await preTest();
+  
     //ops:
     for(let i = 0; i<config.Ops.length;i++){
-        let input = [];
-        for(var key in config.Ops[i]){
-            input.push(config.Ops[i][key]);
-        }
-        if(config.Ops[i].op_name == "setkey"){
-            nonce_signer[`${input[1]}`] = 0;
-            console.log(`${nonce_signer[`${input[1]}`]}`)
-        }
-        await GenerateInput(input, nonce_signer[`${input[1]}`], storage, util);
-        nonce_signer[`${input[1]}`]++;
+      
+      if(config.Ops[i].op_name == "setkey"){
+          nonce_signer[`${config.Ops[i].calleraccountIndex}`] = 0;
+      }
+      await GenerateInput(config.Ops[i].op_name, config.Ops[i], nonce_signer[`${config.Ops[i].calleraccountIndex}`], storage, util);
+      nonce_signer[`${config.Ops[i].calleraccountIndex}`]++;
     }
 
     await storage.endSnapshot();

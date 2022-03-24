@@ -13,14 +13,20 @@ let finalize_nft = new Field(11);
 let transfer_nft = new Field(9);
 let withdraw_nft = new Field(8);
 
-// args[0]: op_name, args[1]:accountIndex, args[2]:msg, args[3]:derive_key
 async function GenerateSetkeyInput(
-    args: any[],
+    args: 
+    {
+        op_name: string,
+        calleraccountIndex: number,
+        accountIndex: number,
+        msg: string,
+        derive_key: string
+    },
     nonce: number,
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    const signatureHelper = new SignatureHelper(args[2], args[3], util);
+    const signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
 
     let [ax, ay] = signatureHelper.GenerateAXAYFromPublicKey(signatureHelper.publicKey);
 
@@ -33,7 +39,7 @@ async function GenerateSetkeyInput(
                     new Field(0),
                     new Field(0),
                     new Field(nonce),
-                    new Field(args[1]),
+                    new Field(args.accountIndex),
                     new Field(0),
                     ax,
                     ay,
@@ -43,24 +49,32 @@ async function GenerateSetkeyInput(
             ]
         ],
         storage,
-        `Setkey_caller${args[1]}`
+        `Setkey_caller${args.calleraccountIndex}`
     )
 }
 
-// args[0]: op_name, args[1]:accountIndex, args[2]:tokenIndex0,
-// args[3]: tokenIndex1, args[4]: poolIndex, args[5]:msg, args[6]:derive_key
 async function GenerateAddpoolInput(
-    args: any[],
+    args: 
+    {
+        op_name: string,
+        calleraccountIndex: number,
+        accountIndex: number,
+        tokenIndex0: number,
+        tokenIndex1: number,
+        poolIndex: number,
+        msg: string,
+        derive_key: string
+    },
     nonce: number,
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    const signatureHelper = new SignatureHelper(args[5], args[6], util);
+    const signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
 
     let [rx, ry, s] = signatureHelper.GetSignForAddPool(
         new BN(nonce),
-        new BN(args[2]),
-        new BN(args[3])
+        new BN(args.tokenIndex0),
+        new BN(args.tokenIndex1)
     )
 
     await runZkp(
@@ -72,35 +86,42 @@ async function GenerateAddpoolInput(
                     ry, 
                     s, 
                     new Field(nonce), 
-                    new Field(args[2]), 
-                    new Field(args[3]), 
+                    new Field(args.tokenIndex0), 
+                    new Field(args.tokenIndex1), 
                     new Field(0), 
                     new Field(0), 
-                    new Field(args[4]), 
-                    new Field(args[1])
+                    new Field(args.poolIndex), 
+                    new Field(args.calleraccountIndex)
                 ]
             ]
         ],
         storage,
-        `Addpool_caller${args[1]}_nonce${nonce}`
+        `Addpool_caller${args.calleraccountIndex}_nonce${nonce}`
     )
 }
 
-// args[0]: op_name, args[1]:accountIndex, args[2]:tokenIndex,
-// args[3]: amount, args[4]:msg, args[5]:derive_key
 async function GenerateDepositInput(
-    args: any[],
+    args: 
+    {
+        op_name: string,
+        calleraccountIndex: number,
+        accountIndex: number,
+        tokenIndex: number,
+        amount: number,
+        msg: string,
+        derive_key: string
+    },
     nonce: number,
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    const signatureHelper = new SignatureHelper(args[4], args[5], util);
+    const signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
 
     let [rx, ry, s] = signatureHelper.GenerateSignForDeposit(
         new BN(nonce),
-        new BN(args[1]),
-        new BN(args[2]),
-        new BN(args[3]),
+        new BN(args.accountIndex),
+        new BN(args.tokenIndex),
+        new BN(args.amount),
         new BN(0)
     )
 
@@ -113,35 +134,42 @@ async function GenerateDepositInput(
                     ry,
                     s,
                     new Field(nonce),
-                    new Field(args[1]),
-                    new Field(args[2]),
-                    new Field(args[3]),
+                    new Field(args.accountIndex),
+                    new Field(args.tokenIndex),
+                    new Field(args.amount),
                     new Field(0),
-                    new Field(args[1]),
+                    new Field(args.calleraccountIndex),
                     new Field(0)
                 ]
             ]
         ],
         storage,
-        `Deposit_caller${args[1]}_nonce${nonce}`
+        `Deposit_caller${args.calleraccountIndex}_nonce${nonce}`
     )
 }
 
-// args[0]: op_name, args[1]:accountIndex, args[2]:tokenIndex,
-// args[3]: amount, args[4]:msg, args[5]:derive_key
 async function GenerateWithdrawInput(
-    args: any[],
+    args: 
+    {
+        op_name: string,
+        calleraccountIndex: number,
+        accountIndex: number,
+        tokenIndex: number,
+        amount: number,
+        msg: string,
+        derive_key: string
+    },
     nonce: number,
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    const signatureHelper = new SignatureHelper(args[4], args[5], util);
+    const signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
 
     let [rx, ry, s] = signatureHelper.GenerateSignForWithdraw(
         new BN(nonce),
-        new BN(args[1]),
-        new BN(args[2]),
-        new BN(args[3]),
+        new BN(args.accountIndex),
+        new BN(args.tokenIndex),
+        new BN(args.amount),
         new BN(1)
     )
 
@@ -154,9 +182,9 @@ async function GenerateWithdrawInput(
                     ry,
                     s,
                     new Field(nonce),
-                    new Field(args[1]),
-                    new Field(args[2]),
-                    new Field(args[3]),
+                    new Field(args.accountIndex),
+                    new Field(args.tokenIndex),
+                    new Field(args.amount),
                     new Field(1),
                     new Field(0),
                     new Field(0)
@@ -164,26 +192,34 @@ async function GenerateWithdrawInput(
             ]
         ],
         storage,
-        `Withdraw_caller${args[1]}_nonce${nonce}`
+        `Withdraw_caller${args.calleraccountIndex}_nonce${nonce}`
     )
 }
 
-// args[0]: op_name, args[1]:accountIndex, args[2]:poolIndex,
-// args[3]: reverse 1/0, args[4]: amount, args[5]:msg, args[6]:derive_key
 async function GenerateSwapInput(
-    args: any[],
+    args: 
+    {
+        op_name: string,
+        calleraccountIndex: number,
+        accountIndex: number,
+        poolIndex: number,
+        reverse: number,
+        amount: number,
+        msg: string,
+        derive_key: string
+    },
     nonce: number,
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    const signatureHelper = new SignatureHelper(args[5], args[6], util);
+    const signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
 
     let [rx, ry, s] = signatureHelper.GenerateSignForSwap(
         new BN(nonce),
-        new BN(args[1]),
-        new BN(args[2]),
-        new BN(args[3]),
-        new BN(args[4])
+        new BN(args.accountIndex),
+        new BN(args.poolIndex),
+        new BN(args.reverse),
+        new BN(args.amount)
     )
 
     await runZkp(
@@ -195,36 +231,44 @@ async function GenerateSwapInput(
                     ry,
                     s,
                     new Field(nonce),
-                    new Field(args[1]),
-                    new Field(args[2]),
-                    new Field(args[3]),
-                    new Field(args[4]),
+                    new Field(args.accountIndex),
+                    new Field(args.poolIndex),
+                    new Field(args.reverse),
+                    new Field(args.amount),
                     new Field(0),
                     new Field(0)
                 ]
             ]
         ],
         storage,
-        `Swap_caller${args[1]}_nonce${nonce}`
+        `Swap_caller${args.calleraccountIndex}_nonce${nonce}`
     )
 }
 
-// args[0]: op_name, args[1]:accountIndex, args[2]:poolIndex,
-// args[3]: amount0, args[4]: amount1, args[5]:msg, args[6]:derive_key
 async function GenerateSupplyInput(
-    args: any[],
+    args: 
+    {
+        op_name: string,
+        calleraccountIndex: number,
+        accountIndex: number,
+        poolIndex: number,
+        amount0: number,
+        amount1: number,
+        msg: string,
+        derive_key: string
+    },
     nonce: number,
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    const signatureHelper = new SignatureHelper(args[5], args[6], util);
+    const signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
 
     let [rx, ry, s] = signatureHelper.GenerateSignForSupply(
         new BN(nonce),
-        new BN(args[1]),
-        new BN(args[2]),
-        new BN(args[3]),
-        new BN(args[4])
+        new BN(args.accountIndex),
+        new BN(args.poolIndex),
+        new BN(args.amount0),
+        new BN(args.amount1)
     )
 
     await runZkp(
@@ -236,36 +280,44 @@ async function GenerateSupplyInput(
                     ry,
                     s,
                     new Field(nonce),
-                    new Field(args[1]),
-                    new Field(args[2]),
-                    new Field(args[3]),
-                    new Field(args[4]),
+                    new Field(args.accountIndex),
+                    new Field(args.poolIndex),
+                    new Field(args.amount0),
+                    new Field(args.amount1),
                     new Field(0),
                     new Field(0)
                 ]
             ]
         ],
         storage,
-        `Supply_caller${args[1]}_nonce${nonce}`
+        `Supply_caller${args.calleraccountIndex}_nonce${nonce}`
     )
 }
 
-// args[0]: op_name, args[1]:accountIndex, args[2]:poolIndex,
-// args[3]: amount0, args[4]: amount1, args[5]:msg, args[6]:derive_key
 async function GenerateRetrieveInput(
-    args: any[],
+    args: 
+    {
+        op_name: string,
+        calleraccountIndex: number,
+        accountIndex: number,
+        poolIndex: number,
+        amount0: number,
+        amount1: number,
+        msg: string,
+        derive_key: string
+    },
     nonce: number,
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    const signatureHelper = new SignatureHelper(args[5], args[6], util);
+    const signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
 
     let [rx, ry, s] = signatureHelper.GenerateSignForRetrieve(
         new BN(nonce),
-        new BN(args[1]),
-        new BN(args[2]),
-        new BN(args[3]),
-        new BN(args[4])
+        new BN(args.accountIndex),
+        new BN(args.poolIndex),
+        new BN(args.amount0),
+        new BN(args.amount1)
     )
 
     await runZkp(
@@ -277,36 +329,43 @@ async function GenerateRetrieveInput(
                     ry,
                     s,
                     new Field(nonce),
-                    new Field(args[1]),
-                    new Field(args[2]),
-                    new Field(args[3]),
-                    new Field(args[4]),
+                    new Field(args.accountIndex),
+                    new Field(args.poolIndex),
+                    new Field(args.amount0),
+                    new Field(args.amount1),
                     new Field(0),
                     new Field(0)
                 ]
             ]
         ],
         storage,
-        `Retrieve_caller${args[1]}_nonce${nonce}`
+        `Retrieve_caller${args.calleraccountIndex}_nonce${nonce}`
     )
 }
 
-// args[0]: op_name, args[1]:accountIndex, args[2]:owner,
-// args[3]: nftIndex, args[4]:msg, args[5]:derive_key
 async function GenerateDepositNFTInput(
-    args: any[],
+    args: 
+    {
+        op_name: string,
+        calleraccountIndex: number,
+        accountIndex: number,
+        owner: number,
+        nftIndex: number,
+        msg: string,
+        derive_key: string
+    },
     nonce: number,
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    const signatureHelper = new SignatureHelper(args[4], args[5], util);
+    const signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
 
     let [rx, ry, s] = signatureHelper.GenerateSignForDepositNFT(
         new BN(nonce),
-        new BN(args[2]),
+        new BN(args.owner),
         new BN(0),
         new BN(0),
-        new BN(args[3])
+        new BN(args.nftIndex)
     )
     await runZkp(
         [
@@ -317,36 +376,45 @@ async function GenerateDepositNFTInput(
                     ry,
                     s,
                     new Field(nonce),
-                    new Field(args[2]),
+                    new Field(args.owner),
                     new Field(0), 
                     new Field(0),
-                    new Field(args[3]),
-                    new Field(args[1]),
+                    new Field(args.nftIndex),
+                    new Field(args.calleraccountIndex),
                     new Field(0)
                 ]
             ]
         ],
         storage,
-        `DepoNFT_caller${args[1]}_nonce${nonce}`,
+        `DepoNFT_caller${args.calleraccountIndex}_nonce${nonce}`,
     )
 }
 
-// args[0]: op_name, args[1]:accountIndex, args[2]:bidder,
-// args[3]: biddingAmount, args[4]: nftIndex, args[5]:msg, args[6]:derive_key
 async function GenerateBidNFTInput(
-    args: any[],
+    args: 
+    {
+        op_name: string,
+        calleraccountIndex: number,
+        accountIndex: number,
+        bidder: number,
+        biddingAmount: number,
+        nftIndex: number,
+        msg: string,
+        derive_key: string
+
+    },
     nonce: number,
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    const signatureHelper = new SignatureHelper(args[5], args[6], util);
+    const signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
 
     let [rx, ry, s] = signatureHelper.GenerateSignForBidNFT(
         new BN(nonce),
         new BN(0),
-        new BN(args[2]),
-        new BN(args[3]),
-        new BN(args[4])
+        new BN(args.bidder),
+        new BN(args.biddingAmount),
+        new BN(args.nftIndex)
     )
     await runZkp(
         [
@@ -358,35 +426,42 @@ async function GenerateBidNFTInput(
                     s,
                     new Field(nonce),
                     new Field(0),
-                    new Field(args[2]),
-                    new Field(args[3]),
-                    new Field(args[4]),
-                    new Field(args[1]),
+                    new Field(args.bidder),
+                    new Field(args.biddingAmount),
+                    new Field(args.nftIndex),
+                    new Field(args.calleraccountIndex),
                     new Field(0)
                 ]
             ]
         ],
         storage,
-        `BidNFT_caller${args[1]}_nonce${nonce}`,
+        `BidNFT_caller${args.calleraccountIndex}_nonce${nonce}`,
     )
 }
 
-// args[0]: op_name, args[1]:accountIndex, args[2]:owner,
-// args[3]: nftIndex, args[4]:msg, args[5]:derive_key
 async function GenerateTransferNFTInput(
-    args: any[],
+    args: 
+    {
+        op_name: string,
+        calleraccountIndex: number,
+        accountIndex: number,
+        owner: number,
+        nftIndex: number,
+        msg: string,
+        derive_key: string 
+    },
     nonce: number,
     storage: L2Storage,
     util: CryptoUtil
 ) { 
-    const signatureHelper = new SignatureHelper(args[4], args[5], util);
+    const signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
 
     let [rx, ry, s] = signatureHelper.GenerateSignForTransferNFT(
         new BN(nonce),
-        new BN(args[2]),
+        new BN(args.owner),
         new BN(0),
         new BN(0),
-        new BN(args[3])
+        new BN(args.nftIndex)
     )
     await runZkp(
         [
@@ -397,33 +472,42 @@ async function GenerateTransferNFTInput(
                     ry, 
                     s, 
                     new Field(nonce),
-                    new Field(args[2]), 
+                    new Field(args.owner), 
                     new Field(0), 
                     new Field(0), 
-                    new Field(args[3]), 
-                    new Field(args[1]), 
-                    new Field(0)]]],
+                    new Field(args.nftIndex), 
+                    new Field(args.calleraccountIndex), 
+                    new Field(0)
+                ]
+            ]
+        ],
         storage,
-        `TransNFT_caller${args[1]}_nonce${nonce}`,
+        `TransNFT_caller${args.calleraccountIndex}_nonce${nonce}`,
     )
 }
 
-// args[0]: op_name, args[1]:accountIndex, args[2]:nftIndex,
-// args[3]:msg, args[4]:derive_key
 async function GenerateFinalizeNFTInput(
-    args: any[],
+    args: 
+    {
+        op_name: string,
+        calleraccountIndex: number,
+        accountIndex: number,
+        nftIndex: number,
+        msg: string,
+        derive_key: string
+    },
     nonce: number,
     storage: L2Storage,
     util: CryptoUtil
 ) { 
-    const signatureHelper = new SignatureHelper(args[3], args[4], util);
+    const signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
 
     let [rx, ry, s] = signatureHelper.GenerateSignForFinalizeNFT(
         new BN(nonce),
         new BN(0),
         new BN(0),
         new BN(0),
-        new BN(args[2])
+        new BN(args.nftIndex)
     )
     await runZkp(
         [
@@ -437,33 +521,39 @@ async function GenerateFinalizeNFTInput(
                     new Field(0), 
                     new Field(0), 
                     new Field(0), 
-                    new Field(args[2]), 
-                    new Field(args[1]), 
+                    new Field(args.nftIndex), 
+                    new Field(args.calleraccountIndex), 
                     new Field(0)
                 ]
             ]
         ],
         storage,
-        `FinaliNFT_caller${args[1]}_nonce${nonce}`,
+        `FinaliNFT_caller${args.calleraccountIndex}_nonce${nonce}`,
     )
 }
 
-// args[0]: op_name, args[1]:accountIndex, args[2]:nftIndex,
-// args[3]:msg, args[4]:derive_key
 async function GenerateWithdrawNFTInput(
-    args: any[],
+    args: 
+    {
+        op_name: string,
+        calleraccountIndex: number,
+        accountIndex: number,
+        nftIndex: number,
+        msg: string,
+        derive_key: string
+    },
     nonce: number,
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    const signatureHelper = new SignatureHelper(args[3], args[4], util);
+    const signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
 
     let [rx, ry, s] = signatureHelper.GenerateSignForWithdrawNFT(
         new BN(nonce),
         new BN(0),
         new BN(0),
         new BN(0),
-        new BN(args[2])
+        new BN(args.nftIndex)
     )
     await runZkp(
         [
@@ -477,58 +567,59 @@ async function GenerateWithdrawNFTInput(
                     new Field(0), 
                     new Field(0), 
                     new Field(0), 
-                    new Field(args[2]), 
-                    new Field(args[1]), 
+                    new Field(args.nftIndex), 
+                    new Field(args.calleraccountIndex), 
                     new Field(0)
                 ]
             
             ]
         ],
         storage,
-        `WithdNFT_caller${args[1]}_nonce${nonce}`,
+        `WithdNFT_caller${args.calleraccountIndex}_nonce${nonce}`,
     )
 }
 
 export async function GenerateInput(
-    args: any[],
+    op: string,
+    args: any,
     nonce: number,
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    if (args[0] == "setkey") {
+    if (op == "setkey") {
         await GenerateSetkeyInput(args, nonce, storage, util)
     }
-    else if (args[0] == "addpool"){
+    else if (op == "addpool"){
         await GenerateAddpoolInput(args, nonce, storage, util)
     }
-    else if (args[0] == "swap"){
+    else if (op == "swap"){
         await GenerateSwapInput(args, nonce, storage, util)
     }
-    else if (args[0] == "supply"){
+    else if (op == "supply"){
         await GenerateSupplyInput(args, nonce, storage, util)
     }
-    else if (args[0] == "retrieve"){
+    else if (op == "retrieve"){
         await GenerateRetrieveInput(args, nonce, storage, util)
     }
-    else if (args[0] == "deposit") {
+    else if (op == "deposit") {
         await GenerateDepositInput(args, nonce, storage, util)
     }
-    else if (args[0] == "withdraw") {
+    else if (op == "withdraw") {
         await GenerateWithdrawInput(args, nonce, storage, util)
     }
-    else if (args[0] == "deposit_nft") {
+    else if (op == "deposit_nft") {
         await GenerateDepositNFTInput(args, nonce, storage, util)
     }
-    else if (args[0] == "bid_nft") {
+    else if (op == "bid_nft") {
         await GenerateBidNFTInput(args, nonce, storage, util)
     }
-    else if (args[0] == "transfer_nft") {
+    else if (op == "transfer_nft") {
         await GenerateTransferNFTInput(args, nonce, storage, util)
     }
-    else if (args[0] == "finalize_nft") {
+    else if (op == "finalize_nft") {
         await GenerateFinalizeNFTInput(args, nonce, storage, util)
     }
-    else if (args[0] == "withdraw_nft") {
+    else if (op == "withdraw_nft") {
         await GenerateWithdrawNFTInput(args, nonce, storage, util)
     }
 }

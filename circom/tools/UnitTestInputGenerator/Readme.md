@@ -1,10 +1,10 @@
 ### 1. Before using this tool
-1. Make sure each relevent operation folder in unit_tests are clean (only main.circom/main.circom & input.json)
-2. Run `bash setup20.sh 20` if pot20_0000ptau，pot20_0001.ptau, pot20_final.ptau are not in circom folder.
+Run `bash setup20.sh 20` if pot20_0000ptau，pot20_0001.ptau, pot20_final.ptau are not in circom folder.
 
 ### 2. Edit Config.json: obj format for each type of operation
 > setkey:   {
                 "op_name": "setkey",
+                "calleraccountIndex":"~",
                 "accountIndex":"~",
                 "msg":"~",
                 "derive_key":"~"
@@ -12,6 +12,7 @@
 
 >addpool:   {
                 "op_name": "addpool",
+                "calleraccountIndex":"~",
                 "accountIndex":"~",
                 "tokenIndex0":"~",
                 "tokenIndex1":"~",
@@ -22,15 +23,17 @@
 
 >deposit:   {
                 "op_name": "deposit",
+                "calleraccountIndex":"~",
                 "accountIndex": "~",
-                "tokenIndex1": "~",
-                "tokenIndex1amount": "~",
+                "tokenIndex": "~",
+                "amount": "~",
                 "msg": "~",
                 "derive_key": "~"
             }
 
 >depositNFT:{
                 "op_name": "deposit_nft",
+                "calleraccountIndex":"~",
                 "accountIndex":"~",
                 "owner":"~",
                 "nftIndex":"~",
@@ -40,6 +43,7 @@
 
 >bidNFT:    {
                 "op_name": "bid_nft",
+                "calleraccountIndex":"~",
                 "accountIndex":"~",
                 "bidder":"~",
                 "biddingAmount":"~",
@@ -50,6 +54,7 @@
 
 >transferNFT: {
                 "op_name": "transfer_nft",
+                "calleraccountIndex":"~",
                 "accountIndex":"~",
                 "owner":"~",
                 "nftIndex":"~",
@@ -59,6 +64,7 @@
 
 >finalizeNFT: {
                 "op_name": "finalize_nft",
+                "calleraccountIndex":"~",
                 "accountIndex":"~",
                 "nftIndex":"~",
                 "msg":"~",
@@ -67,6 +73,7 @@
 
 >withdrawNFT: {
                 "op_name": "withdraw_nft",
+                "calleraccountIndex":"~",
                 "accountIndex":"~",
                 "nftIndex":"~",
                 "msg":"~",
@@ -75,6 +82,7 @@
 
 >withdraw:    {
                 "op_name": "withdraw",
+                "calleraccountIndex":"~",
                 "accountIndex":"~",
                 "tokenIndex":"~",
                 "amount":"~",
@@ -84,6 +92,7 @@
 
 >supply:      {
                 "op_name": "supply",
+                "calleraccountIndex":"~",
                 "accountIndex":"~",
                 "poolIndex":"~",
                 "amount0":"~",
@@ -94,6 +103,7 @@
 
 >retrieve:    {
                 "op_name": "retrieve",
+                "calleraccountIndex":"~",
                 "accountIndex":"~",
                 "poolIndex":"~",
                 "amount0":"~",
@@ -104,6 +114,7 @@
 
 >swap:        {
                 "op_name": "swap",
+                "calleraccountIndex":"~",
                 "accountIndex":"~",
                 "poolIndex":"~",
                 "reverse":"~",
