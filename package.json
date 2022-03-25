@@ -19,6 +19,7 @@
     "delphinus-l2-client-helper": "*",
     "fs-extra": "^10.0.0",
     "sha256": "^0.2.0",
+    "delphinus-crypto": "*",
     "snarkjs": "^0.4.7"
   },
   "devDependencies": {
