@@ -9,54 +9,50 @@ import { genZKPInput, Input } from "./generate-zkinput";
 let date = new Date();
 let time = `${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`
 
-let dir = `../../unit_tests/Unit_Test_at_${time}`;
-let inputsfolder = `../../unit_tests/Unit_Test_at_${time}/Test_input`
-if (!fs.existsSync(dir)){
-  fs.mkdirSync(dir);
-  fs.mkdirSync(inputsfolder);
+const unitTestRoot = path.join(__dirname, "..", "..", "..", "circom", "unit_tests", `Unit_Test_at_${time}`)
+const InputsFolderRoot = path.join(unitTestRoot, "Test_input")
+if (!fs.existsSync(unitTestRoot)) {
+  fs.mkdirSync(unitTestRoot);
+  fs.mkdirSync(InputsFolderRoot);
 }
 
-const circomRoot = path.join(__dirname, "..", "..", "..", "circom","unit_tests","main.circom")
-const circomTestingRoot = path.join(__dirname, "..", "..", "..", "circom","unit_tests",`Unit_Test_at_${time}`,"main.circom")
+const circomRoot = path.join(__dirname, "..", "..", "..", "circom", "unit_tests", "main.circom")
+const circomTestingRoot = path.join(unitTestRoot, "main.circom")
 
 fs.copyFile(circomRoot, circomTestingRoot, (err) => {
   if (err) throw err;
 });
 
-const genInputRoot = path.join(__dirname, "..", "..", "..", "circom","tools","UnitTestInputGenerator",`${dir}`,"Test_input");
-
 export async function writeInput(input: Input, rid: string) {
-  await fs.writeJSON(path.join(genInputRoot, `input.${rid}_${time}.json`), input);
+  await fs.writeJSON(path.join(InputsFolderRoot, `input.${rid}_${time}.json`), input);
 }
 
-const ZKPPath = path.join(__dirname, "..", "..", "..", "circom","tools","UnitTestInputGenerator",`${dir}`);
-
-export async function preTest(){
+export async function preTest() {
   await new Promise((resolve, reject) =>
     exec(
       "bash ../../tools/UnitTestInputGenerator/pre_test.sh",
       {
-        cwd: ZKPPath,
+        cwd: unitTestRoot,
       },
       (error, stdout, stderr) => {
         if (error) {
-          fs.appendFile(resultRoot,`Aborted: Circom compile \n`);
+          fs.appendFile(resultRoot, `Aborted: Circom compile \n`);
           console.log(`Compile Aborted:`)
           console.log(`${stderr}`)
         } else {
           resolve(stdout);
           console.log(`${stdout}`)
-          fs.appendFile(resultRoot,`Passed: Circom compile \n`);
+          fs.appendFile(resultRoot, `Passed: Circom compile \n`);
         }
       }
-    ) 
+    )
   );
 }
 
-const resultRoot = path.join(__dirname, "..", "..", "..", "circom","tools","UnitTestInputGenerator",`${dir}`, "test_result.txt");
+const resultRoot = path.join(unitTestRoot, "test_result.txt");
 
 export async function CreateResultFile() {
-  let resultFile = fs.createWriteStream(resultRoot, {flags:'a'});
+  let resultFile = fs.createWriteStream(resultRoot, { flags: 'a' });
   await resultFile.write('Unit Test Results: \n')
 }
 
@@ -74,18 +70,18 @@ export async function runZkp(
 
   await writeInput(input, rid);
 
-  const singleTestFilesRoot = path.join(__dirname, "..", "..", "..", "circom","tools","UnitTestInputGenerator",`${dir}`, `testedFiles`,`testFiles_input.${rid}_${time}`);
+  const singleTestFilesRoot = path.join(unitTestRoot, `testedFiles`, `testFiles_input.${rid}_${time}`);
 
-  if (!fs.existsSync(`${ZKPPath}/testedFiles`)){
-    fs.mkdirSync(`${ZKPPath}/testedFiles`);
+  if (!fs.existsSync(`${unitTestRoot}/testedFiles`)) {
+    fs.mkdirSync(`${unitTestRoot}/testedFiles`);
   }
 
-  if (!fs.existsSync(singleTestFilesRoot)){
+  if (!fs.existsSync(singleTestFilesRoot)) {
     fs.mkdirSync(singleTestFilesRoot);
   }
 
-  const inputRoot = path.join(__dirname, "..", "..", "..", "circom","tools","UnitTestInputGenerator",`${dir}`,"Test_input",`input.${rid}_${time}.json`);
-  const inputTestingRoot = path.join(__dirname, "..", "..", "..", "circom","tools","UnitTestInputGenerator",`${dir}`, "input.json");
+  const inputRoot = path.join(unitTestRoot, "Test_input", `input.${rid}_${time}.json`);
+  const inputTestingRoot = path.join(unitTestRoot, "input.json");
 
   fs.copyFile(inputRoot, inputTestingRoot, (err) => {
     if (err) throw err;
@@ -97,33 +93,34 @@ export async function runZkp(
 
   try {
     await new Promise((resolve, reject) =>
-        exec(
+      exec(
         "bash ../../tools/UnitTestInputGenerator/input_test.sh",
         {
-          cwd: ZKPPath,
+          cwd: unitTestRoot,
         },
         (error, stdout, stderr) => {
           if (error) {
-            fs.appendFile(resultRoot,`Aborted: input.${rid}_${time}.json \n ${stderr} \n`);
+            fs.appendFile(resultRoot, `Aborted: input.${rid}_${time}.json \n ${stderr} \n`);
             reject(error);
           } else {
-          resolve(stdout);
-          console.log(`${stdout}`)
-          fs.appendFile(resultRoot,`Passed: input.${rid}_${time}.json \n`)
-          fs.rename(`${dir}/proof.json`, `${singleTestFilesRoot}/proof.json`, (err) => {
-            if (err) throw err;
-          });
-          fs.rename(`${dir}/public.json`, `${singleTestFilesRoot}/public.json`, (err) => {
-            if (err) throw err;
-          });
-          fs.rename(`${dir}/witness.wtns`, `${singleTestFilesRoot}/witness.wtns`, (err) => {
-            if (err) throw err;
-          })};
+            resolve(stdout);
+            console.log(`${stdout}`)
+            fs.appendFile(resultRoot, `Passed: input.${rid}_${time}.json \n`)
+            fs.rename(`${unitTestRoot}/proof.json`, `${singleTestFilesRoot}/proof.json`, (err) => {
+              if (err) throw err;
+            });
+            fs.rename(`${unitTestRoot}/public.json`, `${singleTestFilesRoot}/public.json`, (err) => {
+              if (err) throw err;
+            });
+            fs.rename(`${unitTestRoot}/witness.wtns`, `${singleTestFilesRoot}/witness.wtns`, (err) => {
+              if (err) throw err;
+            })
+          };
         }
       )
     );
-    } catch(e){
-        console.log(`Test Aborted: input.${rid}_${time}.json`)
-        console.log(`${e}`)
-    }
+  } catch (e) {
+    console.log(`Test Aborted: input.${rid}_${time}.json`)
+    console.log(`${e}`)
+  }
 }
