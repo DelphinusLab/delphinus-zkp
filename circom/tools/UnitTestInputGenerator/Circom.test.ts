@@ -10,7 +10,7 @@ const config = fs.readJsonSync(process.argv[2]);
 //generate keys:
 let cryptoUtil: CryptoUtil;
 let cryptoUtilPromise = import(
-  __dirname + "/../../../../../crypto-rust/node/pkg/delphinus_crypto"
+  __dirname + "/../../../../node_modules/delphinus-crypto/node/pkg/delphinus_crypto"
 ).then((module) => {
   cryptoUtil = module;
   return module;
