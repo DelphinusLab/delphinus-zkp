@@ -125,3 +125,9 @@ Run `bash setup20.sh 20` if pot20_0000ptau，pot20_0001.ptau, pot20_final.ptau a
 
 ### 3. run command: 
 > bash circom_test.sh
+
+### 4. How to check results
+- Unit test results will be generated in `circom/unit_tests` folder called `Unit_Test_at_(UTC Time)`
+- All the tested inputs will be stored in `Unit_Test_at_(UTC Time)/Test_input` folder
+- All the operations' unit test results will be saved in `testedFiles` folder which include their `input.json`, `proof.json`, `public.json`, `witness.wtns`.
+- Test document will be saved in `test_results.txt` file. Whether each test input pass their unit test and error messages will be shown in this document to help you locate the problem.

@@ -36,14 +36,14 @@ async function main() {
   //crypto
   const util = await getCryptoUtil();
 
-  //pre-test
   console.log('Compiling Circom');
+  // create an test_result.txt file to record test results and errors.
   await CreateResultFile();
+  //compile circom, generate zkey & verification_key
   await preTest();
 
   //ops:
   for (let i = 0; i < config.Ops.length; i++) {
-
     if (config.Ops[i].op_name == "setkey") {
       nonce_signer[`${config.Ops[i].calleraccountIndex}`] = 0;
     }
