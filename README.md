@@ -34,11 +34,11 @@ Assue admin's account index is 0.
 - supply(4)/retrieve(3) - accountIndex(32 bits) poolIndex(32 bits) amount0(256 bits) amount1(256 bits)
 - addpool(5) - tokenIndex0(32 bits) tokenIndex1(32bits) reserved(256 bits) reserved(256bits)
 - setkey(6) - accountIndex(32 bits) reserve(32 bits) x(256 bits) y(256bits)
-- deposit_nft(7) - owner(32 bits) bidder(32 bits) biddingAmount(256 bits) nftIndex(32bits)
-- withdraw_nft(8) - owner(32 bits) bidder(32 bits) biddingAmount(256 bits) nftIndex(32bits)
-- transfer_nft(9) - owner(32 bits) bidder(32 bits) biddingAmount(256 bits) nftIndex(32bits)
-- bid_nft(10) - owner(32 bits) bidder(32 bits) biddingAmount(256 bits) nftIndex(32bits)
-- finalize_nft(11) - owner(32 bits) bidder(32 bits) biddingAmount(256 bits) nftIndex(32bits)
+- deposit_nft(7) - owner_accountIndex(32 bits) nftIndex(32 bits) l1_tx_hash(256 bits) reserved(256bits)
+- withdraw_nft(8) - original_owner_accountIndex(32 bits) nftIndex(32 bits) l1account(256 bits) reserved(256bits)
+- transfer_nft(9) - original_owner_accountIndex(32 bits) nftIndex(32 bits) new_owner_accountIndex(224 reserved bits + 32bits) reserved(256bits)
+- bid_nft(10) - owner_accountIndex(32 bits) bidder_accountIndex(32 bits) biddingAmount(256 bits) nftIndex(224 reserved bits + 32bits)
+- finalize_nft(11) - original_owner_accountIndex(32 bits) original_bidder_accountIndex(32 bits) original_bidding_amount(256 bits) nftIndex(224 reserved bits + 32bits)
 
 ## Additional Args (not in circuits)
 

@@ -26,8 +26,8 @@ template TransferNFT() {
     var andmanyOffset = 0;
 
     var nonce = args[1];
-    var owner = args[2];
-    var nftIndex = args[5];
+    var nftIndex = args[3];
+    var new_owner_accountIndex = args[4];
 
     // circuits: check dataPath[1]'s leafValues[0] < 2 ^ 20 & leafValues[0] != 0
     component nftleaf0RangeCheck = Check2PowerRangeFE(20);
@@ -38,20 +38,20 @@ template TransferNFT() {
     andmany.in[andmanyOffset] <== nftleaf0RangeCheck.out * (1 - nftleaf0IsZero.out);
     andmanyOffset++;
 
-    // circuits: check owner < 2 ^ 20 & owner != 0
+    // circuits: check new_owner_accountIndex < 2 ^ 20 & new_owner_accountIndex != 0
     component ownerRangeCheck = Check2PowerRangeFE(20);
-    ownerRangeCheck.in <== owner;
+    ownerRangeCheck.in <== new_owner_accountIndex;
     component ownerIsZero = IsZero();
-    ownerIsZero.in <== owner;
+    ownerIsZero.in <== new_owner_accountIndex;
 
     andmany.in[andmanyOffset] <== ownerRangeCheck.out * (1 - ownerIsZero.out);
     andmanyOffset++;
 
-    // circuits: check dataPath[1]'s leafValues[0] != owner
-    component nftleaf0IsOwner = IsEqual();
-    nftleaf0IsOwner.in[0] <== dataPath[1][OwnerOffset];
-    nftleaf0IsOwner.in[1] <== owner;
-    andmany.in[andmanyOffset] <== 1 - nftleaf0IsOwner.out;
+    // circuits: check dataPath[1]'s leafValues[0] != new_owner_accountIndex
+    component nftleaf0IsOwner0 = IsEqual();
+    nftleaf0IsOwner0.in[0] <== dataPath[1][OwnerOffset];
+    nftleaf0IsOwner0.in[1] <== new_owner_accountIndex;
+    andmany.in[andmanyOffset] <== 1 - nftleaf0IsOwner0.out;
     andmanyOffset++;
 
     // circuits: check dataPath[1]'s leafValues[1] < 2 ^ 20
@@ -122,7 +122,7 @@ template TransferNFT() {
 
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         if(i == OwnerOffset) {
-            newDataPath[1][i] <== owner;
+            newDataPath[1][i] <== new_owner_accountIndex;
         } else {
             newDataPath[1][i] <== dataPath[1][i];
         }

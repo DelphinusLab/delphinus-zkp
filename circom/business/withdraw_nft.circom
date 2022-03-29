@@ -27,7 +27,7 @@ template WithdrawNFT() {
     var andmanyOffset = 0;
 
     var nonce = args[1];
-    var nftIndex = args[5];
+    var nftIndex = args[3];
 
     // circuits: check dataPath[2][66]'s leafValues[0] != 0 & leafValues[0] < 2 ^ 20
     component nftleaf0RangeCheck = Check2PowerRangeFE(20);
