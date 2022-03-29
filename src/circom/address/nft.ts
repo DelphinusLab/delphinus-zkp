@@ -3,6 +3,8 @@ import { MetaType, getMetaAddress, toNumber } from "./space";
 import { MerkleTree } from "delphinus-curves/src/merkle-tree-large";
 import { Account } from "./account";
 
+const zero = new Field(0);
+
 export class NFT {
     index: number | Field;
     address: number;
@@ -34,7 +36,8 @@ export class NFT {
         await this.storage.setLeaves(this.address, [
             owner,
             bidder,
-            biddingAmount
+            biddingAmount,
+            zero
         ]);
         return path;
     }
