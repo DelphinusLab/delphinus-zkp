@@ -26,9 +26,9 @@ export class FinalizeNFTCommand extends Command {
       In circom, signal input args[6]
         args[0] is the command code.
         args[1] = this.args[3], which is nonce.
-        args[2] = this.args[4], which is owner (new owner we want to transfer to).
-        args[3] = this.args[5], which is bidder.
-        args[4] = this.args[6], which is biddingAmount.
+        args[2] = this.args[4], which is original_owner_accountIndex.
+        args[3] = this.args[5], which is original_bidder_accountIndex.
+        args[4] = this.args[6], which is original_bidding_amount.
         args[5] = this.args[7], which is nftIndex.
     */
     const tokenIndex = 1; // constant, temporary now

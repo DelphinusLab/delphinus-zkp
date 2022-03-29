@@ -26,8 +26,8 @@ template DepositNFT() {
     var andmanyOffset = 0;
 
     var nonce = args[1];
-    var owner = args[2];
-    var nftIndex = args[5];
+    var owner_accountIndex = args[2];
+    var nftIndex = args[3];
 
     // circuits: check nftIndex < 2 ^ 20 & nftIndex != 0
     component nftIndexRangeCheck = Check2PowerRangeFE(20);
@@ -46,11 +46,11 @@ template DepositNFT() {
     andmany.in[andmanyOffset] <== nftIndexFromTreePath.out * nftIndexcheck.out;
     andmanyOffset++;
 
-    // circuits: check owner < 2 ^ 20 & owner != 0
+    // circuits: check owner_accountIndex < 2 ^ 20 & owner_accountIndex != 0
     component ownerRangeCheck = Check2PowerRangeFE(20);
-    ownerRangeCheck.in <== owner;
+    ownerRangeCheck.in <== owner_accountIndex;
     component ownerIsZero = IsZero();
-    ownerIsZero.in <== owner;
+    ownerIsZero.in <== owner_accountIndex;
     andmany.in[andmanyOffset] <== ownerRangeCheck.out * (1 - ownerIsZero.out);
     andmanyOffset++;
 
@@ -89,7 +89,7 @@ template DepositNFT() {
     andmany.in[andmanyOffset] <== perm.out * signed;
     andmanyOffset++;
 
-    // STEP2: update nft info with new owner
+    // STEP2: update nft info with new owner_accountIndex
     // circuits : check align
     component nftCheckAlign = CheckAlign();
     nftCheckAlign.address <== dataPath[1][IndexOffset];
@@ -98,7 +98,7 @@ template DepositNFT() {
 
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         if(i == OwnerOffset) {
-            newDataPath[1][i] <== owner;
+            newDataPath[1][i] <== owner_accountIndex;
         } else if (i == BidderOffset) {
             newDataPath[1][i] <== 0;
         } else if (i == BiddingAmountOffset) {

@@ -19,27 +19,23 @@ export class TransferNFTCommand extends Command {
         signal input args[6];
         signal input dataPath[5][66];
         signal input signer;
-        signal input signed;
-        signal output newDataPath[5][66];
-        signal output out;
-      In TS file, this.args is Array[9]. [0], [3] - [7] will be passed to circom.
-      In circom, signal input args[6]
+        signal input signed
         args[0] is the command code.
         args[1] = this.args[3], which is nonce.
-        args[2] = this.args[4], which is owner (new owner we want to transfer to).
-        args[3] = this.args[5], which is bidder.
-        args[4] = this.args[6], which is biddingAmount.
-        args[5] = this.args[7], which is nftIndex.
+        args[2] = this.args[4], which is original_owner_accountIndex.
+        args[3] = this.args[5], which is nftIndex.
+        args[4] = this.args[6], which is new_owner_accountIndex.
+        args[5] = this.args[7], which is reserved.
     */
     const path = [] as PathInfo[];
 
     // bidder and biddingAmount have not participanted in transfer_nft, omit them
     const nonce = this.args[3];
-    const owner = this.args[4];
-    const nftIndex = this.args[7];
+    const nftIndex = this.args[5];
+		const new_owner_accountIndex = this.args[6];
     // circuits: check dataPath[1]'s leafValues[0] < 2 ^ 20 & leafValues[0] != 0
-    // circuits: check owner < 2 ^ 20 & owner != 0
-    // circuits: check dataPath[1]'s leafValues[0] != owner
+    // circuits: check new_owner_accountIndex < 2 ^ 20 & new_owner_accountIndex != 0
+    // circuits: check dataPath[1]'s leafValues[0] != new_owner_accountIndex
     // circuits: check dataPath[1]'s leafValues[1] < 2 ^ 20
     // circuits: check dataPath[1]'s leafValues[2] < 2 ^ 250
     // circuits: check nftIndex < 2 ^ 20 & nftIndex != 0
@@ -54,7 +50,8 @@ export class TransferNFTCommand extends Command {
     path.push(await account.getAndUpdateNonce(nonce));
     
     // STEP2: update nft info with new owner
-    path.push(await nft.getAndUpdateNFT(owner, leafValues[1], leafValues[2]));
+    const zero = new Field(0);
+    path.push(await nft.getAndUpdateNFT(new_owner_accountIndex, leafValues[1], leafValues[2]));
 
     return path;
   }

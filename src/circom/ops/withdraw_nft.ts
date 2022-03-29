@@ -26,17 +26,17 @@ export class WithdrawNFTCommand extends Command {
       In circom, signal input args[6]
         args[0] is the command code.
         args[1] = this.args[3], which is nonce.
-        args[2] = this.args[4], which is owner (new owner we want to transfer to).
-        args[3] = this.args[5], which is bidder.
-        args[4] = this.args[6], which is biddingAmount.
-        args[5] = this.args[7], which is nftIndex.
+        args[2] = this.args[4], which is original_owner_accountIndex.
+        args[3] = this.args[5], which is nftIndex.
+        args[4] = this.args[6], which is l1account.
+        args[5] = this.args[7], which is reserved.
     */
     const tokenIndex = 1; // constant, temporary now
     const path = [] as PathInfo[];
 
     // owner, bidder, biddingAmount is 0, omit them
     const nonce = this.args[3];
-    const nftIndex = this.args[7];
+    const nftIndex = this.args[5];
 
     // circuits: check dataPath[2][66]'s leafValues[0] != 0 & leafValues[0] < 2 ^ 20
     // circuits: check dataPath[2]'s leafValues[1] < 2 ^ 20

@@ -25,7 +25,7 @@ template BidNFT() {
     var andmanyOffset = 0;
 
     var nonce = args[1];
-    var bidder = args[3];
+    var bidder_accountIndex = args[3];
     var biddingAmount = args[4];
     var nftIndex = args[5];
 
@@ -52,11 +52,11 @@ template BidNFT() {
     andmany.in[andmanyOffset] <== nftleaf2RangeCheck.out;
     andmanyOffset++;
 
-    // circuits: check bidder < 2 ^ 20 & bidder != 0
+    // circuits: check bidder_accountIndex < 2 ^ 20 & bidder_accountIndex != 0
     component bidderRangeCheck = Check2PowerRangeFE(20);
-    bidderRangeCheck.in <== bidder;
+    bidderRangeCheck.in <== bidder_accountIndex;
     component bidderIsZero = IsZero();
-    bidderIsZero.in <== bidder;
+    bidderIsZero.in <== bidder_accountIndex;
 
     andmany.in[andmanyOffset] <== bidderRangeCheck.out * (1 - bidderIsZero.out);
     andmanyOffset++;
@@ -87,17 +87,17 @@ template BidNFT() {
     andmany.in[andmanyOffset] <== nftIndexFromTreePath.out * nftIndexcheck.out;
     andmanyOffset++;
 
-    // circuits: check signer == bidder
+    // circuits: check signer == bidder_accountIndex
     component signerIsBidder = IsEqual();
     signerIsBidder.in[0] <== signer;
-    signerIsBidder.in[1] <== bidder;
+    signerIsBidder.in[1] <== bidder_accountIndex;
     andmany.in[andmanyOffset] <== signerIsBidder.out;
     andmanyOffset++;
     
-    // check bidder's balance index
-    // check bidder has enough balance(>= biddingAmount)
+    // check bidder_accountIndex's balance index
+    // check bidder_accountIndex has enough balance(>= biddingAmount)
     component bidderBalanceIndexCheck = CheckBalanceIndex();
-    bidderBalanceIndexCheck.account <== bidder;
+    bidderBalanceIndexCheck.account <== bidder_accountIndex;
     bidderBalanceIndexCheck.token <== TokenIndex;
     bidderBalanceIndexCheck.index <== dataPath[2][IndexOffset];
 
@@ -163,7 +163,7 @@ template BidNFT() {
     andmany.in[andmanyOffset] <== changeNftBidderBalance.out;
     andmanyOffset++;
 
-    // STEP3: update balance of bidder
+    // STEP3: update balance of bidder_accountIndex
     component changeBidderBalance = ChangeValueFromTreePath();
     changeBidderBalance.diff <== -biddingAmount;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
@@ -175,7 +175,7 @@ template BidNFT() {
     andmany.in[andmanyOffset] <== changeBidderBalance.out;
     andmanyOffset++;
 
-    // STEP4: update nft info with new bidder and biddingAmount
+    // STEP4: update nft info with new bidder_accountIndex and biddingAmount
     // circuits : check align
     component nftCheckAlign = CheckAlign();
     nftCheckAlign.address <== dataPath[3][IndexOffset];
@@ -186,7 +186,7 @@ template BidNFT() {
         if(i == OwnerOffset) {
             newDataPath[3][i] <== dataPath[3][OwnerOffset];
         } else if (i == BidderOffset) {
-            newDataPath[3][i] <== bidder;
+            newDataPath[3][i] <== bidder_accountIndex;
         } else if (i == BiddingAmountOffset) {
             newDataPath[3][i] <== biddingAmount;
         } else {
