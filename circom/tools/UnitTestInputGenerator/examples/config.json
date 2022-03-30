@@ -119,6 +119,7 @@
                 "op_name": "bid_nft",
                 "calleraccountIndex":"2",
                 "accountIndex":"2",
+                "owner" : "1",
                 "bidder":"2",
                 "biddingAmount":"99",
                 "nftIndex":"1",
@@ -133,12 +134,14 @@
                 "owner":"3",
                 "nftIndex":"1",
                 "msg":"Bob",
-                "derive_key":"/delphinus/nft"  
+                "derive_key":"/delphinus/nft"
             },
             {
                 "op_name": "finalize_nft",
                 "calleraccountIndex":"3",
                 "accountIndex":"3",
+                "bidder":"2",
+                "biddingAmount":"99",
                 "nftIndex":"1",
                 "msg":"Bob",
                 "derive_key":"/delphinus/nft"

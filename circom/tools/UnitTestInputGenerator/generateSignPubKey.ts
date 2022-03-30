@@ -196,28 +196,28 @@ export class SignatureHelper {
 
 	GenerateSignForDepositNFT(
     nonce: BN,
-    owner: BN,
-    bidder: BN,
-    biddingAmount: BN,
-    nftIndex: BN
+    owner_accountIndex: BN,
+    nftIndex: BN,
+    l1_tx_hash: BN,
+    reserved: BN
   ) {
     const buf = new Uint8Array(81);
 
     buf.fill(0);
     buf[0] = 7;
     buf.set(nonce.toArray("be", 8), 1);
-    buf.set(owner.toArray("be", 4), 9);
-    buf.set(bidder.toArray("be", 4), 13);
-    buf.set(biddingAmount.toArray("be", 32), 17);
-    buf.set(nftIndex.toArray("be", 32), 49);
+    buf.set(owner_accountIndex.toArray("be", 4), 9);
+    buf.set(nftIndex.toArray("be", 4), 13);
+    buf.set(l1_tx_hash.toArray("be", 32), 17);
+    buf.set(reserved.toArray("be", 32), 49);
 
     return this.DoSignFromBuf(buf);
   }
 
 	GenerateSignForBidNFT(
     nonce: BN,
-    owner: BN,
-    bidder: BN,
+    owner_accountIndex: BN,
+    bidder_accountIndex: BN,
     biddingAmount: BN,
     nftIndex: BN
   ) {
@@ -226,8 +226,8 @@ export class SignatureHelper {
     buf.fill(0);
     buf[0] = 10;
     buf.set(nonce.toArray("be", 8), 1);
-    buf.set(owner.toArray("be", 4), 9);
-    buf.set(bidder.toArray("be", 4), 13);
+    buf.set(owner_accountIndex.toArray("be", 4), 9);
+    buf.set(bidder_accountIndex.toArray("be", 4), 13);
     buf.set(biddingAmount.toArray("be", 32), 17);
     buf.set(nftIndex.toArray("be", 32), 49);
 
@@ -236,29 +236,29 @@ export class SignatureHelper {
 
 	GenerateSignForTransferNFT(
     nonce: BN,
-    owner: BN,
-    bidder: BN,
-    biddingAmount: BN,
-    nftIndex: BN
+    original_owner_accountIndex: BN,
+    nftIndex: BN,
+    new_owner_accountIndex: BN,
+    reserved: BN
   ) {
     const buf = new Uint8Array(81);
 
     buf.fill(0);
     buf[0] = 9;
     buf.set(nonce.toArray("be", 8), 1);
-    buf.set(owner.toArray("be", 4), 9);
-    buf.set(bidder.toArray("be", 4), 13);
-    buf.set(biddingAmount.toArray("be", 32), 17);
-    buf.set(nftIndex.toArray("be", 32), 49);
+    buf.set(original_owner_accountIndex.toArray("be", 4), 9);
+    buf.set(nftIndex.toArray("be", 4), 13);
+    buf.set(new_owner_accountIndex.toArray("be", 32), 17);
+    buf.set(reserved.toArray("be", 32), 49);
 
     return this.DoSignFromBuf(buf);
   }
 
 	GenerateSignForFinalizeNFT(
     nonce: BN,
-    owner: BN,
-    bidder: BN,
-    biddingAmount: BN,
+    original_owner_accountIndex: BN,
+    original_bidder_accountIndex: BN,
+    original_bidding_amount: BN,
     nftIndex: BN
   ) {
     const buf = new Uint8Array(81);
@@ -266,9 +266,9 @@ export class SignatureHelper {
     buf.fill(0);
     buf[0] = 11;
     buf.set(nonce.toArray("be", 8), 1);
-    buf.set(owner.toArray("be", 4), 9);
-    buf.set(bidder.toArray("be", 4), 13);
-    buf.set(biddingAmount.toArray("be", 32), 17);
+    buf.set(original_owner_accountIndex.toArray("be", 4), 9);
+    buf.set(original_bidder_accountIndex.toArray("be", 4), 13);
+    buf.set(original_bidding_amount.toArray("be", 32), 17);
     buf.set(nftIndex.toArray("be", 32), 49);
 
 		return this.DoSignFromBuf(buf);
@@ -276,20 +276,20 @@ export class SignatureHelper {
 
 	GenerateSignForWithdrawNFT(
     nonce: BN,
-    owner: BN,
-    bidder: BN,
-    biddingAmount: BN,
-    nftIndex: BN
+    original_owner_accountIndex: BN,
+    nftIndex: BN,
+    l1Account: BN,
+    reserved: BN
   ) {
     const buf = new Uint8Array(81);
 
     buf.fill(0);
     buf[0] = 8;
     buf.set(nonce.toArray("be", 8), 1);
-    buf.set(owner.toArray("be", 4), 9);
-    buf.set(bidder.toArray("be", 4), 13);
-    buf.set(biddingAmount.toArray("be", 32), 17);
-    buf.set(nftIndex.toArray("be", 32), 49);
+    buf.set(original_owner_accountIndex.toArray("be", 4), 9);
+    buf.set(nftIndex.toArray("be", 4), 13);
+    buf.set(l1Account.toArray("be", 32), 17);
+    buf.set(reserved.toArray("be", 32), 49);
 
     return this.DoSignFromBuf(buf);
   }
