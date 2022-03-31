@@ -1,5 +1,5 @@
 {
-    "COMMENT":"All ops should pass their unit test",
+    "_COMMENT":"All ops should pass their unit test",
 
     "Ops":[
             {
@@ -25,6 +25,7 @@
                 "accountIndex":"1",
                 "tokenIndex":"1",
                 "amount":"1000",
+                "l1_tx_hash":"0",
                 "msg":"Bob",
                 "derive_key":"/delphinus/nft"
             },
@@ -34,6 +35,7 @@
                 "accountIndex":"1",
                 "tokenIndex":"0",
                 "amount":"1000",
+                "l1_tx_hash":"0",
                 "msg":"Bob",
                 "derive_key":"/delphinus/nft"
             },
@@ -43,6 +45,7 @@
                 "accountIndex":"1",
                 "tokenIndex":"1",
                 "amount":"100",
+                "l1address":"1",
                 "msg":"Bob",
                 "derive_key":"/delphinus/nft"
             },
@@ -82,6 +85,7 @@
                 "accountIndex":"1",
                 "owner":"1",
                 "nftIndex":"1",
+                "l1_tx_hash":"0",
                 "msg":"Bob",
                 "derive_key":"/delphinus/nft"
             },
@@ -98,6 +102,7 @@
                 "accountIndex":"2",
                 "tokenIndex":"1",
                 "amount":"100",
+                "l1_tx_hash":"0",
                 "msg":"Bob",
                 "derive_key":"/delphinus/nft"
             },
@@ -114,6 +119,7 @@
                 "accountIndex":"3",
                 "tokenIndex":"1",
                 "amount":"100",
+                "l1_tx_hash":"0",
                 "msg":"Bob",
                 "derive_key":"/delphinus/nft"
             },
@@ -153,6 +159,7 @@
                 "calleraccountIndex":"2",
                 "accountIndex":"2",
                 "nftIndex":"1",
+                "l1account":"0",
                 "msg":"Bob",
                 "derive_key":"/delphinus/nft"
             }

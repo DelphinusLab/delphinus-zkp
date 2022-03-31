@@ -108,6 +108,7 @@ async function GenerateDepositInput(
         accountIndex: number,
         tokenIndex: number,
         amount: number,
+        l1_tx_hash: number,
         msg: string,
         derive_key: string
     },
@@ -122,7 +123,7 @@ async function GenerateDepositInput(
         new BN(args.accountIndex),
         new BN(args.tokenIndex),
         new BN(args.amount),
-        new BN(0)
+        new BN(args.l1_tx_hash)
     )
 
     await runZkp(
@@ -156,6 +157,7 @@ async function GenerateWithdrawInput(
         accountIndex: number,
         tokenIndex: number,
         amount: number,
+        l1address: number,
         msg: string,
         derive_key: string
     },
@@ -170,7 +172,7 @@ async function GenerateWithdrawInput(
         new BN(args.accountIndex),
         new BN(args.tokenIndex),
         new BN(args.amount),
-        new BN(1)
+        new BN(args.l1address)
     )
 
     await runZkp(
@@ -351,6 +353,7 @@ async function GenerateDepositNFTInput(
         accountIndex: number,
         owner: number,
         nftIndex: number,
+        l1_tx_hash: number,
         msg: string,
         derive_key: string
     },
@@ -364,7 +367,7 @@ async function GenerateDepositNFTInput(
         new BN(nonce),
         new BN(args.owner),
         new BN(args.nftIndex),
-        new BN(0),  //l1_tx_hash
+        new BN(args.l1_tx_hash),
         new BN(0)   //reserved
     )
     await runZkp(
@@ -461,7 +464,7 @@ async function GenerateTransferNFTInput(
         new BN(args.calleraccountIndex),
         new BN(args.nftIndex),
         new BN(args.owner),
-        new BN(0)
+        new BN(0)   //reserved
     )
     await runZkp(
         [
@@ -541,6 +544,7 @@ async function GenerateWithdrawNFTInput(
         calleraccountIndex: number,
         accountIndex: number,
         nftIndex: number,
+        l1account: number,
         msg: string,
         derive_key: string
     },
@@ -554,8 +558,8 @@ async function GenerateWithdrawNFTInput(
         new BN(nonce),
         new BN(args.calleraccountIndex),
         new BN(args.nftIndex),
-        new BN(0),
-        new BN(0)
+        new BN(args.l1account),
+        new BN(0)    //reserved
     )
     await runZkp(
         [
