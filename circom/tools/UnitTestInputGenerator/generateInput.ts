@@ -425,7 +425,7 @@ async function GenerateBidNFTInput(
                     ry,
                     s,
                     new Field(nonce),
-                    new Field(0),
+                    new Field(args.owner),
                     new Field(args.bidder),
                     new Field(args.biddingAmount),
                     new Field(args.nftIndex),
@@ -472,11 +472,11 @@ async function GenerateTransferNFTInput(
                     ry, 
                     s, 
                     new Field(nonce),
-                    new Field(0), 
+                    new Field(args.calleraccountIndex), 
                     new Field(args.nftIndex), 
                     new Field(args.owner), 
                     new Field(0), 
-                    new Field(args.calleraccountIndex), 
+                    new Field(args.calleraccountIndex),
                     new Field(0)
                 ]
             ]
@@ -520,9 +520,9 @@ async function GenerateFinalizeNFTInput(
                     ry, 
                     s, 
                     new Field(nonce), 
-                    new Field(0), 
-                    new Field(0), 
-                    new Field(0), 
+                    new Field(args.calleraccountIndex), 
+                    new Field(args.bidder), 
+                    new Field(args.biddingAmount), 
                     new Field(args.nftIndex), 
                     new Field(args.calleraccountIndex), 
                     new Field(0)
@@ -566,10 +566,10 @@ async function GenerateWithdrawNFTInput(
                     ry, 
                     s, 
                     new Field(nonce), 
-                    new Field(0), 
+                    new Field(args.calleraccountIndex), 
                     new Field(args.nftIndex),
-                    new Field(0), 
-                    new Field(0), 
+                    new Field(0),
+                    new Field(0),
                     new Field(args.calleraccountIndex), 
                     new Field(0)
                 ]

@@ -28,28 +28,26 @@ export async function writeInput(input: Input, rid: string) {
 }
 
 export async function preTest() {
-  try {
     await new Promise((resolve, reject) =>
-      exec(
-        "bash ../../tools/UnitTestInputGenerator/pre_test.sh",
+     exec(
+        `bash ../../tools/UnitTestInputGenerator/pre_test.sh`,
         {
           cwd: unitTestRoot,
         },
         (error, stdout, stderr) => {
           if (error) {
-            fs.appendFile(resultRoot, `Aborted: Circom compile \n ${stderr}\n ${error}`);
+            fs.appendFile(resultRoot, `Aborted: Circom compile\n`);
+            console.log(`Aborted: Circom compile:`);
+            console.log(error);
+            console.log(stdout.toString());
           } else {
             resolve(stdout);
             console.log(`${stdout}`)
             fs.appendFile(resultRoot, `Passed: Circom compile \n`);
           }
-        }
+        },
       )
   );
-  } catch (e) {
-    console.log(`Compile Aborted: \n`)
-    console.log(`${e}`)
-  }
 }
 
 const resultRoot = path.join(unitTestRoot, "test_result.txt");
