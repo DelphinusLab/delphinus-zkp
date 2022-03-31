@@ -124,7 +124,8 @@ Run `bash setup20.sh 20` if pot20_0000ptau，pot20_0001.ptau, pot20_final.ptau a
               }
 
 ### 3. run command: 
-> bash circom_test.sh
+- Run `bash circom_test.sh` to test config.json with correct paras only.
+- Change `config.json` to the config that with error in `circom_test.sh` if you want to test them. (All kinds of configs with error are in `examples` folder)
 
 ### 4. How to check results
 - Unit test results will be generated in `circom/unit_tests` folder called `Unit_Test_at_(UTC Time)`
