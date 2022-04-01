@@ -1,5 +1,5 @@
 {
-    "_COMMENT":"Error: Account 5 try to deposit without setkey",
+    "_COMMENT":"ERROR: Account 5 try to deposit without setkey",
 
     "Ops":[
         {

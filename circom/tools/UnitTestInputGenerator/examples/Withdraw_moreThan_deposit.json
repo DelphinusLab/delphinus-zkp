@@ -1,5 +1,5 @@
 {
-    "_COMMENT":"Account 1 withdraw more than deposit",
+    "_COMMENT":"ERROR: Account 1 withdraw more than deposit",
 
     "Ops":[
             {
