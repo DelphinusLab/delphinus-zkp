@@ -8,7 +8,7 @@ import { NFT } from "../address/nft"
 // bid
 export class BidNFTCommand extends Command {
   get callerAccountIndex() {
-    return this.args[8].v.toNumber();
+    return this.args[4].v.toNumber();
   }
 
   async run(storage: L2Storage) {
@@ -26,53 +26,53 @@ export class BidNFTCommand extends Command {
       In circom, signal input args[6]
         args[0] is the command code.
         args[1] = this.args[3], which is nonce.
-        args[2] = this.args[4], which is owner_accountIndex.
-        args[3] = this.args[5], which is bidder_accountIndex.
+        args[2] = this.args[4], which is accountIndex.
+        args[3] = this.args[5], which is nftIndex.
         args[4] = this.args[6], which is biddingAmount.
-        args[5] = this.args[7], which is nftIndex.
+        args[5] = this.args[7], which is reserved.
     */
     const tokenIndex = 1; // constant, temporary now
     const path = [] as PathInfo[];
 
     // owner is not changed, omit it
     const nonce = this.args[3];
-    const bidder_accountIndex = this.args[5];
+    const accountIndex = this.args[4];
+    const nftIndex = this.args[5];
     const biddingAmount = this.args[6];
-    const nftIndex = this.args[7];
 
     // circuits: check dataPath[3]'s leafValues[0] < 2 ^ 20 & leafValues[0] != 0
     // circuits: check dataPath[3]'s leafValues[1] < 2 ^ 20
     // circuits: check dataPath[3]'s leafValues[2] < 2 ^ 250
-    // circuits: check bidder_accountIndex < 2 ^ 20 & bidder_accountIndex != 0
+    // circuits: check accountIndex < 2 ^ 20 & accountIndex != 0
     // circuits: check biddingAmount < 2 ^ 250 & biddingAmount > dataPath[3]'s leafValues[2]
     // circuits: check nftIndex < 2 ^ 20 & nftIndex != 0
     // circuits: check nftIndex == CheckNFTIndexFE's output nftIndex
-    // circuits: check signer == bidder_accountIndex
+    // circuits: check signer == accountIndex
     const nft = new NFT(storage, nftIndex);
     const account = new Account(storage, this.callerAccountIndex);
     const leafValues = await storage.getLeaves(nft.address);
 
-    // check bidder_accountIndex has enough balance(>= biddingAmount)
-    const balance = nft.getBidderBalance(tokenIndex, bidder_accountIndex);
+    // check accountIndex has enough balance(>= biddingAmount)
+    const balance = nft.getBidderBalance(tokenIndex, accountIndex);
     
     // STEP1: udpate nonce
     // circuits: check nonce
     path.push(await account.getAndUpdateNonce(nonce));
     
-    // STEP2: if dataPath[3]'s leafValues[1] !=0, update balance of current bidder_accountIndex
+    // STEP2: if dataPath[3]'s leafValues[1] !=0, update balance of current accountIndex
     // circuits: check balance dosen't overflow
-    // get current bidder_accountIndex  of nft
-    const currentBidderAccountIndex = new Account(storage, leafValues[1]);
+    // get current accountIndex of nft
+    const currentBidder = new Account(storage, leafValues[1]);
     // give back current biddingAmount into currentBiddder's balance
-    path.push(await currentBidderAccountIndex.getAndAddBalance(tokenIndex, leafValues[2]));
+    path.push(await currentBidder.getAndAddBalance(tokenIndex, leafValues[2]));
 
-    // STEP3: update balance of bidder_accountIndex
-    const _bidder = new Account(storage, bidder_accountIndex);
-    path.push(await _bidder.getAndAddBalance(tokenIndex, new Field(0).sub(biddingAmount)));
+    // STEP3: update balance of accountIndex
+    const bidder = new Account(storage, accountIndex);
+    path.push(await bidder.getAndAddBalance(tokenIndex, new Field(0).sub(biddingAmount)));
 
-    // STEP4: update nft info with new bidder_accountIndex and biddingAmount
+    // STEP4: update nft info with new accountIndex and biddingAmount
     const zero = new Field(0);
-    path.push(await nft.getAndUpdateNFT(leafValues[0], bidder_accountIndex, biddingAmount));
+    path.push(await nft.getAndUpdateNFT(leafValues[0], accountIndex, biddingAmount));
 
     return path;
   }

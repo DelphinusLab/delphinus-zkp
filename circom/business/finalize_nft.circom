@@ -25,7 +25,7 @@ template FinalizeNFT() {
     var andmanyOffset = 0;
 
     var nonce = args[1];
-    var nftIndex = args[5];
+    var nftIndex = args[3];
 
     // circuits: check dataPath[2]'s leafValues[0] < 2 ^ 20 & leafValues[0] != 0
     component nftleaf0RangeCheck = Check2PowerRangeFE(20);
