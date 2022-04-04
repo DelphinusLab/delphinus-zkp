@@ -8,7 +8,7 @@ import { NFT } from "../address/nft"
 // change owner from current acount to another
 export class TransferNFTCommand extends Command {
   get callerAccountIndex() {
-    return this.args[8].v.toNumber();
+    return this.args[4].v.toNumber();
   }
 
   async run(storage: L2Storage) {
@@ -22,7 +22,7 @@ export class TransferNFTCommand extends Command {
         signal input signed
         args[0] is the command code.
         args[1] = this.args[3], which is nonce.
-        args[2] = this.args[4], which is original_owner_accountIndex.
+        args[2] = this.args[4], which is accountIndex.
         args[3] = this.args[5], which is nftIndex.
         args[4] = this.args[6], which is new_owner_accountIndex.
         args[5] = this.args[7], which is reserved.
@@ -31,8 +31,9 @@ export class TransferNFTCommand extends Command {
 
     // bidder and biddingAmount have not participanted in transfer_nft, omit them
     const nonce = this.args[3];
+    const accountIndex = this.args[4];
     const nftIndex = this.args[5];
-		const new_owner_accountIndex = this.args[6];
+    const new_owner_accountIndex = this.args[6];
     // circuits: check dataPath[1]'s leafValues[0] < 2 ^ 20 & leafValues[0] != 0
     // circuits: check new_owner_accountIndex < 2 ^ 20 & new_owner_accountIndex != 0
     // circuits: check dataPath[1]'s leafValues[0] != new_owner_accountIndex

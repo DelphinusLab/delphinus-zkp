@@ -8,7 +8,7 @@ import { NFT } from "../address/nft"
 // finalize
 export class FinalizeNFTCommand extends Command {
   get callerAccountIndex() {
-    return this.args[8].v.toNumber();
+    return this.args[4].v.toNumber();
   }
 
   async run(storage: L2Storage) {
@@ -26,17 +26,17 @@ export class FinalizeNFTCommand extends Command {
       In circom, signal input args[6]
         args[0] is the command code.
         args[1] = this.args[3], which is nonce.
-        args[2] = this.args[4], which is original_owner_accountIndex.
-        args[3] = this.args[5], which is original_bidder_accountIndex.
-        args[4] = this.args[6], which is original_bidding_amount.
-        args[5] = this.args[7], which is nftIndex.
+        args[2] = this.args[4], which is accountIndex.
+        args[3] = this.args[5], which is nftIndex.
+        args[4] = this.args[6], which is reserved.
+        args[5] = this.args[7], which is reserved.
     */
     const tokenIndex = 1; // constant, temporary now
     const path = [] as PathInfo[];
 
-    // bidder and biddingAmount is zero, owner is current bidder, omit them in TS
     const nonce = this.args[3];
-    const nftIndex = this.args[7];
+    const accountIndex = this.args[4];
+    const nftIndex = this.args[5];
 
     // circuits: check dataPath[2]'s leafValues[0] < 2 ^ 20 & leafValues[0] != 0
     // circuits: check dataPath[2]'s leafValues[1] < 2 ^ 20 & leafValues[1] != 0
@@ -54,8 +54,7 @@ export class FinalizeNFTCommand extends Command {
 
     // STEP2: update balance of current owner
     // circuits: check balance dosen't overflow
-    const _owner = new Account(storage, leafValues[0]);
-    path.push(await _owner.getAndAddBalance(tokenIndex, leafValues[2]));
+    path.push(await account.getAndAddBalance(tokenIndex, leafValues[2]));
 
     // STEP3: update nft info with new owner, bidder and biddingAmount
     const zero = new Field(0);
