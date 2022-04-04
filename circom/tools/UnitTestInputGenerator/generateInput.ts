@@ -381,8 +381,8 @@ async function GenerateDepositNFTInput(
                     new Field(nonce),
                     new Field(args.owner),
                     new Field(args.nftIndex),
-                    new Field(0),
-                    new Field(0),
+                    new Field(args.l1_tx_hash),
+                    new Field(0),     //reserved
                     new Field(args.calleraccountIndex),
                     new Field(0)
                 ]
@@ -414,10 +414,10 @@ async function GenerateBidNFTInput(
 
     let [rx, ry, s] = signatureHelper.GenerateSignForBidNFT(
         new BN(nonce),
-        new BN(args.owner),
-        new BN(args.bidder),
+        new BN(args.calleraccountIndex),
         new BN(args.biddingAmount),
-        new BN(args.nftIndex)
+        new BN(args.nftIndex),
+        new BN(0)  //reserved
     )
     await runZkp(
         [
@@ -428,11 +428,11 @@ async function GenerateBidNFTInput(
                     ry,
                     s,
                     new Field(nonce),
-                    new Field(args.owner),
                     new Field(args.bidder),
                     new Field(args.biddingAmount),
                     new Field(args.nftIndex),
-                    new Field(args.calleraccountIndex),
+                    new Field(0),   //reserved
+                    new Field(0),
                     new Field(0)
                 ]
             ]
@@ -478,8 +478,8 @@ async function GenerateTransferNFTInput(
                     new Field(args.calleraccountIndex), 
                     new Field(args.nftIndex), 
                     new Field(args.owner), 
-                    new Field(0), 
-                    new Field(args.calleraccountIndex),
+                    new Field(0), //reserved
+                    new Field(0),
                     new Field(0)
                 ]
             ]
@@ -510,9 +510,8 @@ async function GenerateFinalizeNFTInput(
     let [rx, ry, s] = signatureHelper.GenerateSignForFinalizeNFT(
         new BN(nonce),
         new BN(args.calleraccountIndex),
-        new BN(args.bidder),
-        new BN(args.biddingAmount),
-        new BN(args.nftIndex)
+        new BN(args.nftIndex),
+        new BN(0)
     )
     await runZkp(
         [
@@ -524,10 +523,10 @@ async function GenerateFinalizeNFTInput(
                     s, 
                     new Field(nonce), 
                     new Field(args.calleraccountIndex), 
-                    new Field(args.bidder), 
-                    new Field(args.biddingAmount), 
                     new Field(args.nftIndex), 
-                    new Field(args.calleraccountIndex), 
+                    new Field(0), //reserved
+                    new Field(0), //reserved
+                    new Field(0), 
                     new Field(0)
                 ]
             ]
@@ -572,9 +571,9 @@ async function GenerateWithdrawNFTInput(
                     new Field(nonce), 
                     new Field(args.calleraccountIndex), 
                     new Field(args.nftIndex),
-                    new Field(0),
-                    new Field(0),
-                    new Field(args.calleraccountIndex), 
+                    new Field(args.l1account),
+                    new Field(0),  //reserved
+                    new Field(0), 
                     new Field(0)
                 ]
             
