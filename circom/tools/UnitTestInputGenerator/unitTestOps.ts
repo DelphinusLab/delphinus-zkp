@@ -1,7 +1,7 @@
 import { Field } from "delphinus-curves/src/field";
 import { L2Storage } from "../../../src/circom/address-space";
 import { BN } from "bn.js";
-import { runZkp } from "../../../src/circom/generate-jsonInput";
+import { unitTestSingleOp } from "./unitTestSingleOp";
 import { CommandOp } from "delphinus-l2-client-helper/src/swap";
 import { SignatureHelper } from "./generateSignPubKey";
 import { CryptoUtil } from "./generateSignPubKey";
@@ -13,7 +13,7 @@ let finalize_nft = new Field(11);
 let transfer_nft = new Field(9);
 let withdraw_nft = new Field(8);
 
-async function GenerateSetkeyInput(
+async function unitTestSetkey(
     args: 
     {
         op_name: string,
@@ -30,7 +30,7 @@ async function GenerateSetkeyInput(
 
     let [ax, ay] = signatureHelper.GenerateAXAYFromPublicKey(signatureHelper.publicKey);
 
-    await runZkp(
+    await unitTestSingleOp(
         [
             [
                 new Field(CommandOp.SetKey),
@@ -53,7 +53,7 @@ async function GenerateSetkeyInput(
     )
 }
 
-async function GenerateAddpoolInput(
+async function unitTestAddpool(
     args: 
     {
         op_name: string,
@@ -77,7 +77,7 @@ async function GenerateAddpoolInput(
         new BN(args.tokenIndex1)
     )
 
-    await runZkp(
+    await unitTestSingleOp(
         [
             [
                 new Field(CommandOp.AddPool), 
@@ -100,7 +100,7 @@ async function GenerateAddpoolInput(
     )
 }
 
-async function GenerateDepositInput(
+async function unitTestDeposit(
     args: 
     {
         op_name: string,
@@ -126,7 +126,7 @@ async function GenerateDepositInput(
         new BN(args.l1_tx_hash)
     )
 
-    await runZkp(
+    await unitTestSingleOp(
         [
             [
                 new Field(CommandOp.Deposit),
@@ -149,7 +149,7 @@ async function GenerateDepositInput(
     )
 }
 
-async function GenerateWithdrawInput(
+async function unitTestWithdraw(
     args: 
     {
         op_name: string,
@@ -175,7 +175,7 @@ async function GenerateWithdrawInput(
         new BN(args.l1address)
     )
 
-    await runZkp(
+    await unitTestSingleOp(
         [
             [
                 new Field(CommandOp.Withdraw),
@@ -198,7 +198,7 @@ async function GenerateWithdrawInput(
     )
 }
 
-async function GenerateSwapInput(
+async function unitTestSwap(
     args: 
     {
         op_name: string,
@@ -224,7 +224,7 @@ async function GenerateSwapInput(
         new BN(args.amount)
     )
 
-    await runZkp(
+    await unitTestSingleOp(
         [
             [
                 new Field(CommandOp.Swap),
@@ -247,7 +247,7 @@ async function GenerateSwapInput(
     )
 }
 
-async function GenerateSupplyInput(
+async function unitTestSupply(
     args: 
     {
         op_name: string,
@@ -273,7 +273,7 @@ async function GenerateSupplyInput(
         new BN(args.amount1)
     )
 
-    await runZkp(
+    await unitTestSingleOp(
         [
             [
                 new Field(CommandOp.Supply),
@@ -296,7 +296,7 @@ async function GenerateSupplyInput(
     )
 }
 
-async function GenerateRetrieveInput(
+async function unitTestRetrieve(
     args: 
     {
         op_name: string,
@@ -322,7 +322,7 @@ async function GenerateRetrieveInput(
         new BN(args.amount1)
     )
 
-    await runZkp(
+    await unitTestSingleOp(
         [
             [
                 new Field(CommandOp.Retrieve),
@@ -345,7 +345,7 @@ async function GenerateRetrieveInput(
     )
 }
 
-async function GenerateDepositNFTInput(
+async function unitTestDepositNFT(
     args: 
     {
         op_name: string,
@@ -370,7 +370,7 @@ async function GenerateDepositNFTInput(
         new BN(args.l1_tx_hash),
         new BN(0)   //reserved
     )
-    await runZkp(
+    await unitTestSingleOp(
         [
             [
                 deposit_nft,
@@ -393,7 +393,7 @@ async function GenerateDepositNFTInput(
     )
 }
 
-async function GenerateBidNFTInput(
+async function unitTestBidNFT(
     args: 
     {
         op_name: string,
@@ -419,7 +419,7 @@ async function GenerateBidNFTInput(
         new BN(args.biddingAmount),
         new BN(0)  //reserved
     )
-    await runZkp(
+    await unitTestSingleOp(
         [
             [
                 bid_nft,
@@ -442,7 +442,7 @@ async function GenerateBidNFTInput(
     )
 }
 
-async function GenerateTransferNFTInput(
+async function unitTestTransferNFT(
     args: 
     {
         op_name: string,
@@ -466,7 +466,7 @@ async function GenerateTransferNFTInput(
         new BN(args.owner),
         new BN(0)   //reserved
     )
-    await runZkp(
+    await unitTestSingleOp(
         [
             [
                 transfer_nft, 
@@ -489,7 +489,7 @@ async function GenerateTransferNFTInput(
     )
 }
 
-async function GenerateFinalizeNFTInput(
+async function unitTestFinalizeNFT(
     args: 
     {
         op_name: string,
@@ -513,7 +513,7 @@ async function GenerateFinalizeNFTInput(
         new BN(args.nftIndex),
         new BN(0)
     )
-    await runZkp(
+    await unitTestSingleOp(
         [
             [
                 finalize_nft, 
@@ -536,7 +536,7 @@ async function GenerateFinalizeNFTInput(
     )
 }
 
-async function GenerateWithdrawNFTInput(
+async function unitTestWithdrawNFT(
     args: 
     {
         op_name: string,
@@ -560,7 +560,7 @@ async function GenerateWithdrawNFTInput(
         new BN(args.l1account),
         new BN(0)    //reserved
     )
-    await runZkp(
+    await unitTestSingleOp(
         [
             [
                 withdraw_nft, 
@@ -584,7 +584,7 @@ async function GenerateWithdrawNFTInput(
     )
 }
 
-export async function GenerateInput(
+export async function unitTestOps(
     op: string,
     args: any,
     nonce: number,
@@ -592,39 +592,39 @@ export async function GenerateInput(
     util: CryptoUtil
 ) {
     if (op == "setkey") {
-        await GenerateSetkeyInput(args, nonce, storage, util)
+        await unitTestSetkey(args, nonce, storage, util)
     }
     else if (op == "addpool"){
-        await GenerateAddpoolInput(args, nonce, storage, util)
+        await unitTestAddpool(args, nonce, storage, util)
     }
     else if (op == "swap"){
-        await GenerateSwapInput(args, nonce, storage, util)
+        await unitTestSwap(args, nonce, storage, util)
     }
     else if (op == "supply"){
-        await GenerateSupplyInput(args, nonce, storage, util)
+        await unitTestSupply(args, nonce, storage, util)
     }
     else if (op == "retrieve"){
-        await GenerateRetrieveInput(args, nonce, storage, util)
+        await unitTestRetrieve(args, nonce, storage, util)
     }
     else if (op == "deposit") {
-        await GenerateDepositInput(args, nonce, storage, util)
+        await unitTestDeposit(args, nonce, storage, util)
     }
     else if (op == "withdraw") {
-        await GenerateWithdrawInput(args, nonce, storage, util)
+        await unitTestWithdraw(args, nonce, storage, util)
     }
     else if (op == "deposit_nft") {
-        await GenerateDepositNFTInput(args, nonce, storage, util)
+        await unitTestDepositNFT(args, nonce, storage, util)
     }
     else if (op == "bid_nft") {
-        await GenerateBidNFTInput(args, nonce, storage, util)
+        await unitTestBidNFT(args, nonce, storage, util)
     }
     else if (op == "transfer_nft") {
-        await GenerateTransferNFTInput(args, nonce, storage, util)
+        await unitTestTransferNFT(args, nonce, storage, util)
     }
     else if (op == "finalize_nft") {
-        await GenerateFinalizeNFTInput(args, nonce, storage, util)
+        await unitTestFinalizeNFT(args, nonce, storage, util)
     }
     else if (op == "withdraw_nft") {
-        await GenerateWithdrawNFTInput(args, nonce, storage, util)
+        await unitTestWithdrawNFT(args, nonce, storage, util)
     }
 }

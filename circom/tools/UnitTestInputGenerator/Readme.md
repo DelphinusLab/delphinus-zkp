@@ -1,5 +1,5 @@
 ### 1. Before using this tool
-Run `bash setup20.sh 20` if pot20_0000ptau，pot20_0001.ptau, pot20_final.ptau are not in circom folder.
+Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau are not in circom folder.
 
 ### 2. Edit Config.json: obj format for each type of operation
 > setkey:   {
@@ -124,8 +124,8 @@ Run `bash setup20.sh 20` if pot20_0000ptau，pot20_0001.ptau, pot20_final.ptau a
               }
 
 ### 3. run command: 
-- Run `bash circom_test.sh` to test config.json with correct paras only.
-- Change `config.json` to the config that with error in `circom_test.sh` if you want to test them. (All kinds of configs with error are in `examples` folder)
+- Run `bash unit_test.sh` to test config.json with correct paras only.
+- Change `config.json` to the json files that with errors in `unit_test.sh` if you want to test them. (All kinds of configs with error are in `examples` folder)
 
 ### 4. How to check results
 - Unit test results will be generated in `circom/unit_tests` folder called `Unit_Test_at_(UTC Time)`

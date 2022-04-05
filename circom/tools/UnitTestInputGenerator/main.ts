@@ -1,8 +1,8 @@
 import { L2Storage } from "../../../src/circom/address-space";
-import { GenerateInput } from "./generateInput";
+import { unitTestOps } from "./unitTestOps";
 import { CryptoUtil } from "./generateSignPubKey";
 import fs from "fs-extra";
-import { preTest, CreateResultFile } from "../../../src/circom/generate-jsonInput";
+import { preTest, CreateResultFile } from "./unitTestSingleOp";
 
 const storage = new L2Storage(true);
 const config = fs.readJsonSync(process.argv[2]);
@@ -47,7 +47,7 @@ async function main() {
     if (config.Ops[i].op_name == "setkey") {
       nonce_signer[`${config.Ops[i].calleraccountIndex}`] = 0;
     }
-    await GenerateInput(config.Ops[i].op_name, config.Ops[i], nonce_signer[`${config.Ops[i].calleraccountIndex}`], storage, util);
+    await unitTestOps(config.Ops[i].op_name, config.Ops[i], nonce_signer[`${config.Ops[i].calleraccountIndex}`], storage, util);
     nonce_signer[`${config.Ops[i].calleraccountIndex}`]++;
   }
 

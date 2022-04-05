@@ -3,20 +3,20 @@ import fs from "fs-extra";
 import { exec } from "child_process";
 
 import { Field } from "delphinus-curves/src/field";
-import { L2Storage } from "./address-space";
-import { genZKPInput, Input } from "./generate-zkinput";
+import { L2Storage } from "../../../src/circom/address-space";
+import { genZKPInput, Input } from "../../../src/circom/generate-zkinput";
 
 let date = new Date();
 let time = `${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`
 
-const unitTestRoot = path.join(__dirname, "..", "..", "..", "circom", "unit_tests", `Unit_Test_at_${time}`)
+const unitTestRoot = path.join(__dirname, "..", "..", "..", "..","circom", "unit_tests", `Unit_Test_at_${time}`)
 const InputsFolderRoot = path.join(unitTestRoot, "Test_input")
 if (!fs.existsSync(unitTestRoot)) {
   fs.mkdirSync(unitTestRoot);
   fs.mkdirSync(InputsFolderRoot);
 }
 
-const circomRoot = path.join(__dirname, "..", "..", "..", "circom", "unit_tests", "main.circom")
+const circomRoot = path.join(__dirname, "..", "..", "..", "..", "circom", "unit_tests", "main.circom")
 const circomTestingRoot = path.join(unitTestRoot, "main.circom")
 
 fs.copyFile(circomRoot, circomTestingRoot, (err) => {
@@ -57,7 +57,7 @@ export async function CreateResultFile() {
   await resultFile.write('Unit Test Results: \n')
 }
 
-export async function runZkp(
+export async function unitTestSingleOp(
   commands: [Field, Field[]][],
   storage: L2Storage,
   rid: string,
