@@ -415,8 +415,8 @@ async function GenerateBidNFTInput(
     let [rx, ry, s] = signatureHelper.GenerateSignForBidNFT(
         new BN(nonce),
         new BN(args.calleraccountIndex),
-        new BN(args.biddingAmount),
         new BN(args.nftIndex),
+        new BN(args.biddingAmount),
         new BN(0)  //reserved
     )
     await runZkp(
@@ -429,8 +429,8 @@ async function GenerateBidNFTInput(
                     s,
                     new Field(nonce),
                     new Field(args.bidder),
-                    new Field(args.biddingAmount),
                     new Field(args.nftIndex),
+                    new Field(args.biddingAmount),
                     new Field(0),   //reserved
                     new Field(0),
                     new Field(0)
