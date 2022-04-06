@@ -6,28 +6,18 @@ import { Field } from "delphinus-curves/src/field";
 import { L2Storage } from "../../../src/circom/address-space";
 import { genZKPInput, Input } from "../../../src/circom/generate-zkinput";
 
-let date = new Date();
-let time = `${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`
-
-const unitTestRoot = path.join(__dirname, "..", "..", "..", "..","circom", "unit_tests", `Unit_Test_at_${time}`)
-const InputsFolderRoot = path.join(unitTestRoot, "Test_input")
-if (!fs.existsSync(unitTestRoot)) {
-  fs.mkdirSync(unitTestRoot);
-  fs.mkdirSync(InputsFolderRoot);
+export async function writeInput(input: Input, rid: string, unitTestRoot:string, time: string) {
+  await fs.writeJSON(path.join(`${unitTestRoot}/Test_input`, `input.${rid}_${time}.json`), input);
 }
 
-const circomRoot = path.join(__dirname, "..", "..", "..", "..", "circom", "unit_tests", "main.circom")
-const circomTestingRoot = path.join(unitTestRoot, "main.circom")
-
-fs.copyFile(circomRoot, circomTestingRoot, (err) => {
-  if (err) throw err;
-});
-
-export async function writeInput(input: Input, rid: string) {
-  await fs.writeJSON(path.join(InputsFolderRoot, `input.${rid}_${time}.json`), input);
-}
-
-export async function preTest() {
+export async function preTest(circomRoot: string, unitTestRoot:string, time: string) {
+  if (!fs.existsSync(`${unitTestRoot}`)) {
+    fs.mkdirSync(`${unitTestRoot}`);
+    fs.mkdirSync(`${unitTestRoot}/Test_input`);
+  }
+  fs.copyFile(`${circomRoot}/main.circom`, `${unitTestRoot}/main.circom`, (err) => {
+    if (err) throw err;
+  });
     await new Promise((resolve, reject) =>
      exec(
         `bash ../../tools/UnitTestInputGenerator/pre_test.sh`,
@@ -36,24 +26,22 @@ export async function preTest() {
         },
         (error, stdout, stderr) => {
           if (error) {
-            fs.appendFile(resultRoot, `Aborted: Circom compile\n`);
+            fs.appendFile(`${unitTestRoot}/test_result.txt`, `Aborted: Circom compile\n`);
             console.log(`Aborted: Circom compile:`);
             console.log(error);
             console.log(stdout.toString());
           } else {
             resolve(stdout);
             console.log(`${stdout}`)
-            fs.appendFile(resultRoot, `Passed: Circom compile \n`);
+            fs.appendFile(`${unitTestRoot}/test_result.txt`, `Passed: Circom compile \n`);
           }
         },
       )
   );
 }
 
-const resultRoot = path.join(unitTestRoot, "test_result.txt");
-
-export async function CreateResultFile() {
-  let resultFile = fs.createWriteStream(resultRoot, { flags: 'a' });
+export async function CreateResultFile(unitTestRoot:string, time:string) {
+  let resultFile = fs.createWriteStream(`${unitTestRoot}/test_result.txt`, { flags: 'a' });
   await resultFile.write('Unit Test Results: \n')
 }
 
@@ -61,6 +49,8 @@ export async function unitTestSingleOp(
   commands: [Field, Field[]][],
   storage: L2Storage,
   rid: string,
+  unitTestRoot: string,
+  time: string,
   runProof = true
 ) {
   const input = await genZKPInput(commands, storage);
@@ -69,9 +59,11 @@ export async function unitTestSingleOp(
     return;
   }
 
-  await writeInput(input, rid);
+  await writeInput(input, rid, unitTestRoot, time);
 
-  const singleTestFilesRoot = path.join(unitTestRoot, `testedFiles`, `testFiles_input.${rid}_${time}`);
+  let singleTestFilesRoot = path.join(unitTestRoot, `testedFiles`, `testFiles_input.${rid}_${time}`);
+  let inputRoot = path.join(unitTestRoot, "Test_input", `input.${rid}_${time}.json`);
+  let inputTestingRoot = path.join(unitTestRoot, "input.json");
 
   if (!fs.existsSync(`${unitTestRoot}/testedFiles`)) {
     fs.mkdirSync(`${unitTestRoot}/testedFiles`);
@@ -80,9 +72,6 @@ export async function unitTestSingleOp(
   if (!fs.existsSync(singleTestFilesRoot)) {
     fs.mkdirSync(singleTestFilesRoot);
   }
-
-  const inputRoot = path.join(unitTestRoot, "Test_input", `input.${rid}_${time}.json`);
-  const inputTestingRoot = path.join(unitTestRoot, "input.json");
 
   fs.copyFile(inputRoot, inputTestingRoot, (err) => {
     if (err) throw err;
@@ -101,12 +90,12 @@ export async function unitTestSingleOp(
         },
         (error, stdout, stderr) => {
           if (error) {
-            fs.appendFile(resultRoot, `Aborted: input.${rid}_${time}.json \n ${stderr} \n`);
+            fs.appendFile(`${unitTestRoot}/test_result.txt`, `Aborted: input.${rid}_${time}.json \n ${stderr} \n`);
             reject(error);
           } else {
             resolve(stdout);
             console.log(`${stdout}`)
-            fs.appendFile(resultRoot, `Passed: input.${rid}_${time}.json \n`)
+            fs.appendFile(`${unitTestRoot}/test_result.txt`, `Passed: input.${rid}_${time}.json \n`)
             fs.rename(`${unitTestRoot}/proof.json`, `${singleTestFilesRoot}/proof.json`, (err) => {
               if (err) throw err;
             });

@@ -23,6 +23,8 @@ async function unitTestSetkey(
         derive_key: string
     },
     nonce: number,
+    unitTestRoot: string,
+    time: string,
     storage: L2Storage,
     util: CryptoUtil
 ) {
@@ -49,7 +51,9 @@ async function unitTestSetkey(
             ]
         ],
         storage,
-        `Setkey_caller${args.calleraccountIndex}`
+        `Setkey_caller${args.calleraccountIndex}`,
+        unitTestRoot,
+        time
     )
 }
 
@@ -66,6 +70,8 @@ async function unitTestAddpool(
         derive_key: string
     },
     nonce: number,
+    unitTestRoot: string,
+    time: string,
     storage: L2Storage,
     util: CryptoUtil
 ) {
@@ -96,7 +102,9 @@ async function unitTestAddpool(
             ]
         ],
         storage,
-        `Addpool_caller${args.calleraccountIndex}_nonce${nonce}`
+        `Addpool_caller${args.calleraccountIndex}_nonce${nonce}`,
+        unitTestRoot,
+        time
     )
 }
 
@@ -113,6 +121,8 @@ async function unitTestDeposit(
         derive_key: string
     },
     nonce: number,
+    unitTestRoot: string,
+    time: string,
     storage: L2Storage,
     util: CryptoUtil
 ) {
@@ -145,7 +155,9 @@ async function unitTestDeposit(
             ]
         ],
         storage,
-        `Deposit_caller${args.calleraccountIndex}_nonce${nonce}`
+        `Deposit_caller${args.calleraccountIndex}_nonce${nonce}`,
+        unitTestRoot,
+        time
     )
 }
 
@@ -162,6 +174,8 @@ async function unitTestWithdraw(
         derive_key: string
     },
     nonce: number,
+    unitTestRoot: string,
+    time: string,
     storage: L2Storage,
     util: CryptoUtil
 ) {
@@ -194,7 +208,9 @@ async function unitTestWithdraw(
             ]
         ],
         storage,
-        `Withdraw_caller${args.calleraccountIndex}_nonce${nonce}`
+        `Withdraw_caller${args.calleraccountIndex}_nonce${nonce}`,
+        unitTestRoot,
+        time
     )
 }
 
@@ -211,6 +227,8 @@ async function unitTestSwap(
         derive_key: string
     },
     nonce: number,
+    unitTestRoot: string,
+    time: string,
     storage: L2Storage,
     util: CryptoUtil
 ) {
@@ -243,7 +261,9 @@ async function unitTestSwap(
             ]
         ],
         storage,
-        `Swap_caller${args.calleraccountIndex}_nonce${nonce}`
+        `Swap_caller${args.calleraccountIndex}_nonce${nonce}`,
+        unitTestRoot,
+        time
     )
 }
 
@@ -260,6 +280,8 @@ async function unitTestSupply(
         derive_key: string
     },
     nonce: number,
+    unitTestRoot: string,
+    time: string,
     storage: L2Storage,
     util: CryptoUtil
 ) {
@@ -292,7 +314,9 @@ async function unitTestSupply(
             ]
         ],
         storage,
-        `Supply_caller${args.calleraccountIndex}_nonce${nonce}`
+        `Supply_caller${args.calleraccountIndex}_nonce${nonce}`,
+        unitTestRoot,
+        time
     )
 }
 
@@ -309,6 +333,8 @@ async function unitTestRetrieve(
         derive_key: string
     },
     nonce: number,
+    unitTestRoot: string,
+    time: string,
     storage: L2Storage,
     util: CryptoUtil
 ) {
@@ -341,7 +367,9 @@ async function unitTestRetrieve(
             ]
         ],
         storage,
-        `Retrieve_caller${args.calleraccountIndex}_nonce${nonce}`
+        `Retrieve_caller${args.calleraccountIndex}_nonce${nonce}`,
+        unitTestRoot,
+        time
     )
 }
 
@@ -358,6 +386,8 @@ async function unitTestDepositNFT(
         derive_key: string
     },
     nonce: number,
+    unitTestRoot: string,
+    time: string,
     storage: L2Storage,
     util: CryptoUtil
 ) {
@@ -390,6 +420,8 @@ async function unitTestDepositNFT(
         ],
         storage,
         `DepoNFT_caller${args.calleraccountIndex}_nonce${nonce}`,
+        unitTestRoot,
+        time
     )
 }
 
@@ -407,6 +439,8 @@ async function unitTestBidNFT(
         derive_key: string
     },
     nonce: number,
+    unitTestRoot: string,
+    time: string,
     storage: L2Storage,
     util: CryptoUtil
 ) {
@@ -439,6 +473,8 @@ async function unitTestBidNFT(
         ],
         storage,
         `BidNFT_caller${args.calleraccountIndex}_nonce${nonce}`,
+        unitTestRoot,
+        time
     )
 }
 
@@ -454,6 +490,8 @@ async function unitTestTransferNFT(
         derive_key: string 
     },
     nonce: number,
+    unitTestRoot: string,
+    time: string,
     storage: L2Storage,
     util: CryptoUtil
 ) { 
@@ -486,6 +524,8 @@ async function unitTestTransferNFT(
         ],
         storage,
         `TransNFT_caller${args.calleraccountIndex}_nonce${nonce}`,
+        unitTestRoot,
+        time
     )
 }
 
@@ -502,6 +542,8 @@ async function unitTestFinalizeNFT(
         derive_key: string
     },
     nonce: number,
+    unitTestRoot: string,
+    time: string,
     storage: L2Storage,
     util: CryptoUtil
 ) { 
@@ -533,6 +575,8 @@ async function unitTestFinalizeNFT(
         ],
         storage,
         `FinaliNFT_caller${args.calleraccountIndex}_nonce${nonce}`,
+        unitTestRoot,
+        time
     )
 }
 
@@ -548,6 +592,8 @@ async function unitTestWithdrawNFT(
         derive_key: string
     },
     nonce: number,
+    unitTestRoot: string,
+    time: string,
     storage: L2Storage,
     util: CryptoUtil
 ) {
@@ -581,6 +627,8 @@ async function unitTestWithdrawNFT(
         ],
         storage,
         `WithdNFT_caller${args.calleraccountIndex}_nonce${nonce}`,
+        unitTestRoot,
+        time
     )
 }
 
@@ -588,43 +636,45 @@ export async function unitTestOps(
     op: string,
     args: any,
     nonce: number,
+    unitTestRoot: string,
+    time: string,
     storage: L2Storage,
     util: CryptoUtil
 ) {
     if (op == "setkey") {
-        await unitTestSetkey(args, nonce, storage, util)
+        await unitTestSetkey(args, nonce, unitTestRoot, time, storage, util)
     }
     else if (op == "addpool"){
-        await unitTestAddpool(args, nonce, storage, util)
+        await unitTestAddpool(args, nonce, unitTestRoot, time, storage, util)
     }
     else if (op == "swap"){
-        await unitTestSwap(args, nonce, storage, util)
+        await unitTestSwap(args, nonce, unitTestRoot, time, storage, util)
     }
     else if (op == "supply"){
-        await unitTestSupply(args, nonce, storage, util)
+        await unitTestSupply(args, nonce, unitTestRoot, time, storage, util)
     }
     else if (op == "retrieve"){
-        await unitTestRetrieve(args, nonce, storage, util)
+        await unitTestRetrieve(args, nonce, unitTestRoot, time, storage, util)
     }
     else if (op == "deposit") {
-        await unitTestDeposit(args, nonce, storage, util)
+        await unitTestDeposit(args, nonce, unitTestRoot, time, storage, util)
     }
     else if (op == "withdraw") {
-        await unitTestWithdraw(args, nonce, storage, util)
+        await unitTestWithdraw(args, nonce, unitTestRoot, time, storage, util)
     }
     else if (op == "deposit_nft") {
-        await unitTestDepositNFT(args, nonce, storage, util)
+        await unitTestDepositNFT(args, nonce, unitTestRoot, time, storage, util)
     }
     else if (op == "bid_nft") {
-        await unitTestBidNFT(args, nonce, storage, util)
+        await unitTestBidNFT(args, nonce, unitTestRoot, time, storage, util)
     }
     else if (op == "transfer_nft") {
-        await unitTestTransferNFT(args, nonce, storage, util)
+        await unitTestTransferNFT(args, nonce, unitTestRoot, time, storage, util)
     }
     else if (op == "finalize_nft") {
-        await unitTestFinalizeNFT(args, nonce, storage, util)
+        await unitTestFinalizeNFT(args, nonce, unitTestRoot, time, storage, util)
     }
     else if (op == "withdraw_nft") {
-        await unitTestWithdrawNFT(args, nonce, storage, util)
+        await unitTestWithdrawNFT(args, nonce, unitTestRoot, time, storage, util)
     }
 }
