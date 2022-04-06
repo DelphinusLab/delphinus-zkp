@@ -7,13 +7,6 @@ import { NftCommandOp } from "../../../src/circom/command-factory";
 import { SignatureHelper } from "./generateSignPubKey";
 import { CryptoUtil } from "./generateSignPubKey";
 
-//ops:
-// let deposit_nft = new Field(7);
-// let bid_nft = new Field(10);
-// let finalize_nft = new Field(11);
-// let transfer_nft = new Field(9);
-// let withdraw_nft = new Field(8);
-
 async function unitTestSetkey(
     args: 
     {
