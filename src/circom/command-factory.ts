@@ -13,6 +13,14 @@ import { BidNFTCommand } from "./ops/bid_nft";
 import { FinalizeNFTCommand } from "./ops/finalize_nft";
 import { WithdrawNFTCommand } from "./ops/withdraw_nft"
 
+export enum NftCommandOp {
+  DepositNFT = 7,
+  WithdrawNFT = 8,
+  TransferNFT = 9,
+  BidNFT = 10,
+  FinalizeNFT = 11,
+}
+
 export function createCommand(op: Field, args: Field[]) {
   if (op.v.eqn(CommandOp.AddPool)) {
     return new AddPoolCommand(args);
@@ -42,23 +50,23 @@ export function createCommand(op: Field, args: Field[]) {
     return new SupplyCommand(args);
   }
 
-  if (op.v.eqn(7)) {
+  if (op.v.eqn(NftCommandOp.DepositNFT)) {
     return new DepositNFTCommand(args);
   }
 
-  if (op.v.eqn(8)) {
+  if (op.v.eqn(NftCommandOp.WithdrawNFT)) {
     return new WithdrawNFTCommand(args);
   }
 
-  if (op.v.eqn(9)) {
+  if (op.v.eqn(NftCommandOp.TransferNFT)) {
     return new TransferNFTCommand(args);
   }
 
-  if (op.v.eqn(10)) {
+  if (op.v.eqn(NftCommandOp.BidNFT)) {
     return new BidNFTCommand(args);
   }
 
-  if (op.v.eqn(11)) {
+  if (op.v.eqn(NftCommandOp.FinalizeNFT)) {
     return new FinalizeNFTCommand(args);
   }
 

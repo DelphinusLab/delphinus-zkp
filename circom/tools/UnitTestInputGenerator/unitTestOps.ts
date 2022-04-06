@@ -3,15 +3,16 @@ import { L2Storage } from "../../../src/circom/address-space";
 import { BN } from "bn.js";
 import { unitTestSingleOp } from "./unitTestSingleOp";
 import { CommandOp } from "delphinus-l2-client-helper/src/swap";
+import { NftCommandOp } from "../../../src/circom/command-factory";
 import { SignatureHelper } from "./generateSignPubKey";
 import { CryptoUtil } from "./generateSignPubKey";
 
 //ops:
-let deposit_nft = new Field(7);
-let bid_nft = new Field(10);
-let finalize_nft = new Field(11);
-let transfer_nft = new Field(9);
-let withdraw_nft = new Field(8);
+// let deposit_nft = new Field(7);
+// let bid_nft = new Field(10);
+// let finalize_nft = new Field(11);
+// let transfer_nft = new Field(9);
+// let withdraw_nft = new Field(8);
 
 async function unitTestSetkey(
     args: 
@@ -403,7 +404,7 @@ async function unitTestDepositNFT(
     await unitTestSingleOp(
         [
             [
-                deposit_nft,
+                new Field(NftCommandOp.DepositNFT),
                 [
                     rx,
                     ry,
@@ -456,7 +457,7 @@ async function unitTestBidNFT(
     await unitTestSingleOp(
         [
             [
-                bid_nft,
+                new Field(NftCommandOp.BidNFT),
                 [
                     rx,
                     ry,
@@ -507,7 +508,7 @@ async function unitTestTransferNFT(
     await unitTestSingleOp(
         [
             [
-                transfer_nft, 
+                new Field(NftCommandOp.TransferNFT), 
                 [
                     rx, 
                     ry, 
@@ -558,7 +559,7 @@ async function unitTestFinalizeNFT(
     await unitTestSingleOp(
         [
             [
-                finalize_nft, 
+                new Field(NftCommandOp.FinalizeNFT), 
                 [
                     rx, 
                     ry, 
@@ -609,7 +610,7 @@ async function unitTestWithdrawNFT(
     await unitTestSingleOp(
         [
             [
-                withdraw_nft, 
+                new Field(NftCommandOp.WithdrawNFT), 
                 [
                     rx, 
                     ry, 
