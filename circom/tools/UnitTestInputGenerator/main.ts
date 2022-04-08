@@ -8,10 +8,10 @@ import { preTest, CreateResultFile } from "./unitTestSingleOp";
 const storage = new L2Storage(true);
 const config = fs.readJsonSync(process.argv[2]);
 
-let date = new Date();
-let time = `${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`;
-let unitTestRoot = path.join(__dirname, "..", "..", "..", "..", "circom", "unit_tests", `Unit_Test_at_${time}`);
-const circomRoot = path.join(__dirname, "..", "..", "..", "..","circom", "unit_tests")
+const date = new Date();
+const time = `${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`;
+const unitTestRoot = path.join(__dirname, "..", "..", "..", "..", "circom", "unit_tests", `Unit_Test_at_${time}`);
+const circomRoot = path.join(__dirname, "..", "..", "..", "..","circom")
 
 //generate keys:
 let cryptoUtil: CryptoUtil;
@@ -34,10 +34,16 @@ async function main() {
   await storage.startSnapshot("1");
 
   //nonce
-  interface nonce {
+  // interface nonce {
+  //   [key: string]: any
+  // }
+  // const nonce_signer: nonce = {};
+
+  //msg and derive key
+  interface keys {
     [key: string]: any
   }
-  const nonce_signer: nonce = {};
+  const msg_dkeys: keys = {};
 
   //crypto
   const util = await getCryptoUtil();
@@ -51,10 +57,13 @@ async function main() {
   //ops:
   for (let i = 0; i < config.Ops.length; i++) {
     if (config.Ops[i].op_name == "setkey") {
-      nonce_signer[`${config.Ops[i].calleraccountIndex}`] = 0;
+      // nonce_signer[`${config.Ops[i].calleraccountIndex}`] = 0;
+      msg_dkeys[`${config.Ops[i].calleraccountIndex}`] = {"msg":config.Ops[i].msg, "derive_key":config.Ops[i].derive_key};
+      // msg_dkeys[`${config.Ops[i].calleraccountIndex}`] = config.Ops[i].derive_key;
     }
-    await unitTestOps(config.Ops[i].op_name, config.Ops[i], nonce_signer[`${config.Ops[i].calleraccountIndex}`], unitTestRoot, time, storage, util);
-    nonce_signer[`${config.Ops[i].calleraccountIndex}`]++;
+      await unitTestOps(config.Ops[i].op_name, config.Ops[i], msg_dkeys[`${config.Ops[i].calleraccountIndex}`], unitTestRoot, time, storage, util);
+    
+    // nonce_signer[`${config.Ops[i].calleraccountIndex}`]++;
   }
 
   await storage.endSnapshot();

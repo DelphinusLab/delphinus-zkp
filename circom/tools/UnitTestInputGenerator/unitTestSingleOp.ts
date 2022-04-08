@@ -11,11 +11,14 @@ export async function writeInput(input: Input, rid: string, unitTestRoot:string,
 }
 
 export async function preTest(circomRoot: string, unitTestRoot:string, time: string) {
+  // if (!fs.existsSync(`${circomRoot}/unit_tests`)) {
+  //   fs.mkdirSync(`${circomRoot}/unit_tests`);
+  // }
   if (!fs.existsSync(`${unitTestRoot}`)) {
     fs.mkdirSync(`${unitTestRoot}`);
     fs.mkdirSync(`${unitTestRoot}/Test_input`);
   }
-  fs.copyFile(`${circomRoot}/main.circom`, `${unitTestRoot}/main.circom`, (err) => {
+  fs.copyFile(`${circomRoot}/unit_tests/main.circom`, `${unitTestRoot}/main.circom`, (err) => {
     if (err) throw err;
   });
     await new Promise((resolve, reject) =>
