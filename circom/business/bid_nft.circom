@@ -64,7 +64,7 @@ template BidNFT() {
     // circuits: check biddingAmount < 2 ^ 250 & biddingAmount > dataPath[3]'s leafValues[2]
     component biddingAmountRangeCheck = Check2PowerRangeFE(250);
     biddingAmountRangeCheck.in <== biddingAmount;
-    component lessthan = LessThan253(253);
+    component lessthan = LessThanFE(250);
     lessthan.in[0] <== dataPath[3][BiddingAmountOffset];
     lessthan.in[1] <== biddingAmount;
     andmany.in[andmanyOffset] <== lessthan.out * biddingAmountRangeCheck.out;
@@ -107,7 +107,7 @@ template BidNFT() {
     }
     var balance = getBalance.out;
 
-    component enoughBalance = GreaterEqThan253(253);
+    component enoughBalance = GreaterEqThanFE(250);
     enoughBalance.in[0] <== balance;
     enoughBalance.in[1] <== biddingAmount;
     andmany.in[andmanyOffset] <== bidderBalanceIndexCheck.out * enoughBalance.out;

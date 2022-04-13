@@ -35,7 +35,7 @@ template Check2PowerRangeFE(N) {
     out <== eq.out;
 }
 
-template LessThan253(N) {
+template LessThanFE(N) {
     signal input in[2];
     signal output out;
 
@@ -46,7 +46,7 @@ template LessThan253(N) {
     out <== checkDiff.out;
 }
 
-template GreaterEqThan253(N) {
+template GreaterEqThanFE(N) {
     signal input in[2];
     signal output out;
 
