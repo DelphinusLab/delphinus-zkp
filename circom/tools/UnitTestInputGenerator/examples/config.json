@@ -8,7 +8,7 @@
                 "nonce": "0",
                 "accountIndex":"1",
                 "msg":"Bob",
-                "derive_key":"/delphinus/nff"
+                "derive_key":"/delphinus/nft"
             },
             {
                 "op_name": "addpool",
@@ -87,7 +87,7 @@
                 "calleraccountIndex":"2",
                 "nonce": "0",
                 "accountIndex":"2",
-                "msg":"Frank",
+                "msg":"Bob",
                 "derive_key":"/delphinus/nft"
             },
             {
