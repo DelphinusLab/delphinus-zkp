@@ -29,15 +29,9 @@ async function getCryptoUtil() {
   return await cryptoUtilPromise;
 }
 
-//generate test Input
+  //generate test Input
 async function main() {
   await storage.startSnapshot("1");
-
-  //nonce
-  // interface nonce {
-  //   [key: string]: any
-  // }
-  // const nonce_signer: nonce = {};
 
   //msg and derive key
   interface keys {
@@ -57,13 +51,9 @@ async function main() {
   //ops:
   for (let i = 0; i < config.Ops.length; i++) {
     if (config.Ops[i].op_name == "setkey") {
-      // nonce_signer[`${config.Ops[i].calleraccountIndex}`] = 0;
       msg_dkeys[`${config.Ops[i].calleraccountIndex}`] = {"msg":config.Ops[i].msg, "derive_key":config.Ops[i].derive_key};
-      // msg_dkeys[`${config.Ops[i].calleraccountIndex}`] = config.Ops[i].derive_key;
     }
       await unitTestOps(config.Ops[i].op_name, config.Ops[i], msg_dkeys[`${config.Ops[i].calleraccountIndex}`], unitTestRoot, time, storage, util);
-    
-    // nonce_signer[`${config.Ops[i].calleraccountIndex}`]++;
   }
 
   await storage.endSnapshot();

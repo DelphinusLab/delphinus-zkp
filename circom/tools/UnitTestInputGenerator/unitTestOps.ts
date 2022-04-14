@@ -9,18 +9,12 @@ import { CryptoUtil } from "./generateSignPubKey";
 
 async function unitTestSetkey(
     args: any,
-    msg_dkey: {
-        msg: string,
-        derive_key: string
-    },
     unitTestRoot: string,
     time: string,
     storage: L2Storage,
     util: CryptoUtil
-) {
-    let signatureHelper;
-    
-    signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+) {    
+    let signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
 
     let [ax, ay] = signatureHelper.GenerateAXAYFromPublicKey(signatureHelper.publicKey);
 
@@ -614,7 +608,7 @@ export async function unitTestOps(
     util: CryptoUtil
 ) {
     if (op == "setkey") {
-        await unitTestSetkey(args, msg_dkey, unitTestRoot, time, storage, util)
+        await unitTestSetkey(args, unitTestRoot, time, storage, util)
     }
     else if (op == "addpool"){
         await unitTestAddpool(args, msg_dkey, unitTestRoot, time, storage, util)
