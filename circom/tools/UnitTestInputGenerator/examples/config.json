@@ -7,8 +7,8 @@
                 "calleraccountIndex":"1",
                 "nonce": "0",
                 "accountIndex":"1",
-                "msg":"Bob",
-                "derive_key":"/delphinus/nft"
+                "msg":"Ray",
+                "derive_key":"/delphinus/nft/ray"
             },
             {
                 "op_name": "addpool",
@@ -87,8 +87,8 @@
                 "calleraccountIndex":"2",
                 "nonce": "0",
                 "accountIndex":"2",
-                "msg":"Bob",
-                "derive_key":"/delphinus/nft"
+                "msg":"Frank",
+                "derive_key":"/delphinus/nft/frank"
             },
             {
                 "op_name": "deposit",
@@ -105,7 +105,7 @@
                 "nonce": "0",
                 "accountIndex":"3",
                 "msg":"Richard",
-                "derive_key":"/delphinus/nft"
+                "derive_key":"/delphinus/nft/richard"
             },
             {
                 "op_name": "deposit",
@@ -150,9 +150,7 @@
                 "nonce": "3",
                 "accountIndex":"2",
                 "nftIndex":"1",
-                "l1account":"0",
-                "msg":"Frank",
-                "derive_key":"/delphinus/nft"
+                "l1account":"0"
             }
         ]
 }
