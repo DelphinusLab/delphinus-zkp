@@ -11,7 +11,17 @@ include "./bit.circom";
  * Use these templates carefully.
  */
 
+
 template Check2PowerRangeFE(N) {
+    /*
+     * N must be less than 254 bits
+     * Each check by such code:
+     *   component a= Check2PowerRangeFE(254);
+     *   a.in <== 10;
+     *   a.out === 1;
+     * It will pop up error as it will exceed field size.
+     */
+    assert(N <= 253);
     signal input in;
     signal output out;
 
@@ -23,6 +33,28 @@ template Check2PowerRangeFE(N) {
     eq.in[1] <== in;
 
     out <== eq.out;
+}
+
+template LessThanFE(N) {
+    signal input in[2];
+    signal output out;
+
+    var diff = in[1] - in[0] - 1;
+
+    component checkDiff = Check2PowerRangeFE(N);
+    checkDiff.in <== diff;
+    out <== checkDiff.out;
+}
+
+template GreaterEqThanFE(N) {
+    signal input in[2];
+    signal output out;
+
+    var diff = in[0] - in[1];
+
+    component checkDiff = Check2PowerRangeFE(N);
+    checkDiff.in <== diff;
+    out <== checkDiff.out;
 }
 
 template AndMany(N) {
