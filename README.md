@@ -54,3 +54,6 @@ Assue admin's account index is 0.
 - Run `node dist/tests/circom.test.js` to see how many tests would fail.
 - Implement circom/main.circom to pass those test.
 - We would continuously add more tests.
+
+## How to run unit test tool
+- Please check readme in `circom/tools/UnitTestInputGenerator` folder
