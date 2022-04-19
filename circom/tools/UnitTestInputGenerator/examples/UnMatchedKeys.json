@@ -1,5 +1,5 @@
 {
-    "_COMMENT":"All ops should pass their unit test",
+    "_COMMENT":"ERROR: Account 1 trying to addpool using wrong msg",
 
     "Ops":[
             {
