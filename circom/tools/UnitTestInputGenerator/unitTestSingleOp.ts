@@ -87,7 +87,10 @@ export async function unitTestSingleOp(
   try {
     await new Promise((resolve, reject) =>
       exec(
-        "bash ../../tools/UnitTestInputGenerator/input_test.sh",
+        // Normal proof 
+        // "bash ../../tools/run.sh; bash ../../tools/proof.sh; bash ../../tools/verify.sh", 
+        // RapidSnark proof
+        "bash ../../tools/run.sh; bash ../../tools/rapidsnarkProof.sh; bash ../../tools/verify.sh",
         {
           cwd: unitTestRoot,
         },
