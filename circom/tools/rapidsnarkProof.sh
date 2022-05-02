@@ -1,1 +1,1 @@
-../../../../../tools/rapidsnark/build/prover main_0000.zkey witness.wtns proof.json public.json
+prover main_0000.zkey witness.wtns proof.json public.json
