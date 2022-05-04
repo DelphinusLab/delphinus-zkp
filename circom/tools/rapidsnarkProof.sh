@@ -1,1 +1,1 @@
-prover main_0000.zkey witness.wtns proof.json public.json
+prover main_0003.zkey witness.wtns proof.json public.json
