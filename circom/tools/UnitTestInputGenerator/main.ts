@@ -7,6 +7,7 @@ import { preTest, CreateResultFile } from "./unitTestSingleOp";
 
 const storage = new L2Storage(true);
 const config = fs.readJsonSync(process.argv[2]);
+export const option = process.argv[3];
 
 const date = new Date();
 const time = `${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`;

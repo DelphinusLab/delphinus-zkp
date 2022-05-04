@@ -5,6 +5,7 @@ import { exec } from "child_process";
 import { Field } from "delphinus-curves/src/field";
 import { L2Storage } from "../../../src/circom/address-space";
 import { genZKPInput, Input } from "../../../src/circom/generate-zkinput";
+import { option } from "./main";
 
 export async function writeInput(input: Input, rid: string, unitTestRoot:string, time: string) {
   await fs.writeJSON(path.join(`${unitTestRoot}/Test_input`, `input.${rid}_${time}.json`), input);
@@ -84,36 +85,71 @@ export async function unitTestSingleOp(
     if (err) throw err;
   });
 
-  try {
-    await new Promise((resolve, reject) =>
-      exec(
-        "bash ../../tools/UnitTestInputGenerator/input_test.sh",
-        {
-          cwd: unitTestRoot,
-        },
-        (error, stdout, stderr) => {
-          if (error) {
-            fs.appendFile(`${unitTestRoot}/test_result.txt`, `Aborted: input.${rid}_${time}.json \n ${stderr} \n`);
-            reject(error);
-          } else {
-            resolve(stdout);
-            console.log(`${stdout}`)
-            fs.appendFile(`${unitTestRoot}/test_result.txt`, `Passed: input.${rid}_${time}.json \n`)
-            fs.rename(`${unitTestRoot}/proof.json`, `${singleTestFilesRoot}/proof.json`, (err) => {
-              if (err) throw err;
-            });
-            fs.rename(`${unitTestRoot}/public.json`, `${singleTestFilesRoot}/public.json`, (err) => {
-              if (err) throw err;
-            });
-            fs.rename(`${unitTestRoot}/witness.wtns`, `${singleTestFilesRoot}/witness.wtns`, (err) => {
-              if (err) throw err;
-            })
-          };
-        }
-      )
-    );
-  } catch (e) {
-    console.log(`Test Aborted: input.${rid}_${time}.json`)
-    console.log(`${e}`)
+  if(option == "--rapidsnark" || option == "-rs"){
+    try {
+      await new Promise((resolve, reject) =>
+        exec(
+          "bash ../../tools/run.sh; bash ../../tools/rapidsnarkProof.sh; bash ../../tools/verify.sh",
+          {
+            cwd: unitTestRoot,
+          },
+          (error, stdout, stderr) => {
+            if (error) {
+              fs.appendFile(`${unitTestRoot}/test_result.txt`, `Aborted: input.${rid}_${time}.json \n ${stderr} \n`);
+              reject(error);
+            } else {
+              resolve(stdout);
+              console.log(`${stdout}`)
+              fs.appendFile(`${unitTestRoot}/test_result.txt`, `Passed: input.${rid}_${time}.json \n`)
+              fs.rename(`${unitTestRoot}/proof.json`, `${singleTestFilesRoot}/proof.json`, (err) => {
+                if (err) throw err;
+              });
+              fs.rename(`${unitTestRoot}/public.json`, `${singleTestFilesRoot}/public.json`, (err) => {
+                if (err) throw err;
+              });
+              fs.rename(`${unitTestRoot}/witness.wtns`, `${singleTestFilesRoot}/witness.wtns`, (err) => {
+                if (err) throw err;
+              })
+            };
+          }
+        )
+      );
+    } catch (e) {
+      console.log(`Test Aborted: input.${rid}_${time}.json`)
+      console.log(`${e}`)
+    }
+  }else{
+    try {
+      await new Promise((resolve, reject) =>
+        exec(
+          "bash ../../tools/run.sh; bash ../../tools/proof.sh; bash ../../tools/verify.sh", 
+          {
+            cwd: unitTestRoot,
+          },
+          (error, stdout, stderr) => {
+            if (error) {
+              fs.appendFile(`${unitTestRoot}/test_result.txt`, `Aborted: input.${rid}_${time}.json \n ${stderr} \n`);
+              reject(error);
+            } else {
+              resolve(stdout);
+              console.log(`${stdout}`)
+              fs.appendFile(`${unitTestRoot}/test_result.txt`, `Passed: input.${rid}_${time}.json \n`)
+              fs.rename(`${unitTestRoot}/proof.json`, `${singleTestFilesRoot}/proof.json`, (err) => {
+                if (err) throw err;
+              });
+              fs.rename(`${unitTestRoot}/public.json`, `${singleTestFilesRoot}/public.json`, (err) => {
+                if (err) throw err;
+              });
+              fs.rename(`${unitTestRoot}/witness.wtns`, `${singleTestFilesRoot}/witness.wtns`, (err) => {
+                if (err) throw err;
+              })
+            };
+          }
+        )
+      );
+    } catch (e) {
+      console.log(`Test Aborted: input.${rid}_${time}.json`)
+      console.log(`${e}`)
+    }
   }
 }
