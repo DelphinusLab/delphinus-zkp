@@ -13,10 +13,15 @@ async function unitTestSetkey(
     time: string,
     storage: L2Storage,
     util: CryptoUtil
-) {    
-    let signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+) {
+    let ax, ay;
 
-    let [ax, ay] = signatureHelper.GenerateAXAYFromPublicKey(signatureHelper.publicKey);
+    if(args.ax == undefined && args.ay == undefined){
+        let signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        [ax, ay] = signatureHelper.GenerateAXAYFromPublicKey(signatureHelper.publicKey);
+    }else{
+        [ax, ay] = [new Field(new BN(args.ax)), new Field(new BN(args.ay))]
+    }
 
     await unitTestSingleOp(
         [
@@ -37,7 +42,7 @@ async function unitTestSetkey(
             ]
         ],
         storage,
-        `Setkey_caller${args.calleraccountIndex}`,
+        `Setkey_caller${args.callerAccountIndex}`,
         unitTestRoot,
         time
     )
@@ -54,17 +59,21 @@ async function unitTestAddpool(
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    let signatureHelper;
-    if (args.msg == undefined || args.derive_key == undefined) {
-        signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
+    let signatureHelper, rx, ry, s;
+    if (args.sign_rx == undefined && args.sign_ry == undefined && args.sign_s == undefined){
+        if (args.msg == undefined || args.derive_key == undefined) {
+            signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
+        }else{
+            signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        }
+        [rx, ry, s] = signatureHelper.GetSignForAddPool(
+            new BN(args.nonce),
+            new BN(args.tokenIndex0),
+            new BN(args.tokenIndex1)
+        )
     }else{
-        signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        [rx, ry, s] = [new Field(new BN(args.sign_rx)), new Field(new BN(args.sign_ry)), new Field(new BN(args.sign_s))]
     }
-    let [rx, ry, s] = signatureHelper.GetSignForAddPool(
-        new BN(args.nonce),
-        new BN(args.tokenIndex0),
-        new BN(args.tokenIndex1)
-    )
 
     await unitTestSingleOp(
         [
@@ -72,20 +81,20 @@ async function unitTestAddpool(
                 new Field(CommandOp.AddPool), 
                 [
                     rx, 
-                    ry, 
+                    ry,
                     s, 
                     new Field(args.nonce), 
                     new Field(args.tokenIndex0), 
                     new Field(args.tokenIndex1), 
                     new Field(0), 
                     new Field(0), 
-                    new Field(args.poolIndex), 
-                    new Field(args.calleraccountIndex)
+                    new Field(args.poolIndex),
+                    new Field(args.callerAccountIndex)
                 ]
             ]
         ],
         storage,
-        `Addpool_caller${args.calleraccountIndex}_nonce${args.nonce}`,
+        `Addpool_caller${args.callerAccountIndex}_nonce${args.nonce}`,
         unitTestRoot,
         time
     )
@@ -102,20 +111,24 @@ async function unitTestDeposit(
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    let signatureHelper;
-    if (args.msg == undefined || args.derive_key == undefined) {
-        signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
-    }else{
-        signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
-    }
+    let signatureHelper, rx, ry, s;
+    if (args.sign_rx == undefined && args.sign_ry == undefined && args.sign_s == undefined){
+        if (args.msg == undefined || args.derive_key == undefined) {
+            signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
+        }else{
+            signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        }
 
-    let [rx, ry, s] = signatureHelper.GenerateSignForDeposit(
-        new BN(args.nonce),
-        new BN(args.accountIndex),
-        new BN(args.tokenIndex),
-        new BN(args.amount),
-        new BN(args.l1_tx_hash)
-    )
+        [rx, ry, s] = signatureHelper.GenerateSignForDeposit(
+            new BN(args.nonce),
+            new BN(args.accountIndex),
+            new BN(args.tokenIndex),
+            new BN(args.amount),
+            new BN(args.l1_tx_hash)
+        )
+    }else{
+        [rx, ry, s] = [new Field(new BN(args.sign_rx)), new Field(new BN(args.sign_ry)), new Field(new BN(args.sign_s))]
+    }
 
     await unitTestSingleOp(
         [
@@ -130,13 +143,13 @@ async function unitTestDeposit(
                     new Field(args.tokenIndex),
                     new Field(args.amount),
                     new Field(0),
-                    new Field(args.calleraccountIndex),
+                    new Field(args.callerAccountIndex),
                     new Field(0)
                 ]
             ]
         ],
         storage,
-        `Deposit_caller${args.calleraccountIndex}_nonce${args.nonce}`,
+        `Deposit_caller${args.callerAccountIndex}_nonce${args.nonce}`,
         unitTestRoot,
         time
     )
@@ -153,20 +166,24 @@ async function unitTestWithdraw(
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    let signatureHelper;
-    if (args.msg == undefined || args.derive_key == undefined) {
-        signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
-    }else{
-        signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
-    }
+    let signatureHelper, rx, ry, s;
+    if (args.sign_rx == undefined && args.sign_ry == undefined && args.sign_s == undefined){
+        if (args.msg == undefined || args.derive_key == undefined) {
+            signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
+        }else{
+            signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        }
 
-    let [rx, ry, s] = signatureHelper.GenerateSignForWithdraw(
-        new BN(args.nonce),
-        new BN(args.accountIndex),
-        new BN(args.tokenIndex),
-        new BN(args.amount),
-        new BN(args.l1address)
-    )
+        [rx, ry, s] = signatureHelper.GenerateSignForWithdraw(
+            new BN(args.nonce),
+            new BN(args.accountIndex),
+            new BN(args.tokenIndex),
+            new BN(args.amount),
+            new BN(args.l1address)
+        )
+    }else{
+        [rx, ry, s] = [new Field(new BN(args.sign_rx)), new Field(new BN(args.sign_ry)), new Field(new BN(args.sign_s))]
+    }
 
     await unitTestSingleOp(
         [
@@ -180,14 +197,14 @@ async function unitTestWithdraw(
                     new Field(args.accountIndex),
                     new Field(args.tokenIndex),
                     new Field(args.amount),
-                    new Field(1),
+                    new Field(args.l1address),
                     new Field(0),
                     new Field(0)
                 ]
             ]
         ],
         storage,
-        `Withdraw_caller${args.calleraccountIndex}_nonce${args.nonce}`,
+        `Withdraw_caller${args.callerAccountIndex}_nonce${args.nonce}`,
         unitTestRoot,
         time
     )
@@ -204,20 +221,24 @@ async function unitTestSwap(
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    let signatureHelper;
-    if (args.msg == undefined || args.derive_key == undefined) {
-        signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
-    }else{
-        signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
-    }
+    let signatureHelper, rx, ry, s;
+    if (args.sign_rx == undefined && args.sign_ry == undefined && args.sign_s == undefined){
+        if (args.msg == undefined || args.derive_key == undefined) {
+            signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
+        }else{
+            signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        }
 
-    let [rx, ry, s] = signatureHelper.GenerateSignForSwap(
-        new BN(args.nonce),
-        new BN(args.accountIndex),
-        new BN(args.poolIndex),
-        new BN(args.reverse),
-        new BN(args.amount)
-    )
+        [rx, ry, s] = signatureHelper.GenerateSignForSwap(
+            new BN(args.nonce),
+            new BN(args.accountIndex),
+            new BN(args.poolIndex),
+            new BN(args.reverse),
+            new BN(args.amount)
+        )
+    }else{
+        [rx, ry, s] = [new Field(new BN(args.sign_rx)), new Field(new BN(args.sign_ry)), new Field(new BN(args.sign_s))]
+    }
 
     await unitTestSingleOp(
         [
@@ -238,7 +259,7 @@ async function unitTestSwap(
             ]
         ],
         storage,
-        `Swap_caller${args.calleraccountIndex}_nonce${args.nonce}`,
+        `Swap_caller${args.callerAccountIndex}_nonce${args.nonce}`,
         unitTestRoot,
         time
     )
@@ -255,20 +276,24 @@ async function unitTestSupply(
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    let signatureHelper;
-    if (args.msg == undefined || args.derive_key == undefined) {
-        signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
-    }else{
-        signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
-    }
+    let signatureHelper, rx, ry, s;
+    if (args.sign_rx == undefined && args.sign_ry == undefined && args.sign_s == undefined){
+        if (args.msg == undefined || args.derive_key == undefined) {
+            signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
+        }else{
+            signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        }
 
-    let [rx, ry, s] = signatureHelper.GenerateSignForSupply(
-        new BN(args.nonce),
-        new BN(args.accountIndex),
-        new BN(args.poolIndex),
-        new BN(args.amount0),
-        new BN(args.amount1)
-    )
+        [rx, ry, s] = signatureHelper.GenerateSignForSupply(
+            new BN(args.nonce),
+            new BN(args.accountIndex),
+            new BN(args.poolIndex),
+            new BN(args.amount0),
+            new BN(args.amount1)
+        )
+    }else{
+        [rx, ry, s] = [new Field(new BN(args.sign_rx)), new Field(new BN(args.sign_ry)), new Field(new BN(args.sign_s))]
+    }
 
     await unitTestSingleOp(
         [
@@ -289,7 +314,7 @@ async function unitTestSupply(
             ]
         ],
         storage,
-        `Supply_caller${args.calleraccountIndex}_nonce${args.nonce}`,
+        `Supply_caller${args.callerAccountIndex}_nonce${args.nonce}`,
         unitTestRoot,
         time
     )
@@ -306,20 +331,24 @@ async function unitTestRetrieve(
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    let signatureHelper;
-    if (args.msg == undefined || args.derive_key == undefined) {
-        signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
-    }else{
-        signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
-    }
+    let signatureHelper, rx, ry, s;
+    if (args.sign_rx == undefined && args.sign_ry == undefined && args.sign_s == undefined){
+        if (args.msg == undefined || args.derive_key == undefined) {
+            signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
+        }else{
+            signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        }
 
-    let [rx, ry, s] = signatureHelper.GenerateSignForRetrieve(
-        new BN(args.nonce),
-        new BN(args.accountIndex),
-        new BN(args.poolIndex),
-        new BN(args.amount0),
-        new BN(args.amount1)
-    )
+        [rx, ry, s] = signatureHelper.GenerateSignForRetrieve(
+            new BN(args.nonce),
+            new BN(args.accountIndex),
+            new BN(args.poolIndex),
+            new BN(args.amount0),
+            new BN(args.amount1)
+        )
+    }else{
+        [rx, ry, s] = [new Field(new BN(args.sign_rx)), new Field(new BN(args.sign_ry)), new Field(new BN(args.sign_s))]
+    }
 
     await unitTestSingleOp(
         [
@@ -340,7 +369,7 @@ async function unitTestRetrieve(
             ]
         ],
         storage,
-        `Retrieve_caller${args.calleraccountIndex}_nonce${args.nonce}`,
+        `Retrieve_caller${args.callerAccountIndex}_nonce${args.nonce}`,
         unitTestRoot,
         time
     )
@@ -357,19 +386,24 @@ async function unitTestDepositNFT(
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    let signatureHelper;
-    if (args.msg == undefined || args.derive_key == undefined) {
-        signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
+    let signatureHelper, rx, ry, s;
+    if (args.sign_rx == undefined && args.sign_ry == undefined && args.sign_s == undefined){
+        if (args.msg == undefined || args.derive_key == undefined) {
+            signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
+        }else{
+            signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        }
+        [rx, ry, s] = signatureHelper.GenerateSignForDepositNFT(
+            new BN(args.nonce),
+            new BN(args.owner),
+            new BN(args.nftIndex),
+            new BN(args.l1_tx_hash),
+            new BN(0)   //reserved
+        )
     }else{
-        signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        [rx, ry, s] = [new Field(new BN(args.sign_rx)), new Field(new BN(args.sign_ry)), new Field(new BN(args.sign_s))]
     }
-    let [rx, ry, s] = signatureHelper.GenerateSignForDepositNFT(
-        new BN(args.nonce),
-        new BN(args.owner),
-        new BN(args.nftIndex),
-        new BN(args.l1_tx_hash),
-        new BN(0)   //reserved
-    )
+
     await unitTestSingleOp(
         [
             [
@@ -383,13 +417,13 @@ async function unitTestDepositNFT(
                     new Field(args.nftIndex),
                     new Field(args.l1_tx_hash),
                     new Field(0),     //reserved
-                    new Field(args.calleraccountIndex),
+                    new Field(args.callerAccountIndex),
                     new Field(0)
                 ]
             ]
         ],
         storage,
-        `DepoNFT_caller${args.calleraccountIndex}_nonce${args.nonce}`,
+        `DepoNFT_caller${args.callerAccountIndex}_nonce${args.nonce}`,
         unitTestRoot,
         time
     )
@@ -406,20 +440,25 @@ async function unitTestBidNFT(
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    let signatureHelper;
-    if (args.msg == undefined || args.derive_key == undefined) {
-        signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
+    let signatureHelper, rx, ry, s;
+    if (args.sign_rx == undefined && args.sign_ry == undefined && args.sign_s == undefined){
+        if (args.msg == undefined || args.derive_key == undefined) {
+            signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
+        }else{
+            signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        }
+
+        [rx, ry, s] = signatureHelper.GenerateSignForBidNFT(
+            new BN(args.nonce),
+            new BN(args.callerAccountIndex),
+            new BN(args.nftIndex),
+            new BN(args.biddingAmount),
+            new BN(0)  //reserved
+        )
     }else{
-        signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        [rx, ry, s] = [new Field(new BN(args.sign_rx)), new Field(new BN(args.sign_ry)), new Field(new BN(args.sign_s))]
     }
 
-    let [rx, ry, s] = signatureHelper.GenerateSignForBidNFT(
-        new BN(args.nonce),
-        new BN(args.calleraccountIndex),
-        new BN(args.nftIndex),
-        new BN(args.biddingAmount),
-        new BN(0)  //reserved
-    )
     await unitTestSingleOp(
         [
             [
@@ -439,7 +478,7 @@ async function unitTestBidNFT(
             ]
         ],
         storage,
-        `BidNFT_caller${args.calleraccountIndex}_nonce${args.nonce}`,
+        `BidNFT_caller${args.callerAccountIndex}_nonce${args.nonce}`,
         unitTestRoot,
         time
     )
@@ -456,20 +495,25 @@ async function unitTestTransferNFT(
     storage: L2Storage,
     util: CryptoUtil
 ) { 
-    let signatureHelper;
-    if (args.msg == undefined || args.derive_key == undefined) {
-        signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
+    let signatureHelper, rx, ry, s;
+    if (args.sign_rx == undefined && args.sign_ry == undefined && args.sign_s == undefined){
+        if (args.msg == undefined || args.derive_key == undefined) {
+            signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
+        }else{
+            signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        }
+
+        [rx, ry, s] = signatureHelper.GenerateSignForTransferNFT(
+            new BN(args.nonce),
+            new BN(args.callerAccountIndex),
+            new BN(args.nftIndex),
+            new BN(args.owner),
+            new BN(0)   //reserved
+        )
     }else{
-        signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        [rx, ry, s] = [new Field(new BN(args.sign_rx)), new Field(new BN(args.sign_ry)), new Field(new BN(args.sign_s))]
     }
 
-    let [rx, ry, s] = signatureHelper.GenerateSignForTransferNFT(
-        new BN(args.nonce),
-        new BN(args.calleraccountIndex),
-        new BN(args.nftIndex),
-        new BN(args.owner),
-        new BN(0)   //reserved
-    )
     await unitTestSingleOp(
         [
             [
@@ -479,7 +523,7 @@ async function unitTestTransferNFT(
                     ry, 
                     s, 
                     new Field(args.nonce),
-                    new Field(args.calleraccountIndex), 
+                    new Field(args.callerAccountIndex), 
                     new Field(args.nftIndex), 
                     new Field(args.owner), 
                     new Field(0), //reserved
@@ -489,7 +533,7 @@ async function unitTestTransferNFT(
             ]
         ],
         storage,
-        `TransNFT_caller${args.calleraccountIndex}_nonce${args.nonce}`,
+        `TransNFT_caller${args.callerAccountIndex}_nonce${args.nonce}`,
         unitTestRoot,
         time
     )
@@ -506,19 +550,24 @@ async function unitTestFinalizeNFT(
     storage: L2Storage,
     util: CryptoUtil
 ) { 
-    let signatureHelper;
-    if (args.msg == undefined || args.derive_key == undefined) {
-        signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
+    let signatureHelper, rx, ry, s;
+    if (args.sign_rx == undefined && args.sign_ry == undefined && args.sign_s == undefined){
+        if (args.msg == undefined || args.derive_key == undefined) {
+            signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
+        }else{
+            signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        }
+
+        [rx, ry, s] = signatureHelper.GenerateSignForFinalizeNFT(
+            new BN(args.nonce),
+            new BN(args.callerAccountIndex),
+            new BN(args.nftIndex),
+            new BN(0)
+        )
     }else{
-        signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        [rx, ry, s] = [new Field(new BN(args.sign_rx)), new Field(new BN(args.sign_ry)), new Field(new BN(args.sign_s))]
     }
 
-    let [rx, ry, s] = signatureHelper.GenerateSignForFinalizeNFT(
-        new BN(args.nonce),
-        new BN(args.calleraccountIndex),
-        new BN(args.nftIndex),
-        new BN(0)
-    )
     await unitTestSingleOp(
         [
             [
@@ -528,7 +577,7 @@ async function unitTestFinalizeNFT(
                     ry, 
                     s, 
                     new Field(args.nonce), 
-                    new Field(args.calleraccountIndex), 
+                    new Field(args.callerAccountIndex), 
                     new Field(args.nftIndex), 
                     new Field(0), //reserved
                     new Field(0), //reserved
@@ -538,7 +587,7 @@ async function unitTestFinalizeNFT(
             ]
         ],
         storage,
-        `FinaliNFT_caller${args.calleraccountIndex}_nonce${args.nonce}`,
+        `FinaliNFT_caller${args.callerAccountIndex}_nonce${args.nonce}`,
         unitTestRoot,
         time
     )
@@ -555,20 +604,25 @@ async function unitTestWithdrawNFT(
     storage: L2Storage,
     util: CryptoUtil
 ) {
-    let signatureHelper;
-    if (args.msg == undefined || args.derive_key == undefined) {
-        signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
+    let signatureHelper, rx, ry, s;
+    if (args.sign_rx == undefined && args.sign_ry == undefined && args.sign_s == undefined){
+        if (args.msg == undefined || args.derive_key == undefined) {
+            signatureHelper = new SignatureHelper(msg_dkey.msg, msg_dkey.derive_key, util);
+        }else{
+            signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        }
+
+        [rx, ry, s] = signatureHelper.GenerateSignForWithdrawNFT(
+            new BN(args.nonce),
+            new BN(args.callerAccountIndex),
+            new BN(args.nftIndex),
+            new BN(args.l1account),
+            new BN(0)    //reserved
+        )
     }else{
-        signatureHelper = new SignatureHelper(args.msg, args.derive_key, util);
+        [rx, ry, s] = [new Field(new BN(args.sign_rx)), new Field(new BN(args.sign_ry)), new Field(new BN(args.sign_s))]
     }
 
-    let [rx, ry, s] = signatureHelper.GenerateSignForWithdrawNFT(
-        new BN(args.nonce),
-        new BN(args.calleraccountIndex),
-        new BN(args.nftIndex),
-        new BN(args.l1account),
-        new BN(0)    //reserved
-    )
     await unitTestSingleOp(
         [
             [
@@ -578,7 +632,7 @@ async function unitTestWithdrawNFT(
                     ry, 
                     s, 
                     new Field(args.nonce), 
-                    new Field(args.calleraccountIndex), 
+                    new Field(args.callerAccountIndex), 
                     new Field(args.nftIndex),
                     new Field(args.l1account),
                     new Field(0),  //reserved
@@ -589,7 +643,7 @@ async function unitTestWithdrawNFT(
             ]
         ],
         storage,
-        `WithdNFT_caller${args.calleraccountIndex}_nonce${args.nonce}`,
+        `WithdNFT_caller${args.callerAccountIndex}_nonce${args.nonce}`,
         unitTestRoot,
         time
     )

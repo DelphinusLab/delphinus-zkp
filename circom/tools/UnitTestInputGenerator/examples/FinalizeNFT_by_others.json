@@ -12,7 +12,6 @@
             {
                 "op_name": "addpool",
                 "calleraccountIndex":"1",
-                "accountIndex":"1",
                 "tokenIndex0":"0",
                 "tokenIndex1":"1",
                 "poolIndex":"1",
