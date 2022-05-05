@@ -4,7 +4,7 @@
     "Ops":[
             {
                 "op_name": "setkey",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "nonce": "0",
                 "accountIndex":"1",
                 "msg":"Ray",
@@ -12,7 +12,7 @@
             },
             {
                 "op_name": "addpool",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "nonce": "1",
                 "tokenIndex0":"0",
                 "tokenIndex1":"1",
@@ -22,7 +22,7 @@
             },
             {
                 "op_name": "deposit",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "nonce": "2",
                 "accountIndex":"1",
                 "tokenIndex":"1",
@@ -31,7 +31,7 @@
             },
             {
                 "op_name": "deposit",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "nonce": "3",
                 "accountIndex":"1",
                 "tokenIndex":"0",
@@ -40,7 +40,7 @@
             },
             {
                 "op_name": "withdraw",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "nonce": "4",
                 "accountIndex":"1",
                 "tokenIndex":"1",
@@ -49,7 +49,7 @@
             },
             {
                 "op_name": "supply",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "nonce": "5",
                 "accountIndex":"1",
                 "poolIndex":"1",
@@ -58,7 +58,7 @@
             },
             {
                 "op_name": "retrieve",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "nonce": "6",
                 "accountIndex":"1",
                 "poolIndex":"1",
@@ -67,7 +67,7 @@
             },
             {
                 "op_name": "swap",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "nonce": "7",
                 "accountIndex":"1",
                 "poolIndex":"1",
@@ -76,7 +76,7 @@
             },
             {
                 "op_name": "deposit_nft",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "nonce": "8",
                 "accountIndex":"1",
                 "owner":"1",
@@ -85,7 +85,7 @@
             },
             {
                 "op_name": "setkey",
-                "calleraccountIndex":"2",
+                "callerAccountIndex":"2",
                 "nonce": "0",
                 "accountIndex":"2",
                 "msg":"Frank",
@@ -93,7 +93,7 @@
             },
             {
                 "op_name": "deposit",
-                "calleraccountIndex":"2",
+                "callerAccountIndex":"2",
                 "nonce": "1",
                 "accountIndex":"2",
                 "tokenIndex":"1",
@@ -102,7 +102,7 @@
             },
             {
                 "op_name": "setkey",
-                "calleraccountIndex":"3",
+                "callerAccountIndex":"3",
                 "nonce": "0",
                 "accountIndex":"3",
                 "msg":"Richard",
@@ -110,7 +110,7 @@
             },
             {
                 "op_name": "deposit",
-                "calleraccountIndex":"3",
+                "callerAccountIndex":"3",
                 "nonce": "1",
                 "accountIndex":"3",
                 "tokenIndex":"1",
@@ -119,7 +119,7 @@
             },
             {
                 "op_name": "bid_nft",
-                "calleraccountIndex":"2",
+                "callerAccountIndex":"2",
                 "nonce": "2",
                 "accountIndex":"2",
                 "owner" : "1",
@@ -130,7 +130,7 @@
             },
             {
                 "op_name": "transfer_nft",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "nonce": "9",
                 "accountIndex":"1",
                 "owner":"3",
@@ -138,7 +138,7 @@
             },
             {
                 "op_name": "finalize_nft",
-                "calleraccountIndex":"3",
+                "callerAccountIndex":"3",
                 "nonce": "2",
                 "accountIndex":"3",
                 "bidder":"2",
@@ -147,7 +147,7 @@
             },
             {
                 "op_name": "withdraw_nft",
-                "calleraccountIndex":"2",
+                "callerAccountIndex":"2",
                 "nonce": "3",
                 "accountIndex":"2",
                 "nftIndex":"1",
