@@ -1,0 +1,166 @@
+{
+    "_COMMENT":"ERROR: Bidding amount is more than bidder’s account balance",
+
+    "Ops":[
+            {
+                "op_name": "setkey",
+                "callerAccountIndex":"1",
+                "accountIndex":"1",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "addpool",
+                "callerAccountIndex":"1",
+                "tokenIndex0":"0",
+                "tokenIndex1":"1",
+                "poolIndex":"1",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "deposit",
+                "callerAccountIndex":"1",
+                "accountIndex":"1",
+                "tokenIndex":"1",
+                "amount":"1000",
+                "l1_tx_hash":"0",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "deposit",
+                "callerAccountIndex":"1",
+                "accountIndex":"1",
+                "tokenIndex":"0",
+                "amount":"1000",
+                "l1_tx_hash":"0",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "withdraw",
+                "callerAccountIndex":"1",
+                "accountIndex":"1",
+                "tokenIndex":"1",
+                "amount":"100",
+                "l1address":"1",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "supply",
+                "callerAccountIndex":"1",
+                "accountIndex":"1",
+                "poolIndex":"1",
+                "amount0":"100",
+                "amount1":"100",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "retrieve",
+                "callerAccountIndex":"1",
+                "accountIndex":"1",
+                "poolIndex":"1",
+                "amount0":"10",
+                "amount1":"10",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "swap",
+                "callerAccountIndex":"1",
+                "accountIndex":"1",
+                "poolIndex":"1",
+                "reverse":"1",
+                "amount":"10",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "deposit_nft",
+                "callerAccountIndex":"1",
+                "accountIndex":"1",
+                "owner":"1",
+                "nftIndex":"1",
+                "l1_tx_hash":"0",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "setkey",
+                "callerAccountIndex":"2",
+                "accountIndex":"2",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "deposit",
+                "callerAccountIndex":"2",
+                "accountIndex":"2",
+                "tokenIndex":"1",
+                "amount":"100",
+                "l1_tx_hash":"0",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "setkey",
+                "callerAccountIndex":"3",
+                "accountIndex":"3",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "deposit",
+                "callerAccountIndex":"3",
+                "accountIndex":"3",
+                "tokenIndex":"1",
+                "amount":"100",
+                "l1_tx_hash":"0",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "bid_nft",
+                "callerAccountIndex":"2",
+                "accountIndex":"2",
+                "owner" : "1",
+                "bidder":"2",
+                "biddingAmount":"101",
+                "nftIndex":"1",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+    
+            },
+            {
+                "op_name": "transfer_nft",
+                "callerAccountIndex":"1",
+                "accountIndex":"1",
+                "owner":"3",
+                "nftIndex":"1",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "finalize_nft",
+                "callerAccountIndex":"3",
+                "accountIndex":"3",
+                "bidder":"2",
+                "biddingAmount":"99",
+                "nftIndex":"1",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            },
+            {
+                "op_name": "withdraw_nft",
+                "callerAccountIndex":"2",
+                "accountIndex":"2",
+                "nftIndex":"1",
+                "l1account":"0",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft"
+            }
+        ]
+}

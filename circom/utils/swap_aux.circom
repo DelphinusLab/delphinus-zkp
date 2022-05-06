@@ -11,7 +11,17 @@ include "./bit.circom";
  * Use these templates carefully.
  */
 
+
 template Check2PowerRangeFE(N) {
+    /*
+     * N must be less than 254 bits
+     * Each check by such code:
+     *   component a= Check2PowerRangeFE(254);
+     *   a.in <== 10;
+     *   a.out === 1;
+     * It will pop up error as it will exceed field size.
+     */
+    assert(N <= 253);
     signal input in;
     signal output out;
 
@@ -23,6 +33,28 @@ template Check2PowerRangeFE(N) {
     eq.in[1] <== in;
 
     out <== eq.out;
+}
+
+template LessThanFE(N) {
+    signal input in[2];
+    signal output out;
+
+    var diff = in[1] - in[0] - 1;
+
+    component checkDiff = Check2PowerRangeFE(N);
+    checkDiff.in <== diff;
+    out <== checkDiff.out;
+}
+
+template GreaterEqThanFE(N) {
+    signal input in[2];
+    signal output out;
+
+    var diff = in[0] - in[1];
+
+    component checkDiff = Check2PowerRangeFE(N);
+    checkDiff.in <== diff;
+    out <== checkDiff.out;
 }
 
 template AndMany(N) {
@@ -208,6 +240,39 @@ template CheckAccountInfoIndexFE() {
 
     out <== eq.out;
     caller <== n2bAccount.in;
+}
+
+// b11 NFT: (20bits) nft index + (4bits) MetaType(1) + (6bits) info data (owner, bidder, biddingAmount, reserved)
+template CheckAndGetNFTIndexFromPath() {
+    signal input address;
+    signal output out;
+    signal output nftIndex;
+    signal accountIndex;
+    signal offset;
+
+    // Find 20 bits as value `a` in BE, check (3 << 30) + (a << 10) + (1 << 6) + OFFSET == index
+    accountIndex <-- (address >> 10) & ((1 << 20) - 1);
+    offset <-- address & 3;
+
+    component eq = IsEqual();
+    eq.in[0] <== accountIndex * (1 << 10) + (3 << 30) + (1 << 6) + offset;
+    eq.in[1] <== address;
+
+    out <== eq.out;
+    nftIndex <== accountIndex;
+}
+
+template CheckAlign() {
+    signal input address;
+    signal output out;
+    signal offset;
+
+    offset <-- address & 3;
+
+    component isAlign = IsZero();
+    isAlign.in <== offset;
+    
+    out <== isAlign.out;
 }
 
 template CheckAndUpdateNonceAnonymousFE() {

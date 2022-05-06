@@ -12,6 +12,11 @@ include "business/addpool.circom";
 include "business/deposit.circom";
 include "business/retrieve.circom";
 include "business/withdraw.circom";
+include "business/deposit_nft.circom";
+include "business/withdraw_nft.circom";
+include "business/transfer_nft.circom";
+include "business/bid_nft.circom";
+include "business/finalize_nft.circom";
 
 include "utils/select.circom";
 include "utils/merkle_tree.circom";
@@ -30,7 +35,7 @@ template RunCommand() {
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
     var MaxStep = 5;
-    var NCOMMANDS = 7;
+    var NCOMMANDS = 12;
 
     signal input args[CommandArgs];
     signal input dataPath[MaxStep][MaxTreeDataIndex];
@@ -214,6 +219,105 @@ template RunCommand() {
     }
     i++;
 
+    // 7 -
+    component command7 = DepositNFT();
+    command7.signer <== signer;
+    command7.signed <== signed;
+    for (var j = 0; j < CommandArgs; j++) {
+        command7.args[j] <== args[j];
+    }
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            command7.dataPath[j][k] <== dataPath[j][k];
+        }
+    }
+    outSelect.in[i] <== command7.out;
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            newDataPathSelect[j][k].in[i] <== command7.newDataPath[j][k];
+        }
+    }
+    i++;
+
+    // 8 -
+    component command8 = WithdrawNFT();
+    command8.signer <== signer;
+    command8.signed <== signed;
+    for (var j = 0; j < CommandArgs; j++) {
+        command8.args[j] <== args[j];
+    }
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            command8.dataPath[j][k] <== dataPath[j][k];
+        }
+    }
+    outSelect.in[i] <== command8.out;
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            newDataPathSelect[j][k].in[i] <== command8.newDataPath[j][k];
+        }
+    }
+    i++;
+
+    // 9 -
+    component command9 = TransferNFT();
+    command9.signer <== signer;
+    command9.signed <== signed;
+    for (var j = 0; j < CommandArgs; j++) {
+        command9.args[j] <== args[j];
+    }
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            command9.dataPath[j][k] <== dataPath[j][k];
+        }
+    }
+    outSelect.in[i] <== command9.out;
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            newDataPathSelect[j][k].in[i] <== command9.newDataPath[j][k];
+        }
+    }
+    i++;
+
+    // 10 -
+    component command10 = BidNFT();
+    command10.signer <== signer;
+    command10.signed <== signed;
+    for (var j = 0; j < CommandArgs; j++) {
+        command10.args[j] <== args[j];
+    }
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            command10.dataPath[j][k] <== dataPath[j][k];
+        }
+    }
+    outSelect.in[i] <== command10.out;
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            newDataPathSelect[j][k].in[i] <== command10.newDataPath[j][k];
+        }
+    }
+    i++;
+   
+    // 11 -
+    component command11 = FinalizeNFT();
+    command11.signer <== signer;
+    command11.signed <== signed;
+    for (var j = 0; j < CommandArgs; j++) {
+        command11.args[j] <== args[j];
+    }
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            command11.dataPath[j][k] <== dataPath[j][k];
+        }
+    }
+    outSelect.in[i] <== command11.out;
+    for (var j = 0; j < MaxStep; j++) {
+        for (var k = 0; k < MaxTreeDataIndex; k++) {
+            newDataPathSelect[j][k].in[i] <== command11.newDataPath[j][k];
+        }
+    }
+    
     outSelect.out === 1;
 
     // 4. Check all new merkle tree path
