@@ -85,7 +85,7 @@ export async function unitTestSingleOp(
     if (err) throw err;
   });
 
-  console.log(`Test input.${rid}_${time}.json`);
+  console.log(`Testing input.${rid}_${time}.json`);
 
   if(option == "--rapidsnark" || option == "-rs"){
     try {
