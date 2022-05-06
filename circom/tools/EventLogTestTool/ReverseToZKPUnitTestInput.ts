@@ -178,7 +178,8 @@ async function runReverseToZKPUnitTestInput() {
         "Ops": []
     }
 
-    const logs = await fs.readJson("./eventlog.json");
+    // const logs = await fs.readJson("./eventlog.json");
+    const logs = await fs.readJson(process.argv[2]);
 
     logs.forEach((log: logType) => {
         let config = reverseToZKPUnitTestInput(log);

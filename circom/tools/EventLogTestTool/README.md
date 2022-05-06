@@ -1,11 +1,15 @@
-The file ReverseToZKPUnitTestInput.ts includes a function named reverseToZKPUnitTestInput to generate the file config.json as the input of zkp/circom/tools/UnitTestInputGenerator.
-The file eventlog.json includes layer2 event log. It's the input file of reverseToZKPUnitTestInput.
+### 1. Before using this tool
+Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau are not in circom folder.
 
-## How to run reverseToZKPUnitTestInput
-In zkp/circom/tools/ReverseToZKPUnitTestInput/, run:
+### 2. How to use EventLogTestTool
+- In `zkp/circom/tools/EventLogTestTool/` folder, Run `bash eventLog_test.sh` to test config.json with correct paras only.
 
-```
-npx tsc
-node ../../../dist/circom/tools/ReverseToZKPUnitTestInput/ReverseToZKPUnitTestInput.js
-```
-The output file config.json will be generated in zkp/circom/tools/ReverseToZKPUnitTestInput/.
+### 3. using rapidsnark to generate proof fater(option): 
+- Install `rapidsnark` by runing `bash install_rapidsnark_linux.sh` under `delphinus-lerna` folder. 
+- Then, you can run `bash eventLog_test.sh --rapidsnark` or `bash eventLog_test.sh -rs` to use rapidsnark to generate proof and should see all passed results. This command will use rapidsnark instead of snarkjs to generate proof.
+
+### 4. How to check results
+- Unit test results will be generated in `circom/unit_tests` folder called `Unit_Test_at_(UTC Time)`
+- All the tested inputs will be stored in `Unit_Test_at_(UTC Time)/Test_input` folder
+- All the operations' unit test results will be saved in `testedFiles` folder which include their `input.json`, `proof.json`, `public.json`, `witness.wtns`.
+- Test document will be saved in `test_results.txt` file. Whether each test input pass their unit test and error messages will be shown in this document to help you locate the problem.

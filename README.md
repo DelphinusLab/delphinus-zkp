@@ -56,4 +56,4 @@ Assue admin's account index is 0.
 - We would continuously add more tests.
 
 ## How to run unit test tool
-- Please check readme in `circom/tools/UnitTestInputGenerator` folder
+- Please check readme in `circom/tools/CircomTestTool` folder
