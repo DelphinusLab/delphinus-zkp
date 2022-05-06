@@ -1,6 +1,6 @@
 circom main.circom --r1cs --wasm --sym -c
 
-NODE_OPTIONS=--max-old-space-size=50096 snarkjs groth16 setup main.r1cs ../../pot20_final.ptau main_0000.zkey
+NODE_OPTIONS=--max-old-space-size=50096 snarkjs groth16 setup main.r1cs ../../pot23_final.ptau main_0000.zkey
 
 snarkjs zkey contribute main_0000.zkey main_0001.zkey --name="First Delphinus Contribution" -v -e="njsdT&^(&67vb 7rt%^rb56r8b5^^rb568RBTGBrv5vfdaufY&Y*^hn6R"
 

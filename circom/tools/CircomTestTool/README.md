@@ -1,5 +1,5 @@
 ### 1. Before using this tool
-Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau are not in circom folder.
+Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau are not in circom folder. (Generate pot23_final.ptau will be time consuming and the size is more than 10GB. We can use `bash setup20.sh 20` to generate pot20_final.ptau instead, however, the script `pre_test.sh` under circom/tools/CircomTestTool need to be manully modified, in order to use pot20_final.ptau)
 
 ### 2. Edit Config.json: obj format for each type of operation
 > setkey:   {
