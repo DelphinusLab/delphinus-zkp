@@ -1,18 +1,17 @@
 {
-    "_COMMENT":"ERROR: Account 1 withdraw more than deposit",
+    "_COMMENT":"ERROR: Trying to finalize NFT but caller is not the owner",
 
     "Ops":[
             {
                 "op_name": "setkey",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "accountIndex":"1",
                 "msg":"Bob",
                 "derive_key":"/delphinus/nft"
             },
             {
                 "op_name": "addpool",
-                "calleraccountIndex":"1",
-                "accountIndex":"1",
+                "callerAccountIndex":"1",
                 "tokenIndex0":"0",
                 "tokenIndex1":"1",
                 "poolIndex":"1",
@@ -21,7 +20,7 @@
             },
             {
                 "op_name": "deposit",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "accountIndex":"1",
                 "tokenIndex":"1",
                 "amount":"1000",
@@ -31,7 +30,7 @@
             },
             {
                 "op_name": "deposit",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "accountIndex":"1",
                 "tokenIndex":"0",
                 "amount":"1000",
@@ -41,17 +40,17 @@
             },
             {
                 "op_name": "withdraw",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "accountIndex":"1",
                 "tokenIndex":"1",
-                "amount":"1001",
+                "amount":"100",
                 "l1address":"1",
                 "msg":"Bob",
                 "derive_key":"/delphinus/nft"
             },
             {
                 "op_name": "supply",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "accountIndex":"1",
                 "poolIndex":"1",
                 "amount0":"100",
@@ -61,7 +60,7 @@
             },
             {
                 "op_name": "retrieve",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "accountIndex":"1",
                 "poolIndex":"1",
                 "amount0":"10",
@@ -71,7 +70,7 @@
             },
             {
                 "op_name": "swap",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "accountIndex":"1",
                 "poolIndex":"1",
                 "reverse":"1",
@@ -81,7 +80,7 @@
             },
             {
                 "op_name": "deposit_nft",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "accountIndex":"1",
                 "owner":"1",
                 "nftIndex":"1",
@@ -91,14 +90,14 @@
             },
             {
                 "op_name": "setkey",
-                "calleraccountIndex":"2",
+                "callerAccountIndex":"2",
                 "accountIndex":"2",
                 "msg":"Bob",
                 "derive_key":"/delphinus/nft"
             },
             {
                 "op_name": "deposit",
-                "calleraccountIndex":"2",
+                "callerAccountIndex":"2",
                 "accountIndex":"2",
                 "tokenIndex":"1",
                 "amount":"100",
@@ -108,14 +107,14 @@
             },
             {
                 "op_name": "setkey",
-                "calleraccountIndex":"3",
+                "callerAccountIndex":"3",
                 "accountIndex":"3",
                 "msg":"Bob",
                 "derive_key":"/delphinus/nft"
             },
             {
                 "op_name": "deposit",
-                "calleraccountIndex":"3",
+                "callerAccountIndex":"3",
                 "accountIndex":"3",
                 "tokenIndex":"1",
                 "amount":"100",
@@ -125,7 +124,7 @@
             },
             {
                 "op_name": "bid_nft",
-                "calleraccountIndex":"2",
+                "callerAccountIndex":"2",
                 "accountIndex":"2",
                 "owner" : "1",
                 "bidder":"2",
@@ -137,7 +136,7 @@
             },
             {
                 "op_name": "transfer_nft",
-                "calleraccountIndex":"1",
+                "callerAccountIndex":"1",
                 "accountIndex":"1",
                 "owner":"3",
                 "nftIndex":"1",
@@ -146,8 +145,8 @@
             },
             {
                 "op_name": "finalize_nft",
-                "calleraccountIndex":"3",
-                "accountIndex":"3",
+                "callerAccountIndex":"2",
+                "accountIndex":"2",
                 "bidder":"2",
                 "biddingAmount":"99",
                 "nftIndex":"1",
@@ -156,7 +155,7 @@
             },
             {
                 "op_name": "withdraw_nft",
-                "calleraccountIndex":"2",
+                "callerAccountIndex":"2",
                 "accountIndex":"2",
                 "nftIndex":"1",
                 "l1account":"0",

@@ -1,10 +1,10 @@
 ### 1. Before using this tool
-Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau are not in circom folder.
+Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau are not in circom folder. (Generate pot23_final.ptau will be time consuming and the size is more than 10GB. We can use `bash setup20.sh 20` to generate pot20_final.ptau instead, however, the script `pre_test.sh` under circom/tools/CircomTestTool need to be manully modified, in order to use pot20_final.ptau)
 
 ### 2. Edit Config.json: obj format for each type of operation
 > setkey:   {
                 "op_name": "setkey",
-                "calleraccountIndex":"~",
+                "callerAccountIndex":"~",
                 "accountIndex":"~",
                 "msg":"~",
                 "derive_key":"~"
@@ -12,8 +12,7 @@ Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau a
 
 >addpool:   {
                 "op_name": "addpool",
-                "calleraccountIndex":"~",
-                "accountIndex":"~",
+                "callerAccountIndex":"~",
                 "tokenIndex0":"~",
                 "tokenIndex1":"~",
                 "poolIndex":"~",
@@ -23,7 +22,7 @@ Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau a
 
 >deposit:   {
                 "op_name": "deposit",
-                "calleraccountIndex":"~",
+                "callerAccountIndex":"~",
                 "accountIndex": "~",
                 "tokenIndex": "~",
                 "amount": "~",
@@ -33,7 +32,7 @@ Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau a
 
 >depositNFT:{
                 "op_name": "deposit_nft",
-                "calleraccountIndex":"~",
+                "callerAccountIndex":"~",
                 "accountIndex":"~",
                 "owner":"~",
                 "nftIndex":"~",
@@ -43,7 +42,7 @@ Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau a
 
 >bidNFT:    {
                 "op_name": "bid_nft",
-                "calleraccountIndex":"~",
+                "callerAccountIndex":"~",
                 "accountIndex":"~",
                 "bidder":"~",
                 "biddingAmount":"~",
@@ -54,7 +53,7 @@ Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau a
 
 >transferNFT: {
                 "op_name": "transfer_nft",
-                "calleraccountIndex":"~",
+                "callerAccountIndex":"~",
                 "accountIndex":"~",
                 "owner":"~",
                 "nftIndex":"~",
@@ -64,7 +63,7 @@ Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau a
 
 >finalizeNFT: {
                 "op_name": "finalize_nft",
-                "calleraccountIndex":"~",
+                "callerAccountIndex":"~",
                 "accountIndex":"~",
                 "nftIndex":"~",
                 "msg":"~",
@@ -73,7 +72,7 @@ Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau a
 
 >withdrawNFT: {
                 "op_name": "withdraw_nft",
-                "calleraccountIndex":"~",
+                "callerAccountIndex":"~",
                 "accountIndex":"~",
                 "nftIndex":"~",
                 "msg":"~",
@@ -82,7 +81,7 @@ Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau a
 
 >withdraw:    {
                 "op_name": "withdraw",
-                "calleraccountIndex":"~",
+                "callerAccountIndex":"~",
                 "accountIndex":"~",
                 "tokenIndex":"~",
                 "amount":"~",
@@ -92,7 +91,7 @@ Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau a
 
 >supply:      {
                 "op_name": "supply",
-                "calleraccountIndex":"~",
+                "callerAccountIndex":"~",
                 "accountIndex":"~",
                 "poolIndex":"~",
                 "amount0":"~",
@@ -103,7 +102,7 @@ Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau a
 
 >retrieve:    {
                 "op_name": "retrieve",
-                "calleraccountIndex":"~",
+                "callerAccountIndex":"~",
                 "accountIndex":"~",
                 "poolIndex":"~",
                 "amount0":"~",
@@ -114,7 +113,7 @@ Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau a
 
 >swap:        {
                 "op_name": "swap",
-                "calleraccountIndex":"~",
+                "callerAccountIndex":"~",
                 "accountIndex":"~",
                 "poolIndex":"~",
                 "reverse":"~",
@@ -129,7 +128,7 @@ Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau a
 
 ### 4. using rapidsnark to generate proof fater(option): 
 - Install `rapidsnark` by runing `bash install_rapidsnark_linux.sh` under `delphinus-lerna` folder. 
-- Then, you can run `bash unit_test.sh --rapidsnark` or `bash unit_test.sh -rs` to use rapidsnark to generate proof under `zkp/circom/tools/UnitTestInputGenerator` folder to test `config.json` and should see all passed results. This command will use rapidsnark instead of snarkjs to generate proof.
+- Then, you can run `bash unit_test.sh --rapidsnark` or `bash unit_test.sh -rs` to use rapidsnark to generate proof and should see all passed results. This command will use rapidsnark instead of snarkjs to generate proof.
 
 ### 5. How to check results
 - Unit test results will be generated in `circom/unit_tests` folder called `Unit_Test_at_(UTC Time)`

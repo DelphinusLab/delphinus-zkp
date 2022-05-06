@@ -24,7 +24,7 @@ export async function preTest(circomRoot: string, unitTestRoot:string, time: str
   });
     await new Promise((resolve, reject) =>
      exec(
-        `bash ../../tools/UnitTestInputGenerator/pre_test.sh`,
+        `bash ../../tools/CircomTestTool/pre_test.sh`,
         {
           cwd: unitTestRoot,
         },
@@ -85,11 +85,13 @@ export async function unitTestSingleOp(
     if (err) throw err;
   });
 
+  console.log(`Testing input.${rid}_${time}.json`);
+
   if(option == "--rapidsnark" || option == "-rs"){
     try {
       await new Promise((resolve, reject) =>
         exec(
-          "bash ../../tools/run.sh; bash ../../tools/rapidsnarkProof.sh; bash ../../tools/verify.sh",
+          "echo 'Generate Witness'; bash ../../tools/run.sh; echo 'Generate Proof'; bash ../../tools/rapidsnarkProof.sh; echo 'Verify Proof'; bash ../../tools/verify.sh",
           {
             cwd: unitTestRoot,
           },
@@ -122,7 +124,7 @@ export async function unitTestSingleOp(
     try {
       await new Promise((resolve, reject) =>
         exec(
-          "bash ../../tools/run.sh; bash ../../tools/proof.sh; bash ../../tools/verify.sh", 
+          "echo 'Generate Witness'; bash ../../tools/run.sh; echo 'Generate Proof'; bash ../../tools/proof.sh; echo 'Verify Proof'; bash ../../tools/verify.sh",
           {
             cwd: unitTestRoot,
           },

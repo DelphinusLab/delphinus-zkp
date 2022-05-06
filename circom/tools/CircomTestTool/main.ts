@@ -52,9 +52,11 @@ async function main() {
   //ops:
   for (let i = 0; i < config.Ops.length; i++) {
     if (config.Ops[i].op_name == "setkey") {
-      msg_dkeys[`${config.Ops[i].calleraccountIndex}`] = {"msg":config.Ops[i].msg, "derive_key":config.Ops[i].derive_key};
+      if(config.Ops[i].msg !== undefined && config.Ops[i].derive_key !== undefined){
+        msg_dkeys[`${config.Ops[i].callerAccountIndex}`] = {"msg":config.Ops[i].msg, "derive_key":config.Ops[i].derive_key};
+      }
     }
-      await unitTestOps(config.Ops[i].op_name, config.Ops[i], msg_dkeys[`${config.Ops[i].calleraccountIndex}`], unitTestRoot, time, storage, util);
+    await unitTestOps(config.Ops[i].op_name, config.Ops[i], msg_dkeys[`${config.Ops[i].callerAccountIndex}`], unitTestRoot, time, storage, util);
   }
 
   await storage.endSnapshot();
