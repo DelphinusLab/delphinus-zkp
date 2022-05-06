@@ -124,7 +124,7 @@ export async function unitTestSingleOp(
     try {
       await new Promise((resolve, reject) =>
         exec(
-          "bash ../../tools/run.sh; bash ../../tools/proof.sh; bash ../../tools/verify.sh", 
+          "echo 'Generate Witness'; bash ../../tools/run.sh; echo 'Generate Proof'; bash ../../tools/rapidsnarkProof.sh; echo 'Verify Proof'; bash ../../tools/verify.sh",
           {
             cwd: unitTestRoot,
           },
