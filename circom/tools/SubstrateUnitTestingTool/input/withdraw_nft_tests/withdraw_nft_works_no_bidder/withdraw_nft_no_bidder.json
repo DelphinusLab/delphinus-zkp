@@ -1,0 +1,7 @@
+{
+    "op_name": "withdraw_nft",
+    "nonce": "1",
+    "callerAccountIndex":"2",
+    "nftIndex":"4",
+    "l1account":"3"
+}

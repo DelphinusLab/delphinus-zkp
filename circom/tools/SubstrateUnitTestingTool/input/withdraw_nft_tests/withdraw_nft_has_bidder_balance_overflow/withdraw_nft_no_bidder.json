@@ -1,0 +1,12 @@
+{
+    "Ops":[
+            {
+                "op_name": "withdraw_nft",
+                "callerAccountIndex":"2",
+                "nonce": "1",
+                "accountIndex":"2",
+                "nftIndex":"4",
+                "l1account":"3"
+            }
+        ]
+}

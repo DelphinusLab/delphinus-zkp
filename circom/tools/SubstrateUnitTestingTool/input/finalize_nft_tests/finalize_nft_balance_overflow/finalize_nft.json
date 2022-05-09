@@ -1,0 +1,6 @@
+{
+    "op_name": "finalize_nft",
+    "nonce": "1",
+    "callerAccountIndex":"2",
+    "nftIndex":"4"
+}

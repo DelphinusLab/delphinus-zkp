@@ -1,0 +1,8 @@
+{
+    "op_name": "deposit_nft",
+    "callerAccountIndex":"1",
+    "nonce": "2",
+    "owner":"2",
+    "nftIndex":"4",
+    "l1_tx_hash":"1"
+}

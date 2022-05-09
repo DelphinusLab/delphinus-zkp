@@ -1,0 +1,7 @@
+{
+    "op_name": "transfer_nft",
+    "nonce": "1",
+    "callerAccountIndex":"2",
+    "nftIndex":"4",
+    "owner":"3"
+}

@@ -1,0 +1,9 @@
+{
+    "op_name": "deposit",
+    "callerAccountIndex":"1",
+    "nonce": "1",
+    "accountIndex":"2",
+    "tokenIndex":"1",
+    "amount":"10",
+    "l1_tx_hash":"0"
+}

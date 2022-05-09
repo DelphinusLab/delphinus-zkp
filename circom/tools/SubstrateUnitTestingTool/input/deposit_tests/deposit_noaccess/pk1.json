@@ -1,0 +1,8 @@
+{
+    "op_name": "setkey",
+    "callerAccountIndex":"1",
+    "nonce": "0",
+    "accountIndex":"1",
+    "msg":"Bob",
+    "derive_key":"/delphinus/nft/Bob"
+}
