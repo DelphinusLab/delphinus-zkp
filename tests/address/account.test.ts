@@ -10,9 +10,6 @@ describe("test account class", () => {
         jest.setTimeout(60000); //1 minute timeout
         let storage: L2Storage = new L2Storage(true);
 
-        await storage.loadSnapshot("0");
-        await storage.startSnapshot("1");
-
         const accountIndex = 0;
         const poolIndex = 0;
         const amount0 = new Field(1000);
@@ -33,10 +30,6 @@ describe("test account class", () => {
     test("test getAndAddShare 18 wei number", async () => {
         jest.setTimeout(60000);
         let storage: L2Storage = new L2Storage(true);
-        await storage.startSnapshot("0");
-        await storage.endSnapshot();
-        await storage.loadSnapshot("0");
-
 
         const accountIndex = 0;
         const poolIndex = 0;
