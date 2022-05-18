@@ -7,8 +7,10 @@ import { Account } from "../../src/circom/address/account";
 describe("test SetKey op", () => {
     test("Add key case", async () => {
         jest.setTimeout(60000);
-        let storage: L2Storage = new L2Storage();
+        let storage: L2Storage = new L2Storage(true);
         await storage.startSnapshot("0");
+        await storage.endSnapshot();
+        await storage.loadSnapshot("0");
         const nonce = 0;
         const accountIndex = 0;
         const ax = new Field(1);
@@ -32,10 +34,7 @@ describe("test SetKey op", () => {
         const leafValues = await storage.getLeaves(account.getAccountPublicKeyIndex());
 
         expect(leafValues).toEqual([ax, ay, new Field(nonce + 1), new Field(0)]);
-        await storage.endSnapshot();
-        await storage.closeDb();
-    }
-    );
+    });
 }
 );
 
