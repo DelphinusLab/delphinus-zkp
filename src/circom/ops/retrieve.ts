@@ -44,7 +44,7 @@ export class RetrieveCommand extends Command {
     // STEP3: udpate share
     // circuits: check share >= amount1 + amount0
     path.push(
-      await account.getAndAddShare(
+      await account.getAndUpdateNewShare(
         poolIndex,
         new Field(0).sub(amount0).sub(amount1)
       )
