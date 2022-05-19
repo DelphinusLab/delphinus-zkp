@@ -45,6 +45,14 @@ export class Pool  {
     return [tokenIndex0, tokenIndex1, path];
   }
 
+  async getTotalAmount(){
+    const poolInfo = await this.storage.getLeaves(this.info_index);
+    const liq0 = poolInfo[2];
+    const liq1 = poolInfo[3];
+    const poolTotal = liq0.add(liq1);
+    return poolTotal
+  }
+
   async resetPool(
       tokenIndex0: Field,
       tokenIndex1: Field,

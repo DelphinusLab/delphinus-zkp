@@ -43,7 +43,7 @@ export class SupplyCommand extends Command {
     // STEP3: udpate share
     // circuits: check share + amount1 + amount0 not overflow
     path.push(
-      await account.getAndAddShare(
+      await account.getAndUpdateNewShare(
         poolIndex,
         amount0.add(amount1)
       )
