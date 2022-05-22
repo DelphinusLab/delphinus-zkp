@@ -72,13 +72,7 @@ export class Account {
     molecule: BN,
     denominator: BN
   ){
-    const rem = amount.v.mul(molecule).mod(denominator);
-    let profit;
-    if (rem.eqn(0)){
-      profit = amount.mul(new Field(molecule)).div(new Field(denominator));
-    }else{
-      profit = amount.mul(new Field(molecule)).sub(new Field(rem)).div(new Field(denominator).add(new Field(1)));
-    }
+    const profit = amount.mul(new Field(molecule)).div(new Field(denominator)).add(new Field(1));
     return profit
   }
 
@@ -152,13 +146,7 @@ export class Account {
     profit: Field
   ){
     const total_new = totalAmount.add(profit);
-    const rem = totalAmount.mul(k).v.mod(total_new.v);
-    let k_new;
-    if (rem.eqn(0)){
-      k_new = totalAmount.mul(k).div(total_new);
-    }else{
-      k_new = totalAmount.mul(k).sub(new Field(rem)).div(total_new).add(new Field(1));
-    }
+    const k_new = totalAmount.mul(k).div(total_new).add(new Field(1));
     return k_new
   }
 
