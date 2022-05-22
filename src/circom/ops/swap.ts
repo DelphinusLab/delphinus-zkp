@@ -21,6 +21,7 @@ export class SwapCommand extends Command {
 
     const pool = new Pool(storage, poolIndex);
     const account = new Account(storage, accountIndex);
+    const totalAmount = await pool.getTotalAmount();
 
     // circuits: check accountIndex < 2 ^ 20
     // circuits: check poolIndex < 2 ^ 10
@@ -59,7 +60,6 @@ export class SwapCommand extends Command {
     );
 
     // STEP5: update SharePriceK
-    const totalAmount = await pool.getTotalAmount();
     path.push(
       await account.getAndUpdateSharePriceK(
         poolIndex,
