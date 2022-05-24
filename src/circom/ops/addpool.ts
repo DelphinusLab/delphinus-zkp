@@ -37,6 +37,10 @@ export class AddPoolCommand extends Command {
     path.push(await pool.getPoolPath());
     await pool.resetPool(tokenIndex0, tokenIndex1);
 
+    //Init share Price K
+    const k = new Field(10 ** 12);
+    await pool.initSharePriceK(k);
+
     return path;
   }
 }

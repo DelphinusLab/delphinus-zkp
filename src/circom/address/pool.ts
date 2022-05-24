@@ -24,6 +24,14 @@ export class Pool  {
     return this.storage.getPath(this.info_index);
   }
 
+  async getSharePriceKIndex(){
+    return (
+      (AddressSpace.Share << 30) |
+      (toNumber(this.index) << 20) |
+      (1 << 2) | 0
+    );
+  }
+
   async getAndAddLiq(
     amount0: Field,
     amount1: Field
@@ -51,6 +59,13 @@ export class Pool  {
     const liq1 = poolInfo[3];
     const poolTotal = liq0.add(liq1);
     return poolTotal
+  }
+
+  async initSharePriceK(
+    k: Field
+  ){
+    const sharePriceKIndex = await this.getSharePriceKIndex();
+    await this.storage.setLeave(sharePriceKIndex, k);
   }
 
   async resetPool(
