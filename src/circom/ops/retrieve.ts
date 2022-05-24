@@ -43,9 +43,11 @@ export class RetrieveCommand extends Command {
 
     // STEP3: udpate share
     // circuits: check share >= amount1 + amount0
+    const sharePriceKIndex = await pool.getSharePriceKIndex();
     path.push(
       await account.getAndUpdateNewShare(
         poolIndex,
+        sharePriceKIndex,
         new Field(0).sub(amount0).sub(amount1)
       )
     );

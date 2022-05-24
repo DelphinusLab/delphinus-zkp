@@ -28,16 +28,6 @@ export class Account {
     );
   }
 
-  getSharePriceKIndex(
-    poolIndex: number | Field
-  ){
-    return (
-      (AddressSpace.Share << 30) |
-      (toNumber(poolIndex) << 20) |
-      (1 << 2) | 0
-    );
-  }
-
   getAccountPublicKeyIndex() {
     return getMetaAddress(this.index, MetaType.Account) | 0;
   }
@@ -68,46 +58,40 @@ export class Account {
   }
 
   async calcProfit(
+    amount: Field
+  ){
+    const profit = await this.percentage_Profit(amount, new BN(3), new BN(1000));
+    return profit
+  }
+
+  async percentage_Profit(
     amount: Field,
     molecule: BN,
     denominator: BN
   ){
-    const profit = amount.mul(new Field(molecule)).div(new Field(denominator)).add(new Field(1));
-    return profit
+    const ans = amount.mul(new Field(molecule)).div(new Field(denominator)).add(new Field(1));
+    return ans
   }
 
-  async getAndAddBalanceWithProfit(
-    _tokenIndex: number | Field,
+  async getSwapAmount(
+    reverse: Field,
     amount: Field
-  ) {
-    const tokenIndex = toNumber(_tokenIndex);
-    const balanceInfoIndex = this.getBalanceInfoIndex(tokenIndex);
-
-    const path = await this.storage.getPath(balanceInfoIndex);
-    const balance = await this.storage.getLeave(balanceInfoIndex);
-    let swapAmount = amount;
-    if(swapAmount.v.isNeg()){
-      const profit = await this.calcProfit(amount, new BN(3), new BN(1000));
-      swapAmount = swapAmount.add(profit)
+  ){
+    if(reverse.v.eqn(0)){
+      return amount
+    }else{
+      return new Field(0).sub(amount)
     }
-    await this.storage.setLeave(balanceInfoIndex, balance.add(swapAmount));
-    return path;
-  }
-
-  async init_SharePriceK(){
-    const k = 10 ** 12;
-    return new Field(k);
   }
 
   async getSharePriceK(
     _sharePriceKIndex: number | Field
   ){
     const sharePriceKIndex = toNumber(_sharePriceKIndex);
-    let k = await this.storage.getLeave(sharePriceKIndex);
+    const k = await this.storage.getLeave(sharePriceKIndex);
     if (k.v.eqn(0)){
-      k = await this.init_SharePriceK();
+      throw Error('SharePriceK has not been initiated yet');
     }
-    await this.storage.setLeave(sharePriceKIndex, k);
     return k
   }
 
@@ -122,15 +106,14 @@ export class Account {
 
   async getAndUpdateNewShare(
     _poolIndex: number | Field,
+    _sharePriceKIndex: number | Field,
     amount: Field
   ){
     const poolIndex = toNumber(_poolIndex);
+    const sharePriceKIndex = toNumber(_sharePriceKIndex);
     const shareInfoIndex = this.getShareInfoIndex(poolIndex);
-    const sharePriceKIndex = this.getSharePriceKIndex(poolIndex);
-
     const path = await this.storage.getPath(shareInfoIndex);
     const share = await this.storage.getLeave(shareInfoIndex);
-
     const share_new = this.amountToShare(amount,sharePriceKIndex);
     if(share.add(share_new).v.isNeg()){
       throw Error('Your share amount is insufficient');
@@ -152,14 +135,14 @@ export class Account {
 
   async getAndUpdateSharePriceK(
     _poolIndex: number | Field,
-    amount: Field,
+    _sharePriceKIndex: number | Field,
+    profit: Field,
     totalAmount: Field
   ){
     const poolIndex = toNumber(_poolIndex);
-    const sharePriceKIndex = this.getSharePriceKIndex(poolIndex);
+    const sharePriceKIndex = toNumber(poolIndex);
     const path = await this.storage.getPath(sharePriceKIndex);
     const k = await this.getSharePriceK(sharePriceKIndex);
-    const profit = await this.calcProfit(amount, new BN(3), new BN(1000));
     const k_new = await this.calcK_new(totalAmount, k, profit);
     await this.storage.setLeave(sharePriceKIndex, k_new);
     return path

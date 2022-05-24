@@ -22,6 +22,8 @@ export class SwapCommand extends Command {
     const pool = new Pool(storage, poolIndex);
     const account = new Account(storage, accountIndex);
     const totalAmount = await pool.getTotalAmount();
+    const profit = await account.calcProfit(amount);
+    const swapAmount = await account.getSwapAmount(reverse, amount);
 
     // circuits: check accountIndex < 2 ^ 20
     // circuits: check poolIndex < 2 ^ 10
@@ -36,33 +38,35 @@ export class SwapCommand extends Command {
     // circuits: if reverse == 0 then liq0 + amount doesn't overflow else liq0 >= amount
     // circuits: if reverse == 0 then liq1 >= amount else liq1 + amount doesn't overflow
     const [tokenIndex0, tokenIndex1, _path] = await pool.getAndAddLiq(
-      reverse.v.eqn(0) ? amount : new Field(0).sub(amount),
-      reverse.v.eqn(0) ? new Field(0).sub(amount) : amount
+      swapAmount,
+      new Field(0).sub(swapAmount)
     );
     path.push(_path);
 
     // STEP3: udpate balance0
     // circuits: if reverse == 0 then balance0 >= amount else balance0 + amount doesn't overflow
     path.push(
-      await account.getAndAddBalanceWithProfit(
+      await account.getAndAddBalance(
         tokenIndex0,
-        reverse.v.eqn(0) ? new Field(0).sub(amount) : amount
+        new Field(0).sub(swapAmount)
       )
     );
 
     // STEP4: udpate balance1
     // circuits: if reverse == 0 then balance1 + amount doesn't overflow else balance1 >= amount
     path.push(
-      await account.getAndAddBalanceWithProfit(
+      await account.getAndAddBalance(
         tokenIndex1,
-        reverse.v.eqn(0) ? amount : new Field(0).sub(amount)
+        swapAmount
       )
     );
 
     // STEP5: update SharePriceK
+    const sharePriceKIndex = await pool.getSharePriceKIndex();
     path.push(
       await account.getAndUpdateSharePriceK(
         poolIndex,
+        sharePriceKIndex,
         amount,
         totalAmount
       )
