@@ -24,6 +24,26 @@ export class Pool  {
     return this.storage.getPath(this.info_index);
   }
 
+  async getLiq(): Promise<[[Field, Field], [Field, Field], PathInfo]> {
+    const path = await this.getPoolPath();
+    const poolInfo = await this.storage.getLeaves(this.info_index);
+    const tokenIndex0 = poolInfo[0];
+    const tokenIndex1 = poolInfo[1];
+    const amount0 = poolInfo[2];
+    const amount1 = poolInfo[3];
+    return [[tokenIndex0, amount0], [tokenIndex1, amount1], path];
+  }
+
+  async setLiq(tokenIndex0:Field, tokenIndex1: Field, amount0: Field, amount1: Field): Promise<void> {
+    await this.storage.setLeaves(this.info_index, [
+      tokenIndex0,
+      tokenIndex1,
+      amount0,
+      amount1,
+    ]);
+
+  }
+
   async getAndAddLiq(
     amount0: Field,
     amount1: Field

@@ -34,18 +34,30 @@ export class SwapCommand extends Command {
     // circuits: check token0 != 0 || token1 != 0
     // circuits: if reverse == 0 then liq0 + amount doesn't overflow else liq0 >= amount
     // circuits: if reverse == 0 then liq1 >= amount else liq1 + amount doesn't overflow
-    const [tokenIndex0, tokenIndex1, _path] = await pool.getAndAddLiq(
-      reverse.v.eqn(0) ? amount : new Field(0).sub(amount),
-      reverse.v.eqn(0) ? new Field(0).sub(amount) : amount
+    let [tm0, tm1, _path] = await pool.getLiq();
+    const [[tokenIndexInput, amount_input], [tokenIndexOutput, amount_output]] = await async function() {
+      if (reverse.v.eqn(0)) {
+        return [tm0, tm1];
+      } else {
+        return [tm1, tm0];
+      }
+    } ();
+    let amount_result = amount_output.mul(amount).mul(new Field(997)).div((amount_input.add(amount).mul(new Field(1000))));
+    await pool.setLiq(
+      tm0[0],
+      tm1[0],
+      reverse.v.eqn(0) ?  tm0[1].sub(amount) : tm0[1].add(amount_result),
+      reverse.v.eqn(0) ?  tm1[1].add(amount_result) : tm1[1].sub(amount)
     );
+
     path.push(_path);
 
     // STEP3: udpate balance0
     // circuits: if reverse == 0 then balance0 >= amount else balance0 + amount doesn't overflow
     path.push(
       await account.getAndAddBalance(
-        tokenIndex0,
-        reverse.v.eqn(0) ? new Field(0).sub(amount) : amount
+        tokenIndexInput,
+        new Field(0).sub(amount)
       )
     );
 
@@ -53,8 +65,8 @@ export class SwapCommand extends Command {
     // circuits: if reverse == 0 then balance1 + amount doesn't overflow else balance1 >= amount
     path.push(
       await account.getAndAddBalance(
-        tokenIndex1,
-        reverse.v.eqn(0) ? amount : new Field(0).sub(amount)
+        tokenIndexOutput,
+        amount_result
       )
     );
 
