@@ -2,6 +2,8 @@ import { Field } from "delphinus-curves/src/field";
 import { AddressSpace, MetaType, getMetaAddress, toNumber } from "./space";
 import { MerkleTree, PathInfo } from "delphinus-curves/src/merkle-tree-large";
 import BN from "bn.js";
+import { ShareCalcHelper } from "../shareCalc_helper";
+
 export class Account {
   index: number;
   storage: MerkleTree;
@@ -57,95 +59,21 @@ export class Account {
     return path;
   }
 
-  async calcProfit(
-    amount: Field
-  ){
-    const profit = await this.percentage_Profit(amount, new BN(3), new BN(1000));
-    return profit
-  }
-
-  async percentage_Profit(
-    amount: Field,
-    molecule: BN,
-    denominator: BN
-  ){
-    const rem = molecule.mod(denominator);
-    let ans: Field;
-    if (rem.eqn(0)){
-      ans = amount.mul(new Field(molecule)).div(new Field(denominator));
-    }else{
-      ans = amount.mul(new Field(molecule)).div(new Field(denominator)).add(new Field(1));
-    }
-    return ans
-  }
-
-  async getSharePriceK(
-    _sharePriceKIndex: number | Field
-  ){
-    const sharePriceKIndex = toNumber(_sharePriceKIndex);
-    const k = await this.storage.getLeave(sharePriceKIndex);
-    if (!k.v.eqn(0)){
-      return k;
-    }
-    throw new Error('SharePriceK has not been initiated yet');
-  }
-
-  async amountToShare(
-    amount: BN,    //BN: Might be neg
-    k: BN,         //BN: Same type as amount
-  ){
-    const share = amount.mul(k.sub(new BN(1)));
-    return share
-  }
-
   async getAndUpdateNewShare(
     _poolIndex: number | Field,
-    _sharePriceKIndex: number | Field,
+    SharePriceK: Field,
     amount: Field
   ){
     const poolIndex = toNumber(_poolIndex);
-    const sharePriceKIndex = toNumber(_sharePriceKIndex);
     const shareInfoIndex = await this.getShareInfoIndex(poolIndex);
     const path = await this.storage.getPath(shareInfoIndex);
-    const share_pre = await this.storage.getLeave(shareInfoIndex);      //Field
-    const k = await this.getSharePriceK(sharePriceKIndex);              //Field
-    const share_add = await this.amountToShare(amount.v,k.v);           //BN: Might be neg
-    const share_total=share_pre.v.add(share_add);                       //Calc BN: Ans should be pos
+    const share_pre = await this.storage.getLeave(shareInfoIndex);
+    const shareCalc = new ShareCalcHelper;
+    const share_add = shareCalc.amountToShare(amount.v,SharePriceK.v);
+    const share_total=share_pre.v.add(share_add);
 
-    await this.storage.setLeave(shareInfoIndex, new Field(share_total)); //Save Field Fmt
+    await this.storage.setLeave(shareInfoIndex, new Field(share_total));
 
-    return path
-  }
-
-  async calcK_new(
-    totalAmount: Field,
-    k: Field,
-    profit: Field
-  ){
-    const total_new = totalAmount.add(profit);
-    const rem = totalAmount.v.mul(k.v).mod(total_new.v);
-    let k_new: Field;
-    if (rem.eqn(0)) {
-      k_new = totalAmount.mul(k).div(total_new);
-    }else{
-      k_new = totalAmount.mul(k).div(total_new).add(new Field(1));
-    }
-    
-    return k_new
-  }
-
-  async getAndUpdateSharePriceK(
-    _poolIndex: number | Field,
-    _sharePriceKIndex: number | Field,
-    profit: Field,
-    totalAmount: Field
-  ){
-    const poolIndex = toNumber(_poolIndex);
-    const sharePriceKIndex = toNumber(poolIndex);
-    const path = await this.storage.getPath(sharePriceKIndex);
-    const k = await this.getSharePriceK(sharePriceKIndex);
-    const k_new = await this.calcK_new(totalAmount, k, profit);
-    await this.storage.setLeave(sharePriceKIndex, k_new);
     return path
   }
 

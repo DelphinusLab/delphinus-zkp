@@ -1,6 +1,8 @@
 import { Field } from "delphinus-curves/src/field";
 import { AddressSpace, getSpaceIndex, toNumber } from "./space";
 import { MerkleTree, PathInfo } from "delphinus-curves/src/merkle-tree-large";
+import { ShareCalcHelper } from "../shareCalc_helper";
+
 export class Pool  {
   index: number | Field;
   info_index: number;
@@ -66,6 +68,28 @@ export class Pool  {
   ){
     const sharePriceKIndex = await this.getSharePriceKIndex();
     await this.storage.setLeave(sharePriceKIndex, k);
+  }
+
+  async getSharePriceK(){
+    const sharePriceKIndex = await this.getSharePriceKIndex();
+    const k = await this.storage.getLeave(sharePriceKIndex);
+    if (!k.v.eqn(0)){
+      return k;
+    }
+    throw new Error('SharePriceK has not been initiated yet');
+  }
+
+  async getAndUpdateSharePriceK(
+    profit: Field
+  ){
+    const sharePriceKIndex = await this.getSharePriceKIndex();
+    const path = await this.storage.getPath(sharePriceKIndex);
+    const k = await this.getSharePriceK();
+    const totalAmount = await this.getTotalAmount();
+    const shareCalc = new ShareCalcHelper;
+    const k_new = shareCalc.calcK_new(totalAmount, k, profit);
+    await this.storage.setLeave(sharePriceKIndex, k_new);
+    return path
   }
 
   async resetPool(
