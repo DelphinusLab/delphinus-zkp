@@ -72,11 +72,12 @@ describe("test account class", () => {
         const account = new Account(storage, accountIndex);
         const pool = new Pool(storage, poolIndex);
         const sharePriceKIndex = await pool.getSharePriceKIndex();
-
-        async function aaa () {
-            await account.getSharePriceK(sharePriceKIndex);
-        }
-        expect(aaa).rejects.toEqual(new Error('SharePriceK has not been initiated yet'));
+        
+        expect(
+            async () => {
+                await account.getSharePriceK(sharePriceKIndex);
+            }
+            ).rejects.toEqual(new Error('SharePriceK has not been initiated yet'));
     });
 
     test("test getAndAddShare 18 wei number", async () => {
