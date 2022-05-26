@@ -76,8 +76,7 @@ describe("test account class", () => {
         async function aaa () {
             await account.getSharePriceK(sharePriceKIndex);
         }
-        expect(aaa
-        ).toThrow();
+        expect(aaa).rejects.toEqual(new Error('SharePriceK has not been initiated yet'));
     });
 
     test("test getAndAddShare 18 wei number", async () => {
