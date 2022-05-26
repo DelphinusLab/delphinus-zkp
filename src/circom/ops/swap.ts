@@ -1,10 +1,10 @@
 import { Field } from "delphinus-curves/src/field";
-import { BN } from "bn.js";
 import { PathInfo } from "delphinus-curves/src/merkle-tree-large";
 import { L2Storage } from "../address-space";
 import { Pool } from "../address/pool";
 import { Command } from "../command";
 import { Account } from "../address/account";
+import { ShareCalcHelper } from "../shareCalc_helper";
 
 export class SwapCommand extends Command {
   get callerAccountIndex() {
@@ -22,8 +22,8 @@ export class SwapCommand extends Command {
 
     const pool = new Pool(storage, poolIndex);
     const account = new Account(storage, accountIndex);
-    const totalAmount = await pool.getTotalAmount();
-    const profit = await account.calcProfit(amount);
+    const shareCalc = new ShareCalcHelper;
+    const profit = shareCalc.calcProfit(amount);
 
     // circuits: check accountIndex < 2 ^ 20
     // circuits: check poolIndex < 2 ^ 10
@@ -32,6 +32,9 @@ export class SwapCommand extends Command {
     // STEP1: udpate nonce
     // circuits: check nonce
     path.push(await account.getAndUpdateNonce(nonce));
+
+    //Update SharePriceK
+    await pool.getAndUpdateSharePriceK(profit);
 
     // STEP2: udpate liquility
     // circuits: check token0 != 0 || token1 != 0
@@ -61,16 +64,6 @@ export class SwapCommand extends Command {
       )
     );
 
-    // STEP5: update SharePriceK
-    const sharePriceKIndex = await pool.getSharePriceKIndex();
-    path.push(
-      await account.getAndUpdateSharePriceK(
-        poolIndex,
-        sharePriceKIndex,
-        profit,
-        totalAmount
-      )
-    )
     return path;
   }
 }
