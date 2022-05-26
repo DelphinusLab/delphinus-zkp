@@ -1,7 +1,6 @@
 import { Field } from "delphinus-curves/src/field";
 import { AddressSpace, MetaType, getMetaAddress, toNumber } from "./space";
 import { MerkleTree, PathInfo } from "delphinus-curves/src/merkle-tree-large";
-import BN from "bn.js";
 import { ShareCalcHelper } from "../shareCalc_helper";
 
 export class Account {
