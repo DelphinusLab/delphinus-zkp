@@ -1,4 +1,5 @@
 import { Field } from "delphinus-curves/src/field";
+import { BN } from "bn.js";
 import { PathInfo } from "delphinus-curves/src/merkle-tree-large";
 import { L2Storage } from "../address-space";
 import { Pool } from "../address/pool";
@@ -23,7 +24,6 @@ export class SwapCommand extends Command {
     const account = new Account(storage, accountIndex);
     const totalAmount = await pool.getTotalAmount();
     const profit = await account.calcProfit(amount);
-    const swapAmount = await account.getSwapAmount(reverse, amount);
 
     // circuits: check accountIndex < 2 ^ 20
     // circuits: check poolIndex < 2 ^ 10
@@ -38,8 +38,8 @@ export class SwapCommand extends Command {
     // circuits: if reverse == 0 then liq0 + amount doesn't overflow else liq0 >= amount
     // circuits: if reverse == 0 then liq1 >= amount else liq1 + amount doesn't overflow
     const [tokenIndex0, tokenIndex1, _path] = await pool.getAndAddLiq(
-      swapAmount,
-      new Field(0).sub(swapAmount)
+      reverse.v.eqn(0) ? amount : new Field(0).sub(amount).add(profit),
+      reverse.v.eqn(0) ? new Field(0).sub(amount).add(profit) : amount
     );
     path.push(_path);
 
@@ -48,7 +48,7 @@ export class SwapCommand extends Command {
     path.push(
       await account.getAndAddBalance(
         tokenIndex0,
-        new Field(0).sub(swapAmount)
+        reverse.v.eqn(0) ? new Field(0).sub(amount).add(profit) : amount
       )
     );
 
@@ -57,7 +57,7 @@ export class SwapCommand extends Command {
     path.push(
       await account.getAndAddBalance(
         tokenIndex1,
-        swapAmount
+        reverse.v.eqn(0) ? amount : new Field(0).sub(amount).add(profit)
       )
     );
 
@@ -67,7 +67,7 @@ export class SwapCommand extends Command {
       await account.getAndUpdateSharePriceK(
         poolIndex,
         sharePriceKIndex,
-        amount,
+        profit,
         totalAmount
       )
     )

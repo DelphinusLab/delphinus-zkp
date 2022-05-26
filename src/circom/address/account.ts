@@ -73,34 +73,22 @@ export class Account {
     return ans
   }
 
-  async getSwapAmount(
-    reverse: Field,
-    amount: Field
-  ){
-    if(reverse.v.eqn(0)){
-      return amount
-    }else{
-      return new Field(0).sub(amount)
-    }
-  }
-
   async getSharePriceK(
     _sharePriceKIndex: number | Field
   ){
     const sharePriceKIndex = toNumber(_sharePriceKIndex);
     const k = await this.storage.getLeave(sharePriceKIndex);
-    if (k.v.eqn(0)){
-      throw Error('SharePriceK has not been initiated yet');
+    if (!k.v.eqn(0)){
+      return k;
     }
-    return k
+    throw new Error('SharePriceK has not been initiated yet');
   }
 
   async amountToShare(
-    amount: Field,
-    _sharePriceKIndex: number | Field,
+    amount: BN,    //BN: Might be neg
+    k: BN,         //BN: Same type as amount
   ){
-    const k = await this.getSharePriceK(_sharePriceKIndex);
-    const share = amount.mul(k.sub(new Field(1)));
+    const share = amount.mul(k.sub(new BN(1)));
     return share
   }
 
@@ -111,15 +99,15 @@ export class Account {
   ){
     const poolIndex = toNumber(_poolIndex);
     const sharePriceKIndex = toNumber(_sharePriceKIndex);
-    const shareInfoIndex = this.getShareInfoIndex(poolIndex);
+    const shareInfoIndex = await this.getShareInfoIndex(poolIndex);
     const path = await this.storage.getPath(shareInfoIndex);
-    const share = await this.storage.getLeave(shareInfoIndex);
-    const share_new = this.amountToShare(amount,sharePriceKIndex);
-    if(share.add(share_new).v.isNeg()){
-      throw Error('Your share amount is insufficient');
-    }else{
-      await this.storage.setLeave(shareInfoIndex, share.add(share_new));
-    }
+    const share_pre = await this.storage.getLeave(shareInfoIndex);      //Field
+    const k = await this.getSharePriceK(sharePriceKIndex);              //Field
+    const share_add = await this.amountToShare(amount.v,k.v);           //BN: Might be neg
+    const share_total=share_pre.v.add(share_add);                       //Calc BN: Ans should be pos
+
+    await this.storage.setLeave(shareInfoIndex, new Field(share_total)); //Save Field Fmt
+
     return path
   }
 
