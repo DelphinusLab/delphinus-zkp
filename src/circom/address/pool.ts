@@ -1,7 +1,6 @@
 import { Field } from "delphinus-curves/src/field";
 import { AddressSpace, getSpaceIndex, toNumber } from "./space";
 import { MerkleTree, PathInfo } from "delphinus-curves/src/merkle-tree-large";
-import BN from "bn.js";
 export class Pool  {
   index: number | Field;
   info_index: number;
