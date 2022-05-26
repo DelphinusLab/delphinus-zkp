@@ -26,7 +26,7 @@ export class Pool  {
     return this.storage.getPath(this.info_index);
   }
 
-  async getSharePriceKIndex(){
+  getSharePriceKIndex(){
     return (
       (AddressSpace.Share << 30) |
       (toNumber(this.index) << 20) |
@@ -66,15 +66,15 @@ export class Pool  {
   async initSharePriceK(
     k: Field
   ){
-    const sharePriceKIndex = await this.getSharePriceKIndex();
+    const sharePriceKIndex = this.getSharePriceKIndex();
     await this.storage.setLeave(sharePriceKIndex, k);
   }
 
   async getSharePriceK(){
-    const sharePriceKIndex = await this.getSharePriceKIndex();
+    const sharePriceKIndex = this.getSharePriceKIndex();
     const k = await this.storage.getLeave(sharePriceKIndex);
     if (!k.v.eqn(0)){
-      return k;
+      return k
     }
     throw new Error('SharePriceK has not been initiated yet');
   }
@@ -82,12 +82,12 @@ export class Pool  {
   async getAndUpdateSharePriceK(
     profit: Field
   ){
-    const sharePriceKIndex = await this.getSharePriceKIndex();
+    const sharePriceKIndex = this.getSharePriceKIndex();
     const path = await this.storage.getPath(sharePriceKIndex);
     const k = await this.getSharePriceK();
     const totalAmount = await this.getTotalAmount();
     const shareCalc = new ShareCalcHelper;
-    const k_new = shareCalc.calcK_new(totalAmount, k, profit);
+    const k_new = shareCalc.calcK_new(totalAmount.v, k.v, profit.v);
     await this.storage.setLeave(sharePriceKIndex, k_new);
     return path
   }

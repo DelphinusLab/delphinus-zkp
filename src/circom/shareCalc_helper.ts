@@ -3,22 +3,22 @@ import BN from "bn.js";
 
 export class ShareCalcHelper {
     percentage_Profit(
-        amount: Field,
+        amount: BN,
         molecule: BN,
         denominator: BN
     ) {
-        const rem = molecule.mod(denominator);
-        let ans: Field;
+        const rem = amount.mul(molecule).mod(denominator);
+        let ans: BN;
         if (rem.eqn(0)) {
-            ans = amount.mul(new Field(molecule)).div(new Field(denominator));
+            ans = amount.mul(molecule).div(denominator);
         } else {
-            ans = amount.mul(new Field(molecule)).div(new Field(denominator)).add(new Field(1));
+            ans = amount.mul(molecule).div(denominator).add(new BN(1));
         }
-        return ans
+        return new Field(ans)
     }
 
     calcProfit(
-        amount: Field
+        amount: BN
     ) {
         const profit = this.percentage_Profit(amount, new BN(3), new BN(1000));
         return profit
@@ -29,23 +29,23 @@ export class ShareCalcHelper {
         k: BN
     ) {
         const share = amount.mul(k.sub(new BN(1)));
-        return share
+        return share     //might be neg, return BN
     }
 
     calcK_new(
-        totalAmount: Field,
-        k: Field,
-        profit: Field
+        totalAmount: BN,
+        k: BN,
+        profit: BN
     ) {
         const total_new = totalAmount.add(profit);
-        const rem = totalAmount.v.mul(k.v).mod(total_new.v);
-        let k_new: Field;
+        const rem = totalAmount.mul(k).mod(total_new);
+        let k_new: BN;
         if (rem.eqn(0)) {
             k_new = totalAmount.mul(k).div(total_new);
         } else {
-            k_new = totalAmount.mul(k).div(total_new).add(new Field(1));
+            k_new = totalAmount.mul(k).div(total_new).add(new BN(1));
         }
 
-        return k_new
+        return new Field(k_new)
     }
 }
