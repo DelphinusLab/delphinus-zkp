@@ -64,14 +64,14 @@ export class Account {
     amount: Field
   ){
     const poolIndex = toNumber(_poolIndex);
-    const shareInfoIndex = await this.getShareInfoIndex(poolIndex);
+    const shareInfoIndex = this.getShareInfoIndex(poolIndex);
     const path = await this.storage.getPath(shareInfoIndex);
     const share_pre = await this.storage.getLeave(shareInfoIndex);
     const shareCalc = new ShareCalcHelper;
     const share_add = shareCalc.amountToShare(amount.v,SharePriceK.v);
-    const share_total=share_pre.v.add(share_add);
+    const share_total = new Field(share_pre.v.add(share_add));
 
-    await this.storage.setLeave(shareInfoIndex, new Field(share_total));
+    await this.storage.setLeave(shareInfoIndex, share_total);
 
     return path
   }
