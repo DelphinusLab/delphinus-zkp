@@ -2,34 +2,14 @@ import { Field } from "delphinus-curves/src/field";
 import BN from "bn.js";
 
 export class ShareCalcHelper {
-    percentage_Profit(
+    profit_AMM(
         amount: BN,
-        molecule: BN,
-        denominator: BN
-    ) {
-        const rem = amount.mul(molecule).mod(denominator);
-        let ans: BN;
-        if (rem.eqn(0)) {
-            ans = amount.mul(molecule).div(denominator);
-        } else {
-            ans = amount.mul(molecule).div(denominator).add(new BN(1));
-        }
-        return new Field(ans)
-    }
-
-    calcProfit(
-        amount: BN
-    ) {
-        const profit = this.percentage_Profit(amount, new BN(3), new BN(1000));
-        return profit
-    }
-
-    amountToShare(
-        amount: BN,
-        k: BN
-    ) {
-        const share = amount.mul(k.sub(new BN(1)));
-        return share     //might be neg, return BN
+        token_SwapFrom_amount: BN,
+        token_SwapTo_amount: BN
+    ){
+        const amount_out = token_SwapFrom_amount.mul(amount).mul(new BN(1021)).div(token_SwapTo_amount.add(amount).mul(new BN(1024)));
+        const profit = amount.sub(amount_out);
+        return new Field(profit)
     }
 
     calcK_new(
