@@ -1,10 +1,6 @@
 import { Field } from "delphinus-curves/src/field";
-import BN from "bn.js";
 import { L2Storage } from "../../src/circom/address-space";
-import { Account } from "../../src/circom/address/account"
 import { Pool } from "../../src/circom/address/pool"
-import { SetKeyCommand } from "../../src/circom/ops/setkey";
-import { AddPoolCommand } from "../../src/circom/ops/addpool";
 
 describe("test pool class", () => {
     test("test initSharePriceK init its tree node", async () => {
@@ -17,7 +13,7 @@ describe("test pool class", () => {
         await pool.initSharePriceK(k);
         const k_check = await pool.getSharePriceK();
 
-        expect(k_check).toEqual(new Field(11));
+        expect(k_check.toString()).toEqual('11');
     });
 
     test("test getSharePriceK throw error when k is not init", async () => {
@@ -45,7 +41,7 @@ describe("test pool class", () => {
         await pool.getAndAddLiq(token0Amount,token1Amount);
         const totalAmount = await pool.getTotalAmount()
 
-        expect(totalAmount).toEqual(new Field(1000));
+        expect(totalAmount.toString()).toEqual('1000');
     });
 
     test("test getAndUpdateSharePriceK", async () => {
@@ -64,6 +60,6 @@ describe("test pool class", () => {
         const k_new = await pool.getSharePriceK();
 
         // kew_new = (500+500)*10/(500+500+1000) = 5
-        expect(k_new).toEqual(new Field(5));
+        expect(k_new.toString()).toEqual('5');
     });
 });

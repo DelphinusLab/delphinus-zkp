@@ -23,7 +23,12 @@ export class SwapCommand extends Command {
     const pool = new Pool(storage, poolIndex);
     const account = new Account(storage, accountIndex);
     const shareCalc = new ShareCalcHelper;
-    const profit = shareCalc.calcProfit(amount.v);
+    const [token0, token1] = await pool.getTokenInfo();
+    const profit = shareCalc.profit_AMM(
+      amount.v,
+      reverse.v.eqn(0) ? token1[1].v : token0[1].v,
+      reverse.v.eqn(0) ? token0[1].v : token1[1].v
+    );
 
     // circuits: check accountIndex < 2 ^ 20
     // circuits: check poolIndex < 2 ^ 10

@@ -63,6 +63,15 @@ export class Pool  {
     return poolTotal
   }
 
+  async getTokenInfo(){
+    const poolInfo = await this.storage.getLeaves(this.info_index);
+    const tokenIndex0 = poolInfo[0];
+    const tokenIndex1 = poolInfo[1];
+    const liq0 = poolInfo[2];
+    const liq1 = poolInfo[3];
+    return [[tokenIndex0,liq0], [tokenIndex1,liq1]];
+  }
+
   async initSharePriceK(
     k: Field
   ){

@@ -58,24 +58,6 @@ export class Account {
     return path;
   }
 
-  async getAndUpdateNewShare(
-    _poolIndex: number | Field,
-    SharePriceK: Field,
-    amount: Field
-  ){
-    const poolIndex = toNumber(_poolIndex);
-    const shareInfoIndex = this.getShareInfoIndex(poolIndex);
-    const path = await this.storage.getPath(shareInfoIndex);
-    const share_pre = await this.storage.getLeave(shareInfoIndex);
-    const shareCalc = new ShareCalcHelper;
-    const share_add = shareCalc.amountToShare(amount.v,SharePriceK.v);
-    const share_total = new Field(share_pre.v.add(share_add));
-
-    await this.storage.setLeave(shareInfoIndex, share_total);
-
-    return path
-  }
-
   async getAndAddShare(
     _poolIndex: number | Field,
     amount: Field
