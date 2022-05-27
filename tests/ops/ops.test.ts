@@ -47,18 +47,20 @@ describe("test ops", () => {
                 const pool = new Pool(storage, config.scenario[i].poolIndex);
                 const poolInfo_Index = getSpaceIndex(AddressSpace.Pool) | config.scenario[i].poolIndex << 20;
                 
-                const addpool_command = new AddPoolCommand([
-                    new Field(0),
-                    new Field(0),
-                    new Field(0),
-                    new Field(config.scenario[i].nonce),
-                    new Field(config.scenario[i].tokenIndex0),
-                    new Field(config.scenario[i].tokenIndex1),
-                    new Field(0),
-                    new Field(0),
-                    new Field(config.scenario[i].poolIndex),
-                    new Field(config.scenario[i].callerAccountIndex)
-                ]);
+                const addpool_command = new AddPoolCommand(
+                    [
+                        new Field(0),
+                        new Field(0),
+                        new Field(0),
+                        new Field(config.scenario[i].nonce),
+                        new Field(config.scenario[i].tokenIndex0),
+                        new Field(config.scenario[i].tokenIndex1),
+                        new Field(0),
+                        new Field(0),
+                        new Field(config.scenario[i].poolIndex),
+                        new Field(config.scenario[i].callerAccountIndex)
+                    ]
+                );
                 await addpool_command.run(storage);
 
                 const nonce_check = await storage.getLeave(account.getAccountNonceIndex());
@@ -73,18 +75,20 @@ describe("test ops", () => {
                 const account = new Account(storage, config.scenario[i].accountIndex);
                 const balance = await storage.getLeave(account.getBalanceInfoIndex(config.scenario[i].tokenIndex));
                 
-                const deposit_command = new DepositCommand([
-                    new Field(0),
-                    new Field(0),
-                    new Field(0),
-                    new Field(config.scenario[i].nonce),
-                    new Field(config.scenario[i].accountIndex),
-                    new Field(config.scenario[i].tokenIndex),
-                    new Field(config.scenario[i].amount),
-                    new Field(0),
-                    new Field(config.scenario[i].callerAccountIndex),
-                    new Field(0)
-                ]);
+                const deposit_command = new DepositCommand(
+                    [
+                        new Field(0),
+                        new Field(0),
+                        new Field(0),
+                        new Field(config.scenario[i].nonce),
+                        new Field(config.scenario[i].accountIndex),
+                        new Field(config.scenario[i].tokenIndex),
+                        new Field(config.scenario[i].amount),
+                        new Field(0),
+                        new Field(config.scenario[i].callerAccountIndex),
+                        new Field(0)
+                    ]
+                );
                 await deposit_command.run(storage);
 
                 const nonce_check = await storage.getLeave(caller.getAccountNonceIndex());
@@ -101,18 +105,20 @@ describe("test ops", () => {
                 const token0Balance = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenInfo())[0][0]));
                 const token1Balance = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenInfo())[1][0]));
 
-                const supply_command = new SupplyCommand([
-                    new Field(0),
-                    new Field(0),
-                    new Field(0),
-                    new Field(config.scenario[i].nonce),
-                    new Field(config.scenario[i].accountIndex),
-                    new Field(config.scenario[i].poolIndex),
-                    new Field(config.scenario[i].amount0),
-                    new Field(config.scenario[i].amount1),
-                    new Field(0),
-                    new Field(0)
-                ]);
+                const supply_command = new SupplyCommand(
+                    [
+                        new Field(0),
+                        new Field(0),
+                        new Field(0),
+                        new Field(config.scenario[i].nonce),
+                        new Field(config.scenario[i].accountIndex),
+                        new Field(config.scenario[i].poolIndex),
+                        new Field(config.scenario[i].amount0),
+                        new Field(config.scenario[i].amount1),
+                        new Field(0),
+                        new Field(0)
+                    ]
+                );
                 await supply_command.run(storage);
 
                 const nonce_check = await storage.getLeave(account.getAccountNonceIndex());
@@ -139,18 +145,20 @@ describe("test ops", () => {
                 const token0Balance = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenInfo())[0][0]));
                 const token1Balance = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenInfo())[1][0]));
 
-                const retrieve_command = new RetrieveCommand([
-                    new Field(0),
-                    new Field(0),
-                    new Field(0),
-                    new Field(config.scenario[i].nonce),
-                    new Field(config.scenario[i].accountIndex),
-                    new Field(config.scenario[i].poolIndex),
-                    new Field(config.scenario[i].amount0),
-                    new Field(config.scenario[i].amount1),
-                    new Field(0),
-                    new Field(0)
-                ]);
+                const retrieve_command = new RetrieveCommand(
+                    [
+                        new Field(0),
+                        new Field(0),
+                        new Field(0),
+                        new Field(config.scenario[i].nonce),
+                        new Field(config.scenario[i].accountIndex),
+                        new Field(config.scenario[i].poolIndex),
+                        new Field(config.scenario[i].amount0),
+                        new Field(config.scenario[i].amount1),
+                        new Field(0),
+                        new Field(0)
+                    ]
+                );
                 await retrieve_command.run(storage);
 
                 const nonce_check = await storage.getLeave(account.getAccountNonceIndex());
