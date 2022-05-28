@@ -55,6 +55,14 @@
                 "poolIndex": 0,
                 "amount0": 500,
                 "amount1": 500
+            },
+            {
+                "op_name": "swap",
+                "nonce": 3,
+                "accountIndex": 2,
+                "poolIndex": 0,
+                "reverse": 0,
+                "amount": 100
             }
         ]
 }
