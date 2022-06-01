@@ -20,6 +20,20 @@ template Check2PowerRangeFE(N) {
      *   a.in <== 10;
      *   a.out === 1;
      * It will pop up error as it will exceed field size.
+     *
+     *
+     * Please note, the Num2Bits(N) is a must have in this function.
+     * It protect this function from a witness attack.
+     *
+     * Example:
+     * If we do not use the Num2Bits(N), just use a internal signal like:
+     *
+     *  signal nBitAndN;
+     *  nBitAndN <-- in & ((1 << N) - 1);
+     *
+     * then we just check nBitAndN and in are equal.
+     * This can be attacked by:
+     *  If N is 30 and in witness, hacker can set the in as a 33 bits number, and set the nBitAndN as the same 33 bits number in the witness and this function will return 1.
      */
     assert(N <= 253);
     signal input in;
