@@ -1,5 +1,4 @@
 import { Field } from "delphinus-curves/src/field";
-import BN from "bn.js";
 import { L2Storage } from "../../src/circom/address-space";
 import { SupplyCommand } from "../../src/circom/ops/supply";
 import { Account } from "../../src/circom/address/account";
@@ -33,6 +32,18 @@ describe("test supply op", () => {
         //account2 deposit 2000 token1
         await account.getAndAddBalance(new Field(tokenIndex1), new Field(depositToken1));
 
+        //Setup Expect Results
+        //share = (1000 + 1000) * (10^12 - 1) = 2 * 10^15 - 2000
+        const share = (amount0 + amount1) * (init_sharePriceK - 1);
+        //liq0 = 1000 = 1000
+        const liq0 = amount0;
+        //liq1 = 1000 = 1000
+        const liq1 = amount1;
+        //token0Balance =  2000 - 1000 = 1000
+        const token0Balance = depositToken0 - amount0;
+        //token1Balance =  2000 - 1000 = 1000
+        const token1Balance = depositToken1 - amount1;
+
         const supply_command = new SupplyCommand(
             [
                 new Field(0),
@@ -58,12 +69,11 @@ describe("test supply op", () => {
         expect(nonce_check).toEqual(new Field(nonce + 1));
         expect(tokenIndex0_check.v.toString()).toEqual(`${tokenIndex0}`);
         expect(tokenIndex1_check.v.toString()).toEqual(`${tokenIndex1}`);
-        expect(liq0_check.v.toString()).toEqual(new BN(0).add(new BN(amount0)).toString());
-        expect(liq1_check.v.toString()).toEqual(new BN(0).add(new BN(amount1)).toString());
-        const share_new = 0 + (amount0 + amount1) * (init_sharePriceK - 1);
-        expect(share_check.v.toString()).toEqual(new BN(share_new).toString());
-        expect(token0Balance_check.v.toString()).toEqual(new BN(2000).sub(new BN(amount0)).toString());
-        expect(token1Balance_check.v.toString()).toEqual(new BN(2000).sub(new BN(amount1)).toString());
+        expect(liq0_check.v.toString()).toEqual(`${liq0}`);
+        expect(liq1_check.v.toString()).toEqual(`${liq1}`);
+        expect(share_check.v.toString()).toEqual(`${share}`);
+        expect(token0Balance_check.v.toString()).toEqual(`${token0Balance}`);
+        expect(token1Balance_check.v.toString()).toEqual(`${token1Balance}`);
     });
 
     test("supply to exist pool case", async () => {
@@ -80,9 +90,9 @@ describe("test supply op", () => {
         const depositToken0 = 2000;
         const depositToken1 = 2000;
         const poolInfo_Index = getSpaceIndex(AddressSpace.Pool) | poolIndex << 20;
-
         const amount0_pre = 1000;
         const amount1_pre = 1000;   
+
         //Setup Pool
         const pool = new Pool(storage, poolIndex);
         const init_sharePriceK = 10 ** 12;
@@ -95,8 +105,21 @@ describe("test supply op", () => {
         await account.getAndAddBalance(new Field(tokenIndex1), new Field(depositToken1));
         //account2 supplied 1000 token0 and 1000 token2
         await pool.getAndAddLiq(new Field(amount0_pre),new Field(amount1_pre));
+        //Setup share_pre = 0 + (1000 + 1000) * (10^12 - 1) = 2 * 10^15 - 2000
         const share_pre = 0 + (amount0_pre + amount1_pre) * (init_sharePriceK - 1);
         await account.getAndAddShare(poolIndex, new Field(share_pre));
+
+        //Setup Expect Results
+        //share = 2 * 10^15 - 2000 + (1000 + 1000) * (10^12 - 1) = 2 * 10^15 - 2000 + 2 * 10^15 - 2000 = 4 * 10^15 - 4000;
+        const share = share_pre + (amount0 + amount1) * (init_sharePriceK - 1);
+        //liq0 = 1000 + 1000 = 2000
+        const liq0 = amount0_pre + amount0;
+        //liq1 = 1000 + 1000 = 2000
+        const liq1 = amount1_pre + amount1;
+        //token0Balance =  2000 - 1000 = 1000
+        const token0Balance = depositToken0 - amount0;
+        //token1Balance =  2000 - 1000 = 1000
+        const token1Balance = depositToken1 - amount1;
 
         const supply_command = new SupplyCommand(
             [
@@ -123,12 +146,11 @@ describe("test supply op", () => {
         expect(nonce_check).toEqual(new Field(nonce + 1));
         expect(tokenIndex0_check.v.toString()).toEqual(`${tokenIndex0}`);
         expect(tokenIndex1_check.v.toString()).toEqual(`${tokenIndex1}`);
-        expect(liq0_check.v.toString()).toEqual(new BN(amount0_pre).add(new BN(amount0)).toString());
-        expect(liq1_check.v.toString()).toEqual(new BN(amount1_pre).add(new BN(amount1)).toString());
-        const share_new = share_pre + (amount0 + amount1) * (init_sharePriceK - 1);
-        expect(share_check.v.toString()).toEqual(new BN(share_new).toString());
-        expect(token0Balance_check.v.toString()).toEqual(new BN(2000).sub(new BN(amount0)).toString());
-        expect(token1Balance_check.v.toString()).toEqual(new BN(2000).sub(new BN(amount1)).toString());
+        expect(liq0_check.v.toString()).toEqual(`${liq0}`);
+        expect(liq1_check.v.toString()).toEqual(`${liq1}`);
+        expect(share_check.v.toString()).toEqual(`${share}`);
+        expect(token0Balance_check.v.toString()).toEqual(`${token0Balance}`);
+        expect(token1Balance_check.v.toString()).toEqual(`${token1Balance}`);
     });
 }
 );

@@ -1,5 +1,4 @@
 import { Field } from "delphinus-curves/src/field";
-import BN from "bn.js";
 import { L2Storage } from "../../src/circom/address-space";
 import { SwapCommand } from "../../src/circom/ops/swap";
 import { Account } from "../../src/circom/address/account";
@@ -16,15 +15,14 @@ describe("test swap op", () => {
         const poolIndex = 0;
         const reverse = 0;
         const amount = 100;
-
         const tokenIndex0 = 0;
         const tokenIndex1 = 1;
         const depositToken0 = 1500;
         const depositToken1 = 1500;
         const poolInfo_Index = getSpaceIndex(AddressSpace.Pool) | poolIndex << 20;
-
         const amount0_pre = 1000;
         const amount1_pre = 1000; 
+        
         //Setup Pool
         const pool = new Pool(storage, new Field(poolIndex));
         const init_sharePriceK = 10 ** 12;
@@ -38,6 +36,53 @@ describe("test swap op", () => {
         //account2 supplied 1000 token0 and 1000 token2
         await pool.getAndAddLiq(new Field(amount0_pre),new Field(amount1_pre));
 
+        //Setup Expect Results
+        let amount_out, sharePriceK, liq0, liq1, token0Balance, token1Balance
+        //(reverse == 0) amount_out = 1000 * 100 * 1021 / [(1000 + 100) * 1024] = 90.64 rounding down => 90
+        //(reverse == 0) rem = [(1000 + 1000) * 10^12] % (1000 + 1000 + 100 - 90) = 1790
+        //(reverse == 0) (rem != 0) sharePriceK = (1000 + 1000) * 10^12 / (1000 + 1000 + 100 - 90) + 1 = 995024875622
+        if (reverse == 0){
+            amount_out = Math.floor(amount1_pre * amount * 1021 / ((amount0_pre + amount) * 1024));
+            const rem = ((amount0_pre + amount1_pre) * init_sharePriceK) % (amount0_pre + amount1_pre + amount - amount_out);
+            if (rem == 0){
+                sharePriceK = Math.floor((amount0_pre + amount1_pre) * init_sharePriceK / (amount0_pre + amount1_pre + amount - amount_out));
+            }else {
+                sharePriceK = Math.floor((amount0_pre + amount1_pre) * init_sharePriceK / (amount0_pre + amount1_pre + amount - amount_out)) + 1;
+            }
+        }else {
+            amount_out = Math.floor(amount0_pre * amount * 1021 / ((amount1_pre + amount) * 1024));
+            const rem = (amount0_pre + amount1_pre) * init_sharePriceK % (amount0_pre + amount1_pre + amount - amount_out)
+            if (rem == 0){
+                sharePriceK = Math.floor((amount0_pre + amount1_pre) * init_sharePriceK / (amount0_pre + amount1_pre + amount - amount_out))
+            }else {
+                sharePriceK = Math.floor((amount0_pre + amount1_pre) * init_sharePriceK / (amount0_pre + amount1_pre + amount - amount_out)) + 1;
+            }
+        };
+        //(reverse == 0) liq0 = 1000 + 100 = 1100
+        if (reverse == 0) {
+            liq0 = amount0_pre + amount;
+        }else {
+            liq0 = amount0_pre - amount_out;
+        }
+        //(reverse == 0) liq1 = 1000 - 90 = 910
+        if (reverse == 0) {
+            liq1 = amount1_pre - amount_out;
+        }else {
+            liq1 = amount1_pre + amount;
+        }
+        //(reverse == 0) token0Balance = 1500 - 100 = 1400
+        if (reverse == 0) {
+            token0Balance = depositToken0 - amount;
+        }else {
+            token0Balance = depositToken0 + amount_out;
+        }
+        //(reverse == 0) token1Balance = 1500 + 90 = 1590
+        if (reverse == 0) {
+            token1Balance = depositToken1 + amount_out;
+        }else {
+            token1Balance = depositToken1 - amount;
+        }
+        
         const swap_command = new SwapCommand(
             [
                 new Field(0),
@@ -63,35 +108,11 @@ describe("test swap op", () => {
         expect(nonce_check).toEqual(new Field(nonce + 1));
         expect(tokenIndex0_check.v.toString()).toEqual(`${tokenIndex0}`);
         expect(tokenIndex1_check.v.toString()).toEqual(`${tokenIndex1}`);
-        if (reverse == 0){
-            const amount_out_r0 = Math.floor(amount1_pre * amount * 1021 / ((amount0_pre + amount) * 1024));
-            const rem = (amount0_pre + amount1_pre) * init_sharePriceK % (amount0_pre + amount1_pre + amount - amount_out_r0)
-            let k_new_r0;
-            if (rem == 0){
-                k_new_r0 = Math.floor((amount0_pre + amount1_pre) * init_sharePriceK / (amount0_pre + amount1_pre + amount - amount_out_r0))
-            }else {
-                k_new_r0 = Math.floor((amount0_pre + amount1_pre) * init_sharePriceK / (amount0_pre + amount1_pre + amount - amount_out_r0)) + 1;
-            }
-            expect(sharePriceK_check.v.toString()).toEqual(`${k_new_r0}`);
-            expect(liq0_check.v.toString()).toEqual(`${amount0_pre + amount}`);
-            expect(liq1_check.v.toString()).toEqual(`${amount1_pre - amount_out_r0}`);
-            expect(token0Balance_check.v.toString()).toEqual(`${depositToken0 - amount_out_r0}`);
-            expect(token1Balance_check.v.toString()).toEqual(`${depositToken1 + amount}`);
-        }else if (reverse == 1) {
-            const amount_out_r1 = Math.floor(amount0_pre * amount * 1021 / ((amount1_pre + amount) * 1024));
-            const rem = (amount0_pre + amount1_pre) * init_sharePriceK % (amount0_pre + amount1_pre + amount - amount_out_r1)
-            let k_new_r1;
-            if (rem == 0){
-                k_new_r1 = Math.floor((amount0_pre + amount1_pre) * init_sharePriceK / (amount0_pre + amount1_pre + amount - amount_out_r1))
-            }else {
-                k_new_r1 = Math.floor((amount0_pre + amount1_pre) * init_sharePriceK / (amount0_pre + amount1_pre + amount - amount_out_r1)) + 1;
-            }
-            expect(sharePriceK_check.v.toString()).toEqual(`${k_new_r1}`);
-            expect(liq0_check.v.toString()).toEqual(`${amount0_pre - amount_out_r1}`);
-            expect(liq1_check.v.toString()).toEqual(`${amount1_pre + amount}`);
-            expect(token0Balance_check.v.toString()).toEqual(`${depositToken0 + amount}`);
-            expect(token1Balance_check.v.toString()).toEqual(`${depositToken1 - amount_out_r1}`);
-        }
-    })
+        expect(sharePriceK_check.v.toString()).toEqual(`${sharePriceK}`);
+        expect(liq0_check.v.toString()).toEqual(`${liq0}`);
+        expect(liq1_check.v.toString()).toEqual(`${liq1}`);
+        expect(token0Balance_check.v.toString()).toEqual(`${token0Balance}`);
+        expect(token1Balance_check.v.toString()).toEqual(`${token1Balance}`);
+    });
 }
 );

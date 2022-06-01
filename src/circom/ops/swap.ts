@@ -53,7 +53,7 @@ export class SwapCommand extends Command {
     path.push(
       await account.getAndAddBalance(
         tokenIndex0,
-        reverse.v.eqn(0) ? new Field(0).sub(amount_out) : amount
+        reverse.v.eqn(0) ? new Field(0).sub(amount) : amount_out
       )
     );
 
@@ -62,7 +62,7 @@ export class SwapCommand extends Command {
     path.push(
       await account.getAndAddBalance(
         tokenIndex1,
-        reverse.v.eqn(0) ? amount : new Field(0).sub(amount_out)
+        reverse.v.eqn(0) ? amount_out : new Field(0).sub(amount)
       )
     );
 
