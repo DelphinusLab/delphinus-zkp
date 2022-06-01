@@ -65,7 +65,7 @@ describe("test swap op", () => {
         expect(tokenIndex1_check.v.toString()).toEqual(`${tokenIndex1}`);
         if (reverse == 0){
             const amount_out_r0 = Math.floor(amount1_pre * amount * 1021 / ((amount0_pre + amount) * 1024));
-            const rem = (amount0_pre + amount1_pre) * init_sharePriceK % (amount0_pre + amount1_pre + amount + amount_out_r0)
+            const rem = (amount0_pre + amount1_pre) * init_sharePriceK % (amount0_pre + amount1_pre + amount - amount_out_r0)
             let k_new_r0;
             if (rem == 0){
                 k_new_r0 = Math.floor((amount0_pre + amount1_pre) * init_sharePriceK / (amount0_pre + amount1_pre + amount - amount_out_r0))
@@ -79,7 +79,7 @@ describe("test swap op", () => {
             expect(token1Balance_check.v.toString()).toEqual(`${depositToken1 + amount}`);
         }else if (reverse == 1) {
             const amount_out_r1 = Math.floor(amount0_pre * amount * 1021 / ((amount1_pre + amount) * 1024));
-            const rem = (amount0_pre + amount1_pre) * init_sharePriceK % (amount0_pre + amount1_pre + amount + amount_out_r1)
+            const rem = (amount0_pre + amount1_pre) * init_sharePriceK % (amount0_pre + amount1_pre + amount - amount_out_r1)
             let k_new_r1;
             if (rem == 0){
                 k_new_r1 = Math.floor((amount0_pre + amount1_pre) * init_sharePriceK / (amount0_pre + amount1_pre + amount - amount_out_r1))
