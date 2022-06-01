@@ -1,17 +1,17 @@
 import { Field } from "delphinus-curves/src/field";
 import { BN } from "bn.js";
-import { L2Storage } from "../../src/circom/address-space";
-import { SetKeyCommand } from "../../src/circom/ops/setkey";
-import { AddPoolCommand } from "../../src/circom/ops/addpool";
-import { DepositCommand } from "../../src/circom/ops/deposit";
-import { SupplyCommand } from "../../src/circom/ops/supply";
-import { RetrieveCommand } from "../../src/circom/ops/retrieve";
-import { SwapCommand } from "../../src/circom/ops/swap";
-import { Account } from "../../src/circom/address/account";
-import { Pool } from "../../src/circom/address/pool";
-import { AddressSpace, getSpaceIndex } from "../../src/circom/address/space";
+import { L2Storage } from "../../../src/circom/address-space";
+import { SetKeyCommand } from "../../../src/circom/ops/setkey";
+import { AddPoolCommand } from "../../../src/circom/ops/addpool";
+import { DepositCommand } from "../../../src/circom/ops/deposit";
+import { SupplyCommand } from "../../../src/circom/ops/supply";
+import { RetrieveCommand } from "../../../src/circom/ops/retrieve";
+import { SwapCommand } from "../../../src/circom/ops/swap";
+import { Account } from "../../../src/circom/address/account";
+import { Pool } from "../../../src/circom/address/pool";
+import { AddressSpace, getSpaceIndex } from "../../../src/circom/address/space";
 import fs from "fs-extra";
-import { ShareCalcHelper } from "../../src/circom/shareCalc_helper";
+import { ShareCalcHelper } from "../../../src/circom/shareCalc_helper";
 
 describe("test ops", () => {
     test("test Input json scenario", async () => {
@@ -19,7 +19,7 @@ describe("test ops", () => {
         let storage: L2Storage = new L2Storage(true);
 
         //test scenario1
-        const config = await fs.readJSONSync(`${__dirname}/test_scenarios/scenario1.json`);
+        const config = await fs.readJSONSync(`${__dirname}/examples/scenario1.json`);
         
         for (let i = 0; i < config.scenario.length; i++) {
             const account = new Account(storage, config.scenario[i].accountIndex);
@@ -204,7 +204,7 @@ describe("test ops", () => {
                 await swap_command.run(storage);
 
                 const nonce_check = await storage.getLeave(account.getAccountNonceIndex());
-                const sharesharePriceK_check = await storage.getLeave(pool.getSharePriceKIndex());
+                const sharePriceK_check = await storage.getLeave(pool.getSharePriceKIndex());
                 const [tokenIndex0_check,tokenIndex1_check,liq0_check,liq1_check] = await storage.getLeaves(poolInfo_Index);
                 const token0Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenInfo())[0][0]));
                 const token1Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenInfo())[1][0]));
@@ -214,31 +214,21 @@ describe("test ops", () => {
                 expect(tokenIndex0_check.v.toString()).toEqual(tokenIndex0.v.toString());
                 expect(tokenIndex1_check.v.toString()).toEqual(tokenIndex1.v.toString());
                 if (config.scenario[i].reverse == 0){
-                    const profit_r0 = shareCalc.profit_AMM(
-                        new BN(config.scenario[i].amount),
-                        liq1.v,
-                        liq0.v
-                    );
-                    // const profit_r0 = new BN(config.scenario[i].amount).sub(liq1.v.mul(new BN(config.scenario[i].amount)).mul(new BN(1021)).div(liq0.v.add(new BN(config.scenario[i].amount)).mul(new BN(1024))));
-                    const k0_new = shareCalc.calcK_new(liq0.v.add(liq1.v), sharePriceK.v, profit_r0.v);
-                    expect(k0_new.v.toString()).toEqual(sharesharePriceK_check.v.toString());
+                    const amount_out0 = shareCalc.calcAmountOut_AMM(new BN(config.scenario[i].amount),liq1.v,liq0.v);
+                    const k0_new = shareCalc.calcK_new(liq0.v.add(liq1.v), liq0.v.add(liq1.v).add(new BN(config.scenario[i].amount)).sub(amount_out0.v), sharePriceK.v);
+                    expect(k0_new.v.toString()).toEqual(sharePriceK_check.v.toString());
                     expect(liq0_check.v.toString()).toEqual(liq0.v.add(new BN(config.scenario[i].amount)).toString());
-                    expect(liq1_check.v.toString()).toEqual(liq1.v.sub(new BN(config.scenario[i].amount)).add(profit_r0.v).toString());
-                    expect(token0Balance_check.v.toString()).toEqual(token0Balance.v.sub(new BN(config.scenario[i].amount)).add(profit_r0.v).toString());
+                    expect(liq1_check.v.toString()).toEqual(liq1.v.sub(amount_out0.v).toString());
+                    expect(token0Balance_check.v.toString()).toEqual(token0Balance.v.sub(amount_out0.v).toString());
                     expect(token1Balance_check.v.toString()).toEqual(token1Balance.v.add(new BN(config.scenario[i].amount)).toString());
                 }else if (config.scenario[i].reverse == 1) {
-                    const profit_r1 = shareCalc.profit_AMM(
-                        new BN(config.scenario[i].amount),
-                        liq0.v,
-                        liq1.v
-                    );
-                    // const profit_r1 = new BN(config.scenario[i].amount).sub(liq0.v.mul(new BN(config.scenario[i].amount)).mul(new BN(1021)).div(liq1.v.add(new BN(config.scenario[i].amount)).mul(new BN(1024))));
-                    const k1_new = shareCalc.calcK_new(liq0.v.add(liq1.v), sharePriceK.v, profit_r1.v);
-                    expect(k1_new.v.toString()).toEqual(sharesharePriceK_check.v.toString());
-                    expect(liq0_check.v.toString()).toEqual(liq0.v.sub(new BN(config.scenario[i].amount)).add(profit_r1.v).toString());
+                    const amount_out1 = shareCalc.profit_AMM(new BN(config.scenario[i].amount),liq0.v,liq1.v);
+                    const k1_new = shareCalc.calcK_new(liq0.v.add(liq1.v), liq0.v.add(liq1.v).add(new BN(config.scenario[i].amount).sub(amount_out1.v)), sharePriceK.v);
+                    expect(k1_new.v.toString()).toEqual(sharePriceK_check.v.toString());
+                    expect(liq0_check.v.toString()).toEqual(liq0.v.sub(amount_out1.v).toString());
                     expect(liq1_check.v.toString()).toEqual(liq1.v.add(new BN(config.scenario[i].amount)).toString());
                     expect(token0Balance_check.v.toString()).toEqual(token0Balance.v.add(new BN(config.scenario[i].amount)).toString());
-                    expect(token1Balance_check.v.toString()).toEqual(token1Balance.v.sub(new BN(config.scenario[i].amount)).add(profit_r1.v).toString());
+                    expect(token1Balance_check.v.toString()).toEqual(token1Balance.v.sub(amount_out1.v).toString());
                 }
             }
         }

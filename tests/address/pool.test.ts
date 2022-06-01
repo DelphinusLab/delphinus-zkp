@@ -30,36 +30,24 @@ describe("test pool class", () => {
         ).rejects.toEqual(new Error('SharePriceK has not been initiated yet'));
     });
 
-    test("test getTotalAmount", async () => {
+    test("test getAndAddLiq_withK", async () => {
         jest.setTimeout(60000); //1 minute timeout
         let storage: L2Storage = new L2Storage(true);
         
         const poolIndex = 0;
         const pool = new Pool(storage, poolIndex);
-        const token0Amount = new Field(500);
-        const token1Amount = new Field(500);
-        await pool.getAndAddLiq(token0Amount,token1Amount);
-        const totalAmount = await pool.getTotalAmount()
-
-        expect(totalAmount.toString()).toEqual('1000');
-    });
-
-    test("test getAndUpdateSharePriceK", async () => {
-        jest.setTimeout(60000); //1 minute timeout
-        let storage: L2Storage = new L2Storage(true);
-        
-        const poolIndex = 0;
-        const pool = new Pool(storage, poolIndex);
-        const token0Amount = new Field(500);
-        const token1Amount = new Field(500);
-        const profit = new Field(1000);
-        const k = new Field(10);
-        await pool.initSharePriceK(k);
-        await pool.getAndAddLiq(token0Amount,token1Amount);
-        await pool.getAndUpdateSharePriceK(profit);
+        const tokenIndex0 = new Field(0);
+        const tokenIndex1 = new Field(1);
+        const token0liq = new Field(1000);
+        const token1liq = new Field(1000);
+        const sharePriceK = new Field(10);
+        await pool.setPool(tokenIndex0,tokenIndex1,token0liq,token1liq,sharePriceK);
+        const amount = new Field(600);
+        const amount_out = new Field(0).sub(new Field(400));
+        await pool.getAndAddLiq_withK(amount,amount_out);
         const k_new = await pool.getSharePriceK();
 
-        // kew_new = (500+500)*10/(500+500+1000) = 5
-        expect(k_new.toString()).toEqual('5');
+        //(1000+1000)*10/(1000+1000+600-400) = 9.09 rounding up 10
+        expect(k_new.toString()).toEqual('10');
     });
 });
