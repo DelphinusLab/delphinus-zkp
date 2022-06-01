@@ -55,12 +55,33 @@ export class Pool  {
     return [tokenIndex0, tokenIndex1, path];
   }
 
-  async getTotalAmount(){
+  async getAndAddLiq_withK(
+    amount0: Field,
+    amount1: Field
+  ): Promise<[Field, Field, PathInfo]> {
+    const path = await this.getPoolPath();
+
     const poolInfo = await this.storage.getLeaves(this.info_index);
+    const tokenIndex0 = poolInfo[0];
+    const tokenIndex1 = poolInfo[1];
     const liq0 = poolInfo[2];
     const liq1 = poolInfo[3];
-    const poolTotal = liq0.add(liq1);
-    return poolTotal
+
+    
+    await this.storage.setLeaves(this.info_index, [
+      tokenIndex0,
+      tokenIndex1,
+      liq0.add(amount0),
+      liq1.add(amount1),
+    ]);
+
+    const shareCalc = new ShareCalcHelper;
+    const poolTotal_old = liq0.add(liq1);
+    const poolTotal_new = liq0.add(liq1).add(amount0).add(amount1);
+    const k = await this.getSharePriceK();
+    const k_new = shareCalc.calcK_new(poolTotal_old.v, poolTotal_new.v, k.v);
+    await this.storage.setLeave(this.getSharePriceKIndex(), k_new);
+    return [tokenIndex0, tokenIndex1, path];
   }
 
   async getTokenInfo(){
@@ -88,22 +109,10 @@ export class Pool  {
     throw new Error('SharePriceK has not been initiated yet');
   }
 
-  async getAndUpdateSharePriceK(
-    profit: Field
-  ){
-    const sharePriceKIndex = this.getSharePriceKIndex();
-    const path = await this.storage.getPath(sharePriceKIndex);
-    const k = await this.getSharePriceK();
-    const totalAmount = await this.getTotalAmount();
-    const shareCalc = new ShareCalcHelper;
-    const k_new = shareCalc.calcK_new(totalAmount.v, k.v, profit.v);
-    await this.storage.setLeave(sharePriceKIndex, k_new);
-    return path
-  }
-
   async resetPool(
       tokenIndex0: Field,
       tokenIndex1: Field,
+      sharePriceK: Field
   ) {
     const zero = new Field(0);
     await this.storage.setLeaves(this.info_index, [
@@ -112,5 +121,22 @@ export class Pool  {
       zero,
       zero,
     ]);
+    await this.initSharePriceK(sharePriceK);
   }
+
+  async setPool(
+    tokenIndex0: Field,
+    tokenIndex1: Field,
+    token0liq: Field,
+    token1liq: Field,
+    sharePriceK: Field
+) {
+  await this.storage.setLeaves(this.info_index, [
+    tokenIndex0,
+    tokenIndex1,
+    token0liq,
+    token1liq,
+  ]);
+  await this.initSharePriceK(sharePriceK);
+}
 }
