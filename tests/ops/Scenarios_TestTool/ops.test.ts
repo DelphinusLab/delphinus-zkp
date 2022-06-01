@@ -219,16 +219,16 @@ describe("test ops", () => {
                     expect(k0_new.v.toString()).toEqual(sharePriceK_check.v.toString());
                     expect(liq0_check.v.toString()).toEqual(liq0.v.add(new BN(config.scenario[i].amount)).toString());
                     expect(liq1_check.v.toString()).toEqual(liq1.v.sub(amount_out0.v).toString());
-                    expect(token0Balance_check.v.toString()).toEqual(token0Balance.v.sub(amount_out0.v).toString());
-                    expect(token1Balance_check.v.toString()).toEqual(token1Balance.v.add(new BN(config.scenario[i].amount)).toString());
+                    expect(token0Balance_check.v.toString()).toEqual(token0Balance.v.sub(new BN(config.scenario[i].amount)).toString());
+                    expect(token1Balance_check.v.toString()).toEqual(token1Balance.v.add(amount_out0.v).toString());
                 }else if (config.scenario[i].reverse == 1) {
                     const amount_out1 = shareCalc.profit_AMM(new BN(config.scenario[i].amount),liq0.v,liq1.v);
                     const k1_new = shareCalc.calcK_new(liq0.v.add(liq1.v), liq0.v.add(liq1.v).add(new BN(config.scenario[i].amount).sub(amount_out1.v)), sharePriceK.v);
                     expect(k1_new.v.toString()).toEqual(sharePriceK_check.v.toString());
                     expect(liq0_check.v.toString()).toEqual(liq0.v.sub(amount_out1.v).toString());
                     expect(liq1_check.v.toString()).toEqual(liq1.v.add(new BN(config.scenario[i].amount)).toString());
-                    expect(token0Balance_check.v.toString()).toEqual(token0Balance.v.add(new BN(config.scenario[i].amount)).toString());
-                    expect(token1Balance_check.v.toString()).toEqual(token1Balance.v.sub(amount_out1.v).toString());
+                    expect(token0Balance_check.v.toString()).toEqual(token0Balance.v.add(amount_out1.v).toString());
+                    expect(token1Balance_check.v.toString()).toEqual(token1Balance.v.sub(new BN(config.scenario[i].amount)).toString());
                 }
             }
         }
