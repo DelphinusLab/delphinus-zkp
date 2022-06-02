@@ -57,7 +57,8 @@ export class Pool  {
 
   async getAndAddLiq_withK(
     amount0: Field,
-    amount1: Field
+    amount1: Field,
+    k_new: Field
   ): Promise<[Field, Field, PathInfo]> {
     const path = await this.getPoolPath();
 
@@ -67,20 +68,14 @@ export class Pool  {
     const liq0 = poolInfo[2];
     const liq1 = poolInfo[3];
 
-    
     await this.storage.setLeaves(this.info_index, [
       tokenIndex0,
       tokenIndex1,
       liq0.add(amount0),
       liq1.add(amount1),
     ]);
-
-    const shareCalc = new ShareCalcHelper;
-    const poolTotal_old = liq0.add(liq1);
-    const poolTotal_new = liq0.add(liq1).add(amount0).add(amount1);
-    const k = await this.getSharePriceK();
-    const k_new = shareCalc.calcK_new(poolTotal_old.v, poolTotal_new.v, k.v);
     await this.storage.setLeave(this.getSharePriceKIndex(), k_new);
+    
     return [tokenIndex0, tokenIndex1, path];
   }
 
