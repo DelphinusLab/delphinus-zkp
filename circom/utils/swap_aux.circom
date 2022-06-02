@@ -271,7 +271,7 @@ template CheckAlign() {
 
     component isAlign = IsZero();
     isAlign.in <== offset;
-    
+
     out <== isAlign.out;
 }
 
@@ -342,4 +342,307 @@ template CheckPermission(privilege) {
     // TODO: fill privilege decision.
 
     out <== 1;
+}
+
+// calculate new liquidity for swap with amm model
+template CalculateSwapNewLiq() {
+    signal input token0liq;
+    signal input token1liq;
+    signal input amount;
+    signal input reverse;
+    signal output newtoken0liq;
+    signal output newtoken1liq;
+    signal output resultAmount;
+    signal output out;
+    signal amount_input;
+    signal amount_output;
+    signal dividend;
+    signal divisor;
+    signal remainder;
+
+    component andmany = AndMany(4);
+    var andmanyOffset = 0;
+
+    // reverse: 0 -> amount_input == token0liq, 1 -> amount_input == token1liq
+    component getAmountInput = BiSelect();
+    getAmountInput.in[0] <== token0liq;
+    getAmountInput.in[1] <== token1liq;
+    getAmountInput.cond <== reverse;
+    amount_input <== getAmountInput.out;
+
+    // reverse: 0 -> amount_output == token1liq, 1 -> amount_output == token0liq
+    component getAmountOutput = BiSelect();
+    getAmountOutput.in[0] <== token1liq;
+    getAmountOutput.in[1] <== token0liq;
+    getAmountOutput.cond <== reverse;
+    amount_output <== getAmountOutput.out;
+
+    component amountInputIsZero = IsZero();
+    amountInputIsZero.in <== amount_input;
+    andmany.in[andmanyOffset] <== 1 - amountInputIsZero.out;
+    andmanyOffset++;
+
+    component token0liqcheck = Check2PowerRangeFE(125);
+    token0liqcheck.in <== amount_input;
+    andmany.in[andmanyOffset] <== token0liqcheck.out;
+    andmanyOffset++;
+
+    component token1liqcheck = Check2PowerRangeFE(125);
+    token1liqcheck.in <== amount_output;
+    andmany.in[andmanyOffset] <== token1liqcheck.out;
+    andmanyOffset++;
+
+    // swap rate is almost equal to 0.3%(1021/1024 for convenience in circom)
+    dividend <== amount_output * amount * 1021;
+    divisor <== (amount_input + amount) * 1024;
+    resultAmount <-- dividend \ divisor;
+    remainder <-- dividend - resultAmount * divisor;
+    dividend === resultAmount * divisor + remainder;
+    component lessthan = LessThanFE(250);
+    lessthan.in[0] <== remainder;
+    lessthan.in[1] <== divisor;
+    andmany.in[andmanyOffset] <== lessthan.out;
+    andmanyOffset++;
+
+    // reverse: 0 -> newtoken0liq = token0liq + amount, 1 -> newtoken0liq = token0liq - resultAmount
+    component getNewToken0Liq = BiSelect();
+    getNewToken0Liq.in[0] <== token0liq + amount;
+    getNewToken0Liq.in[1] <== token0liq - resultAmount;
+    getNewToken0Liq.cond <== reverse;
+    newtoken0liq <== getNewToken0Liq.out;
+
+    // reverse: 0 -> newtoken1liq = token0liq + amount, 1 -> newtoken1liq = token0liq - resultAmount
+    component getNewToken1Liq = BiSelect();
+    getNewToken1Liq.in[0] <== token1liq - resultAmount;
+    getNewToken1Liq.in[1] <== token1liq + amount;
+    getNewToken1Liq.cond <== reverse;
+    newtoken1liq <== getNewToken1Liq.out;
+
+    out <== andmany.out;
+}
+
+// swap will change K which is (1 / sharePrice) * (10 ^ 12)
+template CalculateNewSharePriceK() {
+    signal input token0liq;
+    signal input token1liq;
+    signal input amount;
+    signal input sharePriceK;
+    signal output newSharePriceK;
+    signal output out;
+    signal dividend;
+    signal quotient;
+    signal remainder;
+
+    var total_old = token0liq + token1liq;
+    var total_new = total_old + amount;
+    dividend <== total_old * sharePriceK;
+    quotient <-- dividend \ total_new;
+    remainder <-- dividend - total_new * quotient;
+    dividend === total_new * quotient + remainder;
+    component lessthan = LessThanFE(250);
+    lessthan.in[0] <== remainder;
+    lessthan.in[1] <== total_new;
+    out <== lessthan.out;
+
+    component getNewSharePriceK = BiSelect();
+    getNewSharePriceK.in[0] <== quotient;
+    getNewSharePriceK.in[1] <== quotient + 1;
+    getNewSharePriceK.cond <== remainder;
+
+    newSharePriceK <== getNewSharePriceK.out;
+}
+
+// update liquidity for supply and retrieve
+template CheckAndUpdateLiqFE(N) {
+    var MaxTreeDataIndex = 66;
+    var IndexOffset = 0;
+    var LeaveStartOffset = 61;
+    var Token0Offset = LeaveStartOffset;
+    var Token1Offset = LeaveStartOffset + 1;
+    var Token0LiqOffset = LeaveStartOffset + 2;
+    var Token1LiqOffset = LeaveStartOffset + 3;
+
+    signal input pool;
+    signal input amount0;
+    signal input amount1;
+    signal input dataPath[MaxTreeDataIndex];
+    signal output newDataPath[MaxTreeDataIndex];
+    signal output out;
+
+    component andmany = AndMany(8);
+    var andmanyOffset = 0;
+
+    component poolIndex = CheckPoolInfoIndexFE();
+    poolIndex.pool <== pool;
+    poolIndex.index <== dataPath[IndexOffset];
+    andmany.in[andmanyOffset] <== poolIndex.out;
+    andmanyOffset++;
+
+    var token0 = dataPath[Token0Offset];
+    var token1 = dataPath[Token1Offset];
+    var token0liq = dataPath[Token0LiqOffset];
+    var token1liq = dataPath[Token1LiqOffset];
+
+    component token0check = Check2PowerRangeFE(10);
+    token0check.in <== token0;
+    andmany.in[andmanyOffset] <== token0check.out;
+    andmanyOffset++;
+
+    component token1check = Check2PowerRangeFE(10);
+    token1check.in <== token1;
+    andmany.in[andmanyOffset] <== token1check.out;
+    andmanyOffset++;
+
+    component tokenEq = IsEqual();
+    tokenEq.in[0] <== token0;
+    tokenEq.in[1] <== token1;
+    andmany.in[andmanyOffset] <== 1 - tokenEq.out;
+    andmanyOffset++;
+
+    component token0liqcheck = Check2PowerRangeFE(250);
+    token0liqcheck.in <== token0liq;
+    andmany.in[andmanyOffset] <== token0liqcheck.out;
+    andmanyOffset++;
+
+    component token1lliqcheck = Check2PowerRangeFE(250);
+    token1lliqcheck.in <== token1liq;
+    andmany.in[andmanyOffset] <== token1lliqcheck.out;
+    andmanyOffset++;
+
+    var newtoken0liq;
+    var newtoken1liq;
+
+    // N: 0 -> supply, 1 -> retrieve
+    if(N == 0) {
+      newtoken0liq = token0liq + amount0;
+      newtoken1liq = token1liq + amount1;
+    } else if(N == 1) {
+      newtoken0liq = token0liq - amount0;
+      newtoken1liq = token1liq - amount1;
+    }
+
+    component newtoken0liqcheck = Check2PowerRangeFE(250);
+    newtoken0liqcheck.in <== newtoken0liq;
+    andmany.in[andmanyOffset] <== newtoken0liqcheck.out;
+    andmanyOffset++;
+
+    component newtoken1lliqcheck = Check2PowerRangeFE(250);
+    newtoken1lliqcheck.in <== newtoken1liq;
+    andmany.in[andmanyOffset] <== newtoken1lliqcheck.out;
+    andmanyOffset++;
+
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        if (i == Token0LiqOffset) {
+            newDataPath[i] <== newtoken0liq;
+        } else if (i == Token1LiqOffset) {
+            newDataPath[i] <== newtoken1liq;
+        } else {
+            newDataPath[i] <== dataPath[i];
+        }
+    }
+
+    out <== andmany.out;
+}
+
+// update liquidity for swap
+template CheckAndUpdateSwapLiqFE() {
+    var MaxTreeDataIndex = 66;
+    var SharePriceKOffset = 58;
+    var IndexOffset = 0;
+    var LeaveStartOffset = 61;
+    var Token0Offset = LeaveStartOffset;
+    var Token1Offset = LeaveStartOffset + 1;
+    var Token0LiqOffset = LeaveStartOffset + 2;
+    var Token1LiqOffset = LeaveStartOffset + 3;
+
+    signal input pool;
+    signal input amount;
+    signal input reverse;
+    signal input dataPath[MaxTreeDataIndex];
+    signal output newDataPath[MaxTreeDataIndex];
+    signal output resultAmount;
+    signal output out;
+
+    component andmany = AndMany(10);
+    var andmanyOffset = 0;
+
+    component poolIndex = CheckPoolInfoIndexFE();
+    poolIndex.pool <== pool;
+    poolIndex.index <== dataPath[IndexOffset];
+    andmany.in[andmanyOffset] <== poolIndex.out;
+    andmanyOffset++;
+
+    var token0 = dataPath[Token0Offset];
+    var token1 = dataPath[Token1Offset];
+    var token0liq = dataPath[Token0LiqOffset];
+    var token1liq = dataPath[Token1LiqOffset];
+
+    component token0check = Check2PowerRangeFE(10);
+    token0check.in <== token0;
+    andmany.in[andmanyOffset] <== token0check.out;
+    andmanyOffset++;
+
+    component token1check = Check2PowerRangeFE(10);
+    token1check.in <== token1;
+    andmany.in[andmanyOffset] <== token1check.out;
+    andmanyOffset++;
+
+    component tokenEq = IsEqual();
+    tokenEq.in[0] <== token0;
+    tokenEq.in[1] <== token1;
+    andmany.in[andmanyOffset] <== 1 - tokenEq.out;
+    andmanyOffset++;
+
+    component token0liqcheck = Check2PowerRangeFE(250);
+    token0liqcheck.in <== token0liq;
+    andmany.in[andmanyOffset] <== token0liqcheck.out;
+    andmanyOffset++;
+
+    component token1lliqcheck = Check2PowerRangeFE(250);
+    token1lliqcheck.in <== token1liq;
+    andmany.in[andmanyOffset] <== token1lliqcheck.out;
+    andmanyOffset++;
+
+    component getNewLiq = CalculateSwapNewLiq();
+    getNewLiq.token0liq <== token0liq;
+    getNewLiq.token1liq <== token1liq;
+    getNewLiq.amount <== amount;
+    getNewLiq.reverse <== reverse;
+    var newtoken0liq = getNewLiq.newtoken0liq;
+    var newtoken1liq = getNewLiq.newtoken1liq;
+    resultAmount <-- getNewLiq.resultAmount;
+    andmany.in[andmanyOffset] <== getNewLiq.out;
+    andmanyOffset++;
+
+    component newtoken0liqcheck = Check2PowerRangeFE(250);
+    newtoken0liqcheck.in <== newtoken0liq;
+    andmany.in[andmanyOffset] <== newtoken0liqcheck.out;
+    andmanyOffset++;
+
+    component newtoken1lliqcheck = Check2PowerRangeFE(250);
+    newtoken1lliqcheck.in <== newtoken1liq;
+    andmany.in[andmanyOffset] <== newtoken1lliqcheck.out;
+    andmanyOffset++;
+
+    component calculateNewSharePriceK = CalculateNewSharePriceK();
+    calculateNewSharePriceK.token0liq <== token0liq;
+    calculateNewSharePriceK.token1liq <== token1liq;
+    calculateNewSharePriceK.amount <== amount - resultAmount;
+    calculateNewSharePriceK.sharePriceK <== dataPath[SharePriceKOffset];
+    andmany.in[andmanyOffset] <== calculateNewSharePriceK.out;
+    andmanyOffset++;
+
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        if(i == SharePriceKOffset) {
+            newDataPath[i] <== calculateNewSharePriceK.newSharePriceK;
+        } else if (i == Token0LiqOffset) {
+            newDataPath[i] <== newtoken0liq;
+        } else if (i == Token1LiqOffset) {
+            newDataPath[i] <== newtoken1liq;
+        } else {
+            newDataPath[i] <== dataPath[i];
+        }
+    }
+
+    out <== andmany.out;
 }
