@@ -11,6 +11,7 @@ template Swap() {
     var Token1Offset = LeaveStartOffset + 1;
     var Token0LiqOffset = LeaveStartOffset + 2;
     var Token1LiqOffset = LeaveStartOffset + 3;
+    var SharePriceKOffset = 58;
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
 
@@ -21,7 +22,7 @@ template Swap() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(18);
+    component andmany = AndMany(13);
     var andmanyOffset = 0;
 
     var nonce = args[1];
@@ -42,8 +43,14 @@ template Swap() {
     andmany.in[andmanyOffset] <== rangecheck1.out;
     andmanyOffset++;
 
-    // circuits: check amount < 2 ^ 250
-    component rangecheck3 = Check2PowerRangeFE(250);
+    // circuits: check amount != 0
+    component amountIsZero = IsZero();
+    amountIsZero.in <== amount;
+    andmany.in[andmanyOffset] <== 1 - amountIsZero.out;
+    andmanyOffset++;
+
+    // circuits: check amount < 2 ^ 125
+    component rangecheck3 = Check2PowerRangeFE(125);
     rangecheck3.in <== amount;
     andmany.in[andmanyOffset] <== rangecheck3.out;
     andmanyOffset++;
@@ -52,12 +59,6 @@ template Swap() {
     component iszero = IsZero();
     iszero.in <== reverse;
     reverse = 1 - iszero.out;
-
-    // similar to supply
-    signal amount0;
-    amount0 <== (1 - 2 * reverse) * amount; // reverse: 0 -> amount, 1 -> -amount;
-    signal amount1;
-    amount1 <== (2 * reverse - 1) * amount; // reverse: 0 -> -amount, 1 -> amount;
 
     // circuits: check signer is account
     component signerEq = IsEqual();
@@ -89,63 +90,34 @@ template Swap() {
     andmanyOffset++;
 
     // STEP2: udpate liq
-    component poolIndex = CheckPoolInfoIndexFE();
-    poolIndex.pool <== pool;
-    poolIndex.index <== dataPath[1][IndexOffset];
-    andmany.in[andmanyOffset] <== poolIndex.out;
-    andmanyOffset++;
-
-    var token0 = dataPath[1][Token0Offset];
-    var token1 = dataPath[1][Token1Offset];
-    var token0liq = dataPath[1][Token0LiqOffset];
-    var token1liq = dataPath[1][Token1LiqOffset];
-    var newtoken0liq = token0liq + amount0;
-    var newtoken1liq = token1liq + amount1;
-    component token0check = Check2PowerRangeFE(10);
-    token0check.in <== token0;
-    andmany.in[andmanyOffset] <== token0check.out;
-    andmanyOffset++;
-    component token1check = Check2PowerRangeFE(10);
-    token1check.in <== token1;
-    andmany.in[andmanyOffset] <== token1check.out;
-    andmanyOffset++;
-    component token0liqcheck = Check2PowerRangeFE(250);
-    token0liqcheck.in <== token0liq;
-    andmany.in[andmanyOffset] <== token0liqcheck.out;
-    andmanyOffset++;
-    component token1lliqcheck = Check2PowerRangeFE(250);
-    token1lliqcheck.in <== token1liq;
-    andmany.in[andmanyOffset] <== token1lliqcheck.out;
-    andmanyOffset++;
-    component newtoken0liqcheck = Check2PowerRangeFE(250);
-    newtoken0liqcheck.in <== newtoken0liq;
-    andmany.in[andmanyOffset] <== newtoken0liqcheck.out;
-    andmanyOffset++;
-    component newtoken1lliqcheck = Check2PowerRangeFE(250);
-    newtoken1lliqcheck.in <== newtoken1liq;
-    andmany.in[andmanyOffset] <== newtoken1lliqcheck.out;
-    andmanyOffset++;
-
+    component checkLiq = CheckAndUpdateSwapLiqFE();
+    checkLiq.pool <== pool;
+    checkLiq.amount <== amount;
+    checkLiq.reverse <== reverse;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
-        if (i == Token0LiqOffset) {
-            newDataPath[1][i] <== newtoken0liq;
-        } else if (i == Token1LiqOffset) {
-            newDataPath[1][i] <== newtoken1liq;
-        } else {
-            newDataPath[1][i] <== dataPath[1][i];
-        }
+        checkLiq.dataPath[i] <== dataPath[1][i];
     }
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        newDataPath[1][i] <== checkLiq.newDataPath[i];
+    }
+    andmany.in[andmanyOffset] <== checkLiq.out;
+    andmanyOffset++;
 
-    // STEP4: udpate balance0
+    // STEP3: udpate balance0
     component balance0Index = CheckBalanceIndex();
     balance0Index.account <== account;
-    balance0Index.token <== token0;
+    balance0Index.token <== dataPath[1][Token0Offset];
     balance0Index.index <== dataPath[2][IndexOffset];
     andmany.in[andmanyOffset] <== balance0Index.out;
     andmanyOffset++;
 
     component change0 = ChangeValueFromTreePath();
-    change0.diff <== -amount0;
+    // reverse: 0 -> diff == -amount, 1 -> diff == resultAmount
+    component getDiff0 = BiSelect();
+    getDiff0.in[0] <== -amount;
+    getDiff0.in[1] <== checkLiq.resultAmount;
+    getDiff0.cond <== reverse;
+    change0.diff <== getDiff0.out;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         change0.treeData[i] <== dataPath[2][i];
     }
@@ -155,16 +127,21 @@ template Swap() {
     andmany.in[andmanyOffset] <== change0.out;
     andmanyOffset++;
 
-    // STEP5: udpate balance1
+    // STEP4: udpate balance1
     component balance1Index = CheckBalanceIndex();
     balance1Index.account <== account;
-    balance1Index.token <== token1;
+    balance1Index.token <== dataPath[1][Token1Offset];
     balance1Index.index <== dataPath[3][IndexOffset];
     andmany.in[andmanyOffset] <== balance1Index.out;
     andmanyOffset++;
 
     component change1 = ChangeValueFromTreePath();
-    change1.diff <== -amount1;
+    // reverse: 0 -> diff == checkLiq.resultAmount, 1 -> diff == -amount
+    component getDiff1 = BiSelect();
+    getDiff1.in[0] <== checkLiq.resultAmount;
+    getDiff1.in[1] <== -amount;
+    getDiff1.cond <== reverse;
+    change1.diff <== getDiff1.out;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         change1.treeData[i] <== dataPath[3][i];
     }

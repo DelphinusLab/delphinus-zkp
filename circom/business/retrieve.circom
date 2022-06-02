@@ -9,8 +9,7 @@ template Retrieve() {
     var LeaveStartOffset = 61;
     var Token0Offset = LeaveStartOffset;
     var Token1Offset = LeaveStartOffset + 1;
-    var Token0LiqOffset = LeaveStartOffset + 2;
-    var Token1LiqOffset = LeaveStartOffset + 3;
+    var SharePriceKOffset = 58;
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
 
@@ -21,7 +20,7 @@ template Retrieve() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(22);
+    component andmany = AndMany(16);
     var andmanyOffset = 0;
 
     var nonce = args[1];
@@ -42,14 +41,14 @@ template Retrieve() {
     andmany.in[andmanyOffset] <== rangecheck1.out;
     andmanyOffset++;
 
-    // circuits: check amount0 < 2 ^ 250
-    component rangecheck2 = Check2PowerRangeFE(250);
+    // circuits: check amount0 < 2 ^ 125
+    component rangecheck2 = Check2PowerRangeFE(125);
     rangecheck2.in <== amount0;
     andmany.in[andmanyOffset] <== rangecheck2.out;
     andmanyOffset++;
 
-    // circuits: check amount1 < 2 ^ 250
-    component rangecheck3 = Check2PowerRangeFE(250);
+    // circuits: check amount1 < 2 ^ 125
+    component rangecheck3 = Check2PowerRangeFE(125);
     rangecheck3.in <== amount1;
     andmany.in[andmanyOffset] <== rangecheck3.out;
     andmanyOffset++;
@@ -84,52 +83,18 @@ template Retrieve() {
     andmanyOffset++;
 
     // STEP2: udpate liq
-    component poolIndex = CheckPoolInfoIndexFE();
-    poolIndex.pool <== pool;
-    poolIndex.index <== dataPath[1][IndexOffset];
-    andmany.in[andmanyOffset] <== poolIndex.out;
-    andmanyOffset++;
-
-    var token0 = dataPath[1][Token0Offset];
-    var token1 = dataPath[1][Token1Offset];
-    var token0liq = dataPath[1][Token0LiqOffset];
-    var token1liq = dataPath[1][Token1LiqOffset];
-    var newtoken0liq = token0liq - amount0;
-    var newtoken1liq = token1liq - amount1;
-    component token0check = Check2PowerRangeFE(10);
-    token0check.in <== token0;
-    andmany.in[andmanyOffset] <== token0check.out;
-    andmanyOffset++;
-    component token1check = Check2PowerRangeFE(10);
-    token1check.in <== token1;
-    andmany.in[andmanyOffset] <== token1check.out;
-    andmanyOffset++;
-    component token0liqcheck = Check2PowerRangeFE(250);
-    token0liqcheck.in <== token0liq;
-    andmany.in[andmanyOffset] <== token0liqcheck.out;
-    andmanyOffset++;
-    component token1lliqcheck = Check2PowerRangeFE(250);
-    token1lliqcheck.in <== token1liq;
-    andmany.in[andmanyOffset] <== token1lliqcheck.out;
-    andmanyOffset++;
-    component newtoken0liqcheck = Check2PowerRangeFE(250);
-    newtoken0liqcheck.in <== newtoken0liq;
-    andmany.in[andmanyOffset] <== newtoken0liqcheck.out;
-    andmanyOffset++;
-    component newtoken1lliqcheck = Check2PowerRangeFE(250);
-    newtoken1lliqcheck.in <== newtoken1liq;
-    andmany.in[andmanyOffset] <== newtoken1lliqcheck.out;
-    andmanyOffset++;
-
+    component checkLiq = CheckAndUpdateLiqFE(1);
+    checkLiq.pool <== pool;
+    checkLiq.amount0 <== amount0;
+    checkLiq.amount1 <== amount1;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
-        if (i == Token0LiqOffset) {
-            newDataPath[1][i] <== newtoken0liq;
-        } else if (i == Token1LiqOffset) {
-            newDataPath[1][i] <== newtoken1liq;
-        } else {
-            newDataPath[1][i] <== dataPath[1][i];
-        }
+        checkLiq.dataPath[i] <== dataPath[1][i];
     }
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        newDataPath[1][i] <== checkLiq.newDataPath[i];
+    }
+    andmany.in[andmanyOffset] <== checkLiq.out;
+    andmanyOffset++;
 
     // STEP3: udpate share
     component shareIndex = CheckShareIndex();
@@ -139,7 +104,7 @@ template Retrieve() {
     andmany.in[andmanyOffset] <== shareIndex.out;
     andmanyOffset++;
 
-    var shareDiff = amount0 + amount1;
+    var shareDiff = (amount0 + amount1) * dataPath[1][SharePriceKOffset];
     component shareDiffRange = Check2PowerRangeFE(250);
     shareDiffRange.in <== shareDiff;
     andmany.in[andmanyOffset] <== shareDiffRange.out;
@@ -159,7 +124,7 @@ template Retrieve() {
     // STEP4: udpate balance0
     component balance0Index = CheckBalanceIndex();
     balance0Index.account <== account;
-    balance0Index.token <== token0;
+    balance0Index.token <== dataPath[1][Token0Offset];
     balance0Index.index <== dataPath[3][IndexOffset];
     andmany.in[andmanyOffset] <== balance0Index.out;
     andmanyOffset++;
@@ -178,7 +143,7 @@ template Retrieve() {
     // STEP5: udpate balance1
     component balance1Index = CheckBalanceIndex();
     balance1Index.account <== account;
-    balance1Index.token <== token1;
+    balance1Index.token <== dataPath[1][Token1Offset];
     balance1Index.index <== dataPath[4][IndexOffset];
     andmany.in[andmanyOffset] <== balance1Index.out;
     andmanyOffset++;
