@@ -43,11 +43,11 @@ describe("test pool class", () => {
         const sharePriceK = new Field(10);
         await pool.setPool(tokenIndex0,tokenIndex1,token0liq,token1liq,sharePriceK);
         const amount = new Field(600);
-        const amount_out = new Field(0).sub(new Field(400));
-        await pool.getAndAddLiq_withK(amount,amount_out);
-        const k_new = await pool.getSharePriceK();
+        const amount_out = new Field(400);
+        const k_new = new Field(11);
+        await pool.getAndAddLiq_withK(amount,amount_out,k_new);
+        const k_new_check = await pool.getSharePriceK();
 
-        //(1000+1000)*10/(1000+1000+600-400) = 9.09 rounding up 10
-        expect(k_new.toString()).toEqual('10');
+        expect(k_new_check.toString()).toEqual('11');
     });
 });
