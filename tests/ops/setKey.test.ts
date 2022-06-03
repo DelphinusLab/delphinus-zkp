@@ -1,5 +1,4 @@
 import { Field } from "delphinus-curves/src/field";
-import { PathInfo } from "delphinus-curves/src/merkle-tree-large";
 import { L2Storage } from "../../src/circom/address-space";
 import { SetKeyCommand } from "../../src/circom/ops/setkey";
 import { Account } from "../../src/circom/address/account";
@@ -8,7 +7,7 @@ describe("test SetKey op", () => {
     test("Add key case", async () => {
         jest.setTimeout(60000);
         let storage: L2Storage = new L2Storage(true);
-        
+
         const nonce = 0;
         const accountIndex = 0;
         const ax = new Field(1);
@@ -35,5 +34,3 @@ describe("test SetKey op", () => {
     });
 }
 );
-
-

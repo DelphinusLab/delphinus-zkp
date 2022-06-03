@@ -4,6 +4,7 @@ import { L2Storage } from "../address-space";
 import { Pool } from "../address/pool";
 import { Command } from "../command";
 import { Account } from "../address/account";
+import { ShareCalcHelper } from "../shareCalc_helper";
 
 export class SwapCommand extends Command {
   get callerAccountIndex() {
@@ -21,6 +22,13 @@ export class SwapCommand extends Command {
 
     const pool = new Pool(storage, poolIndex);
     const account = new Account(storage, accountIndex);
+    const shareCalc = new ShareCalcHelper;
+    const [token0, token1] = await pool.getTokenInfo();
+    const amount_out = shareCalc.calcAmountOut_AMM(
+      amount.v,
+      reverse.v.eqn(0) ? token1[1].v : token0[1].v,
+      reverse.v.eqn(0) ? token0[1].v : token1[1].v
+    );
 
     // circuits: check accountIndex < 2 ^ 20
     // circuits: check poolIndex < 2 ^ 10
@@ -30,13 +38,17 @@ export class SwapCommand extends Command {
     // circuits: check nonce
     path.push(await account.getAndUpdateNonce(nonce));
 
-    // STEP2: udpate liquility
+    // STEP2: udpate liquility and SharePriceK
     // circuits: check token0 != 0 || token1 != 0
     // circuits: if reverse == 0 then liq0 + amount doesn't overflow else liq0 >= amount
     // circuits: if reverse == 0 then liq1 >= amount else liq1 + amount doesn't overflow
-    const [tokenIndex0, tokenIndex1, _path] = await pool.getAndAddLiq(
-      reverse.v.eqn(0) ? amount : new Field(0).sub(amount),
-      reverse.v.eqn(0) ? new Field(0).sub(amount) : amount
+    const poolTotalLiq_old = token1[1].add(token0[1]);
+    const poolTotalLiq_new = token1[1].add(token0[1]).add(amount).sub(amount_out);
+    const k_new = shareCalc.calcK_new(poolTotalLiq_old.v, poolTotalLiq_new.v,(await pool.getSharePriceK()).v);
+    const [tokenIndex0, tokenIndex1, _path] = await pool.getAndAddLiq_withK(
+      reverse.v.eqn(0) ? amount : new Field(0).sub(amount_out),
+      reverse.v.eqn(0) ? new Field(0).sub(amount_out) : amount,
+      k_new
     );
     path.push(_path);
 
@@ -45,7 +57,7 @@ export class SwapCommand extends Command {
     path.push(
       await account.getAndAddBalance(
         tokenIndex0,
-        reverse.v.eqn(0) ? new Field(0).sub(amount) : amount
+        reverse.v.eqn(0) ? new Field(0).sub(amount) : amount_out
       )
     );
 
@@ -54,7 +66,7 @@ export class SwapCommand extends Command {
     path.push(
       await account.getAndAddBalance(
         tokenIndex1,
-        reverse.v.eqn(0) ? amount : new Field(0).sub(amount)
+        reverse.v.eqn(0) ? amount_out : new Field(0).sub(amount)
       )
     );
 

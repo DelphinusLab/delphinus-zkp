@@ -1,0 +1,68 @@
+{
+    "scenario":[
+            {
+                "op_name": "setkey",
+                "nonce": 0,
+                "accountIndex": 1,
+                "ax": 1,
+                "ay": 2
+            },
+            {
+                "op_name": "addpool",
+                "nonce": 1,
+                "tokenIndex0": 0,
+                "tokenIndex1": 1,
+                "poolIndex": 0,
+                "callerAccountIndex": 1
+            },
+            {
+                "op_name": "setkey",
+                "nonce": 0,
+                "accountIndex": 2,
+                "ax": 3,
+                "ay": 4
+            },
+            {
+                "op_name": "deposit",
+                "nonce": 2,
+                "accountIndex": 2,
+                "tokenIndex": 0,
+                "amount": 2000,
+                "callerAccountIndex": 1,
+                "l1_tx_hash": 0
+            },
+            {
+                "op_name": "deposit",
+                "nonce": 3,
+                "accountIndex": 2,
+                "tokenIndex": 1,
+                "amount": 2000,
+                "callerAccountIndex": 1,
+                "l1_tx_hash": 1
+            },
+            {
+                "op_name": "supply",
+                "nonce": 1,
+                "accountIndex": 2,
+                "poolIndex": 0,
+                "amount0": 1000,
+                "amount1": 1000
+            },
+            {
+                "op_name": "retrieve",
+                "nonce": 2,
+                "accountIndex": 2,
+                "poolIndex": 0,
+                "amount0": 500,
+                "amount1": 500
+            },
+            {
+                "op_name": "swap",
+                "nonce": 3,
+                "accountIndex": 2,
+                "poolIndex": 0,
+                "reverse": 0,
+                "amount": 100
+            }
+        ]
+}

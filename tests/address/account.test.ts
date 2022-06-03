@@ -2,9 +2,6 @@ import { Field } from "delphinus-curves/src/field";
 import BN from "bn.js";
 import { L2Storage } from "../../src/circom/address-space";
 import { Account } from "../../src/circom/address/account"
-import { SetKeyCommand } from "../../src/circom/ops/setkey";
-import { AddPoolCommand } from "../../src/circom/ops/addpool";
-
 describe("test account class", () => {
     test("test getAndAddShare normal number", async () => {
         jest.setTimeout(60000); //1 minute timeout
@@ -24,7 +21,7 @@ describe("test account class", () => {
         const shareInfoIndex = account.getShareInfoIndex(poolIndex);
         const leafNode = await storage.getLeave(shareInfoIndex);
 
-        expect(leafNode.v).toEqual(new Field(amount0.v.toNumber() + amount1.v.toNumber()).v);
+        expect(leafNode.toString()).toEqual('2000');
     });
 
     test("test getAndAddShare 18 wei number", async () => {
@@ -46,7 +43,8 @@ describe("test account class", () => {
         const shareInfoIndex = account.getShareInfoIndex(poolIndex);
         const leafNode = await storage.getLeave(shareInfoIndex);
 
-        expect(leafNode.v).toEqual(amountBN.add(amountBN));
+        // expect(leafNode.v).toEqual(amountBN.add(amountBN));
+        expect(leafNode.toString()).toEqual(`${BigInt(10 ** 18 * 1000 * 2)}`);
     });
 });
 
