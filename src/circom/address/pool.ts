@@ -28,7 +28,7 @@ export class Pool  {
 
   getSharePriceKIndex(){
     return (
-      (AddressSpace.Share << 30) |
+      (AddressSpace.Pool << 30) |
       (toNumber(this.index) << 20) |
       (1 << 2) | 0
     );
