@@ -2,7 +2,7 @@ import { Field } from "delphinus-curves/src/field";
 import { L2Storage } from "../../src/circom/address-space";
 import { AddPoolCommand } from "../../src/circom/ops/addpool";
 import { Account } from "../../src/circom/address/account";
-import { Pool } from "../../src/circom/address/pool";
+import { Pool, initSharePriceKBN } from "../../src/circom/address/pool";
 import { AddressSpace, getSpaceIndex } from "../../src/circom/address/space";
 
 describe("test Addpool op", () => {
@@ -42,7 +42,7 @@ describe("test Addpool op", () => {
 
         expect(nonce_check).toEqual(new Field(nonce + 1));
         expect(resetPool_check).toEqual([new Field(tokenIndex0), new Field(tokenIndex1), new Field(0), new Field(0)]);
-        expect(initK_check).toEqual(new Field(10 ** 12));
+        expect(initK_check).toEqual(new Field(initSharePriceKBN));
     });
 }
 );

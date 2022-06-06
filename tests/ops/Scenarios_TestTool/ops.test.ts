@@ -8,7 +8,7 @@ import { SupplyCommand } from "../../../src/circom/ops/supply";
 import { RetrieveCommand } from "../../../src/circom/ops/retrieve";
 import { SwapCommand } from "../../../src/circom/ops/swap";
 import { Account } from "../../../src/circom/address/account";
-import { Pool } from "../../../src/circom/address/pool";
+import { Pool, initSharePriceKBN } from "../../../src/circom/address/pool";
 import { AddressSpace, getSpaceIndex } from "../../../src/circom/address/space";
 import fs from "fs-extra";
 import { ShareCalcHelper } from "../../../src/circom/shareCalc_helper";
@@ -71,7 +71,7 @@ describe("test ops", () => {
         
                 expect(nonce_check).toEqual(new Field(config.scenario[i].nonce + 1));
                 expect(resetPool_check).toEqual([new Field(config.scenario[i].tokenIndex0), new Field(config.scenario[i].tokenIndex1), new Field(0), new Field(0)]);
-                expect(initK_check).toEqual(new Field(10 ** 12));
+                expect(initK_check).toEqual(new Field(initSharePriceKBN));
             }else if(config.scenario[i].op_name == 'deposit'){
                 const caller = new Account(storage, config.scenario[i].callerAccountIndex);
                 const account = new Account(storage, config.scenario[i].accountIndex);
