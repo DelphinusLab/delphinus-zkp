@@ -2,7 +2,7 @@ import { Field } from "delphinus-curves/src/field";
 import { L2Storage } from "../../src/circom/address-space";
 import { RetrieveCommand } from "../../src/circom/ops/retrieve";
 import { Account } from "../../src/circom/address/account";
-import { Pool } from "../../src/circom/address/pool";
+import { Pool, initSharePriceKBN } from "../../src/circom/address/pool";
 import { AddressSpace, getSpaceIndex } from "../../src/circom/address/space";
 
 describe("test retrieve op", () => {
@@ -25,8 +25,7 @@ describe("test retrieve op", () => {
         
         //Setup Pool
         const pool = new Pool(storage, new Field(poolIndex));
-        const init_sharePriceK = 10 ** 12;
-        await pool.resetPool(new Field(tokenIndex0), new Field(tokenIndex1), new Field(init_sharePriceK));
+        await pool.resetPool(new Field(tokenIndex0), new Field(tokenIndex1), new Field(initSharePriceKBN));
         //Setup Account
         const account = new Account(storage, new Field(accountIndex));
         //account2 deposit 1000 token0
@@ -35,13 +34,13 @@ describe("test retrieve op", () => {
         await account.getAndAddBalance(new Field(tokenIndex1), new Field(depositToken1));
         //account2 supplied 1000 token0 and 1000 token2
         await pool.getAndAddLiq(new Field(amount0_pre),new Field(amount1_pre));
-        //Setup share_pre = 0 + (1000 + 1000) * (10^12 - 1) = 2 * 10^15 - 2000
-        const share_pre = 0 + ((amount0_pre + amount1_pre) * (init_sharePriceK - 1));
-        await account.getAndAddShare(new Field(poolIndex), new Field(share_pre));
+        //Setup share_pre = 0 + (1000 + 1000) * (10^24 - 1) = 2 * 10^27 - 2000
+        const share_pre = new Field(amount0_pre + amount1_pre).mul(new Field(initSharePriceKBN).sub(new Field(1)));
+        await account.getAndAddShare(new Field(poolIndex), share_pre);
 
         //Setup Expect Results
-        //share = 2 * 10^15 - 2000 - (500 + 500) * 10^12 = 2 * 10^15 - 2000 - 1 * 10^15 = 1 * 10^15 - 2000;
-        const share = share_pre - (amount0 + amount1) * init_sharePriceK;
+        //share = 2 * 10^27 - 2000 - (500 + 500) * 10^12 = 2 * 10^27 - 2000 - 1 * 10^27 = 1 * 10^27 - 2000;
+        const share = share_pre.sub(new Field(amount0 + amount1).mul(new Field(initSharePriceKBN)));
         //liq0 = 1000 - 500 = 500
         const liq0 = amount0_pre - amount0;
         //liq1 = 1000 - 500 = 500

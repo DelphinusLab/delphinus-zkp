@@ -2,6 +2,9 @@ import { Field } from "delphinus-curves/src/field";
 import { AddressSpace, getSpaceIndex, toNumber } from "./space";
 import { MerkleTree, PathInfo } from "delphinus-curves/src/merkle-tree-large";
 import { ShareCalcHelper } from "../shareCalc_helper";
+import BN from "bn.js";
+
+export const initSharePriceKBN = new BN('1' + '0'.repeat(24), 10);
 
 export class Pool  {
   index: number | Field;
@@ -28,7 +31,7 @@ export class Pool  {
 
   getSharePriceKIndex(){
     return (
-      (AddressSpace.Share << 30) |
+      (AddressSpace.Pool << 30) |
       (toNumber(this.index) << 20) |
       (1 << 2) | 0
     );
