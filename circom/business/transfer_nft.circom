@@ -4,7 +4,7 @@ include "../utils/swap_aux.circom";
 include "../../node_modules/circomlib/circuits/bitify.circom";
 
 template TransferNFT() {
-    var MaxStep = 5;
+    var MaxStep = 6;
     var IndexOffset = 0;
     var LeaveStartOffset = 61;
     // In general, OwnerOffset = LeaveStartOffset + the last two bits of nftIndex (Only in this case, 00)

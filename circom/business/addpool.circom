@@ -45,19 +45,19 @@ template InitPoolInfoFE() {
 
     component zero1 = IsZero();
     zero1.in <== dataPath[LeafStartOffset + 1];
-    andmany.in[andmanyOffset] <== zero0.out;
+    andmany.in[andmanyOffset] <== zero1.out;
     andmanyOffset++;
 
     component zero2 = IsZero();
     zero2.in <== dataPath[SharePriceKOffset];
-    andmany.in[andmanyOffset] <== zero0.out;
+    andmany.in[andmanyOffset] <== zero2.out;
     andmanyOffset++;
 
     out <== andmany.out;
 }
 
 template AddPool() {
-    var MaxStep = 5;
+    var MaxStep = 6;
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
 
