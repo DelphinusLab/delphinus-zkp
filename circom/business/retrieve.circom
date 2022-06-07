@@ -4,7 +4,7 @@ include "../utils/bit.circom";
 include "../utils/swap_aux.circom";
 
 template Retrieve() {
-    var MaxStep = 5;
+    var MaxStep = 6;
     var IndexOffset = 0;
     var LeaveStartOffset = 61;
     var Token0Offset = LeaveStartOffset;

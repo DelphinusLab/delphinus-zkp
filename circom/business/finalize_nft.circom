@@ -5,7 +5,7 @@ include "../../node_modules/circomlib/circuits/bitify.circom";
 
 template FinalizeNFT() {
     var TokenIndex = 1;
-    var MaxStep = 5;
+    var MaxStep = 6;
     var IndexOffset = 0;
     var LeaveStartOffset = 61;
     var OwnerOffset = LeaveStartOffset;
