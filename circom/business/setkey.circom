@@ -4,7 +4,7 @@ include "../utils/bit.circom";
 include "../utils/swap_aux.circom";
 
 template SetKey() {
-    var MaxStep = 5;
+    var MaxStep = 6;
     var LeafStartOffset = 61;
     var AxOffset = LeafStartOffset + 0;
     var AyOffset = LeafStartOffset + 1;
