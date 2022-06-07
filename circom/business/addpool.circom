@@ -40,7 +40,7 @@ template InitPoolInfoFE() {
 }
 
 template AddPool() {
-    var MaxStep = 5;
+    var MaxStep = 6;
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
 

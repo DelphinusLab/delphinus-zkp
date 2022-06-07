@@ -4,7 +4,7 @@ include "../utils/bit.circom";
 include "../utils/swap_aux.circom";
 
 template Withdraw() {
-    var MaxStep = 5;
+    var MaxStep = 6;
     var IndexOffset = 0;
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;

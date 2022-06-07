@@ -5,7 +5,7 @@ include "../../node_modules/circomlib/circuits/bitify.circom";
 
 template WithdrawNFT() {
     var TokenIndex = 1;
-    var MaxStep = 5;
+    var MaxStep = 6;
     var IndexOffset = 0;
     var LeaveStartOffset = 61;
     // In general, OwnerOffset = LeaveStartOffset + the last two bits of nftIndex (Only in this case, 00)
