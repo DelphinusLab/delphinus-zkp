@@ -509,7 +509,6 @@ template CalculateNewSharePriceK() {
 
     newSharePriceK <== getNewSharePriceK.out;
     newSwapRem <== getNewSwapRem.out;
-
 }
 
 // update liquidity for supply and retrieve
@@ -600,7 +599,6 @@ template CheckAndUpdateLiqFE(N) {
             newDataPath[i] <== dataPath[i];
         }
     }
-
     out <== andmany.out;
 }
 
@@ -692,7 +690,6 @@ template CheckAndUpdateSwapLiqFE() {
             newDataPath[i] <== dataPath[i];
         }
     }
-
     out <== andmany.out;
 }
 
