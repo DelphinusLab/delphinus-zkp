@@ -63,6 +63,11 @@ export class RetrieveCommand extends Command {
       await account.getAndAddBalance(tokenIndex1, amount1)
     );
 
+    // 6-th path, containing the leaves of pool_K and pool_remainder
+    path.push(
+      await pool.getKAndRemPath()
+    );
+
     return path;
   }
 }
