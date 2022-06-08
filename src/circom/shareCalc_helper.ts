@@ -31,7 +31,7 @@ export class ShareCalcHelper {
         let rem_new: BN = poolTotal_old.mul(k).sub(rem).mod(poolTotal_new);
         if (!rem_new.eqn(0)) {
             k_new = k_new.add(new BN(1));
-            rem_new = poolTotal_new.sub(rem_new);0
+            rem_new = poolTotal_new.sub(rem_new);
         }
         return [new Field(k_new), new Field(rem_new)];
     }
