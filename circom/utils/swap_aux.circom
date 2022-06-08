@@ -86,6 +86,43 @@ template AndMany(N) {
     out <== acc;
 }
 
+template divide(){
+    signal input numerator;
+    signal input denominator;
+    signal output result;
+    signal output remainder;
+    signal output out;
+
+    component andmany = AndMany(2);
+    var andmanyOffset = 0;
+
+    signal divisor;
+    var temp_divisor = 0;
+    var temp_out = 0;
+    if(denominator > 0){
+        temp_divisor = denominator;
+        temp_out = 1;
+    }else{
+        temp_divisor = 1;
+        temp_out = 0;
+    }
+    andmany.in[andmanyOffset] <-- temp_out;
+    andmanyOffset++;
+
+    divisor <-- temp_divisor;
+    result <-- numerator \ divisor;
+    remainder <-- numerator - result * divisor;
+    numerator === result * divisor + remainder;
+
+    component lessthan = LessThanFE(250);
+    lessthan.in[0] <== remainder;
+    lessthan.in[1] <== denominator;
+    andmany.in[andmanyOffset] <== lessthan.out;
+    andmanyOffset++;
+
+    out <== andmany.out;
+}
+
 template GetValueFromTreePath() {
     var IndexOffset = 0;
     var NodesPerLevel = 4;
@@ -189,6 +226,21 @@ template CheckPoolInfoIndexAnonymousFE() {
 
     component eq = IsEqual();
     eq.in[0] <== n2b.in * (1 << 20) + (1 << 30);
+    eq.in[1] <== index;
+
+    out <== eq.out;
+}
+
+// b01 Pool.SharePriceKIndex: (10bits) pool index + (17bits) 0 + 1 + 00
+template CheckSharePriceKIndexAnonymousFE() {
+    signal input index;
+    signal output out;
+
+    component n2b = Num2Bits(10);
+    n2b.in <-- (index >> 20) & ((1 << 10) - 1);
+
+    component eq = IsEqual();
+    eq.in[0] <== n2b.in * (1 << 20) + (1 << 30) + (1 << 2);
     eq.in[1] <== index;
 
     out <== eq.out;
@@ -368,66 +420,59 @@ template CalculateSwapNewLiq() {
     signal output newtoken1liq;
     signal output resultAmount;
     signal output out;
-    signal amount_input;
-    signal amount_output;
-    signal dividend;
-    signal divisor;
-    signal remainder;
+    signal poolLiqIn;
+    signal poolLiqOut;
 
     component andmany = AndMany(4);
     var andmanyOffset = 0;
 
-    // reverse: 0 -> amount_input == token0liq, 1 -> amount_input == token1liq
+    // reverse: 0 -> poolLiqIn == token0liq, 1 -> poolLiqIn == token1liq
     component getAmountInput = BiSelect();
     getAmountInput.in[0] <== token0liq;
     getAmountInput.in[1] <== token1liq;
     getAmountInput.cond <== reverse;
-    amount_input <== getAmountInput.out;
+    poolLiqIn <== getAmountInput.out;
 
-    // reverse: 0 -> amount_output == token1liq, 1 -> amount_output == token0liq
+    // reverse: 0 -> poolLiqOut == token1liq, 1 -> poolLiqOut == token0liq
     component getAmountOutput = BiSelect();
     getAmountOutput.in[0] <== token1liq;
     getAmountOutput.in[1] <== token0liq;
     getAmountOutput.cond <== reverse;
-    amount_output <== getAmountOutput.out;
+    poolLiqOut <== getAmountOutput.out;
 
     component amountInputIsZero = IsZero();
-    amountInputIsZero.in <== amount_input;
+    amountInputIsZero.in <== poolLiqIn;
     andmany.in[andmanyOffset] <== 1 - amountInputIsZero.out;
     andmanyOffset++;
 
     component token0liqcheck = Check2PowerRangeFE(125);
-    token0liqcheck.in <== amount_input;
+    token0liqcheck.in <== poolLiqIn;
     andmany.in[andmanyOffset] <== token0liqcheck.out;
     andmanyOffset++;
 
     component token1liqcheck = Check2PowerRangeFE(125);
-    token1liqcheck.in <== amount_output;
+    token1liqcheck.in <== poolLiqOut;
     andmany.in[andmanyOffset] <== token1liqcheck.out;
     andmanyOffset++;
 
     // swap rate is almost equal to 0.3%(1021/1024 for convenience in circom)
-    dividend <== amount_output * amount * 1021;
-    divisor <== (amount_input + amount) * 1024;
-    resultAmount <-- dividend \ divisor;
-    remainder <-- dividend - resultAmount * divisor;
-    dividend === resultAmount * divisor + remainder;
-    component lessthan = LessThanFE(250);
-    lessthan.in[0] <== remainder;
-    lessthan.in[1] <== divisor;
-    andmany.in[andmanyOffset] <== lessthan.out;
+    component amountOut = divide();
+    amountOut.numerator <== poolLiqOut * amount * 1021;
+    amountOut.denominator <== (poolLiqIn + amount) * 1024;
+    resultAmount <== amountOut.result;
+    andmany.in[andmanyOffset] <== amountOut.out;
     andmanyOffset++;
 
     // reverse: 0 -> newtoken0liq = token0liq + amount, 1 -> newtoken0liq = token0liq - resultAmount
     component getNewToken0Liq = BiSelect();
     getNewToken0Liq.in[0] <== token0liq + amount;
-    getNewToken0Liq.in[1] <== token0liq - resultAmount;
+    getNewToken0Liq.in[1] <== token0liq - amountOut.result;
     getNewToken0Liq.cond <== reverse;
     newtoken0liq <== getNewToken0Liq.out;
 
     // reverse: 0 -> newtoken1liq = token0liq + amount, 1 -> newtoken1liq = token0liq - resultAmount
     component getNewToken1Liq = BiSelect();
-    getNewToken1Liq.in[0] <== token1liq - resultAmount;
+    getNewToken1Liq.in[0] <== token1liq - amountOut.result;
     getNewToken1Liq.in[1] <== token1liq + amount;
     getNewToken1Liq.cond <== reverse;
     newtoken1liq <== getNewToken1Liq.out;
@@ -435,35 +480,36 @@ template CalculateSwapNewLiq() {
     out <== andmany.out;
 }
 
-// swap will change K which is (1 / sharePrice) * (10 ^ 12)
 template CalculateNewSharePriceK() {
     signal input token0liq;
     signal input token1liq;
     signal input amount;
     signal input sharePriceK;
+    signal input swapRem;
     signal output newSharePriceK;
+    signal output newSwapRem;
     signal output out;
-    signal dividend;
-    signal quotient;
-    signal remainder;
 
-    var total_old = token0liq + token1liq;
-    var total_new = total_old + amount;
-    dividend <== total_old * sharePriceK;
-    quotient <-- dividend \ total_new;
-    remainder <-- dividend - total_new * quotient;
-    dividend === total_new * quotient + remainder;
-    component lessthan = LessThanFE(250);
-    lessthan.in[0] <== remainder;
-    lessthan.in[1] <== total_new;
-    out <== lessthan.out;
+    var totalOld = token0liq + token1liq;
+    var totalNew = totalOld + amount;
+    component k_new = divide();
+    k_new.numerator <== totalOld * sharePriceK - swapRem;
+    k_new.denominator <== totalNew;
+    out <== k_new.out;
 
     component getNewSharePriceK = BiSelect();
-    getNewSharePriceK.in[0] <== quotient;
-    getNewSharePriceK.in[1] <== quotient + 1;
-    getNewSharePriceK.cond <== remainder;
+    getNewSharePriceK.in[0] <== k_new.result;
+    getNewSharePriceK.in[1] <== k_new.result + 1;
+    getNewSharePriceK.cond <== k_new.remainder;
+
+    component getNewSwapRem = BiSelect();
+    getNewSwapRem.in[0] <== k_new.remainder;
+    getNewSwapRem.in[1] <== totalNew - k_new.remainder;
+    getNewSwapRem.cond <== k_new.remainder;
 
     newSharePriceK <== getNewSharePriceK.out;
+    newSwapRem <== getNewSwapRem.out;
+
 }
 
 // update liquidity for supply and retrieve
@@ -561,7 +607,6 @@ template CheckAndUpdateLiqFE(N) {
 // update liquidity for swap
 template CheckAndUpdateSwapLiqFE() {
     var MaxTreeDataIndex = 66;
-    var SharePriceKOffset = 58;
     var IndexOffset = 0;
     var LeaveStartOffset = 61;
     var Token0Offset = LeaveStartOffset;
@@ -577,7 +622,7 @@ template CheckAndUpdateSwapLiqFE() {
     signal output resultAmount;
     signal output out;
 
-    component andmany = AndMany(10);
+    component andmany = AndMany(9);
     var andmanyOffset = 0;
 
     component poolIndex = CheckPoolInfoIndexFE();
@@ -624,7 +669,7 @@ template CheckAndUpdateSwapLiqFE() {
     getNewLiq.reverse <== reverse;
     var newtoken0liq = getNewLiq.newtoken0liq;
     var newtoken1liq = getNewLiq.newtoken1liq;
-    resultAmount <-- getNewLiq.resultAmount;
+    resultAmount <== getNewLiq.resultAmount;
     andmany.in[andmanyOffset] <== getNewLiq.out;
     andmanyOffset++;
 
@@ -638,18 +683,8 @@ template CheckAndUpdateSwapLiqFE() {
     andmany.in[andmanyOffset] <== newtoken1lliqcheck.out;
     andmanyOffset++;
 
-    component calculateNewSharePriceK = CalculateNewSharePriceK();
-    calculateNewSharePriceK.token0liq <== token0liq;
-    calculateNewSharePriceK.token1liq <== token1liq;
-    calculateNewSharePriceK.amount <== amount - resultAmount;
-    calculateNewSharePriceK.sharePriceK <== dataPath[SharePriceKOffset];
-    andmany.in[andmanyOffset] <== calculateNewSharePriceK.out;
-    andmanyOffset++;
-
     for (var i = 0; i < MaxTreeDataIndex; i++) {
-        if(i == SharePriceKOffset) {
-            newDataPath[i] <== calculateNewSharePriceK.newSharePriceK;
-        } else if (i == Token0LiqOffset) {
+        if (i == Token0LiqOffset) {
             newDataPath[i] <== newtoken0liq;
         } else if (i == Token1LiqOffset) {
             newDataPath[i] <== newtoken1liq;
@@ -659,4 +694,38 @@ template CheckAndUpdateSwapLiqFE() {
     }
 
     out <== andmany.out;
+}
+
+//update SharePriceK and SwapRem
+template UpdateSharePriceKandSwapRem() {
+    var MaxTreeDataIndex = 66;
+    var IndexOffset = 0;
+    var LeaveStartOffset = 61;
+
+    signal input token0liq;
+    signal input token1liq;
+    signal input amount;
+    signal input amountOut;
+    signal input dataPath[MaxTreeDataIndex];
+    signal output newDataPath[MaxTreeDataIndex];
+    signal output out;
+
+    component calculateNewSharePriceK = CalculateNewSharePriceK();
+    calculateNewSharePriceK.token0liq <== token0liq;
+    calculateNewSharePriceK.token1liq <== token1liq;
+    calculateNewSharePriceK.amount <== amount - amountOut;
+    calculateNewSharePriceK.sharePriceK <== dataPath[LeaveStartOffset];
+    calculateNewSharePriceK.swapRem <== dataPath[LeaveStartOffset + 1];
+
+    out <== calculateNewSharePriceK.out;
+
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        if (i == LeaveStartOffset) {
+            newDataPath[i] <== calculateNewSharePriceK.newSharePriceK;
+        } else if (i == LeaveStartOffset + 1) {
+            newDataPath[i] <== calculateNewSharePriceK.newSwapRem;
+        } else {
+            newDataPath[i] <== dataPath[i];
+        }
+    }
 }

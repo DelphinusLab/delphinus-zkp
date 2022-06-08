@@ -9,7 +9,6 @@ template Supply() {
     var LeaveStartOffset = 61;
     var Token0Offset = LeaveStartOffset;
     var Token1Offset = LeaveStartOffset + 1;
-    var SharePriceKOffset = 58;
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
 
@@ -104,7 +103,7 @@ template Supply() {
     andmany.in[andmanyOffset] <== shareIndex.out;
     andmanyOffset++;
 
-    var shareDiff = (amount0 + amount1) * (dataPath[1][SharePriceKOffset] - 1);
+    var shareDiff = (amount0 + amount1) * (dataPath[5][LeaveStartOffset] - 1);
     component shareDiffRange = Check2PowerRangeFE(250);
     shareDiffRange.in <== shareDiff;
     andmany.in[andmanyOffset] <== shareDiffRange.out;

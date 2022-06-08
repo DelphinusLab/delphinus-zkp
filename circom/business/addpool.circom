@@ -7,9 +7,6 @@ template InitPoolInfoFE() {
     var IndexOffset = 0;
     var LeafStartOffset = 61;
     var MaxTreeDataIndex = 66;
-    // SharePriceK = (1 / sharePrice) * 10 ^ 12, initial value is 10 ^ 12
-    var SharePriceK = 10 ** 12;
-    var SharePriceKOffset = 58;
 
     signal input tokenIndex0;
     signal input tokenIndex1;
@@ -18,7 +15,7 @@ template InitPoolInfoFE() {
     signal output newDataPath[MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(4);
+    component andmany = AndMany(3);
     var andmanyOffset = 0;
 
     component c = CheckPoolInfoIndexAnonymousFE();
@@ -27,9 +24,7 @@ template InitPoolInfoFE() {
     andmanyOffset++;
 
     for (var i = 0; i < MaxTreeDataIndex; i++) {
-        if(i == SharePriceKOffset) {
-            newDataPath[i] <== SharePriceK;
-        } else if (i == LeafStartOffset) {
+        if (i == LeafStartOffset) {
             newDataPath[i] <== tokenIndex0;
         } else if (i == LeafStartOffset + 1) {
             newDataPath[i] <== tokenIndex1;
@@ -48,9 +43,47 @@ template InitPoolInfoFE() {
     andmany.in[andmanyOffset] <== zero1.out;
     andmanyOffset++;
 
-    component zero2 = IsZero();
-    zero2.in <== dataPath[SharePriceKOffset];
-    andmany.in[andmanyOffset] <== zero2.out;
+    out <== andmany.out;
+}
+
+template InitSharePriceKAndSwapRem() {
+    var IndexOffset = 0;
+    var LeafStartOffset = 61;
+    var MaxTreeDataIndex = 66;
+    // SharePriceK = (1 / sharePrice) * 10 ^ 24, initial value is 10 ^ 24
+    var SharePriceK = 10 ** 24;
+    var SwapRem = 0;
+
+    signal input dataPath[MaxTreeDataIndex];
+    signal output newDataPath[MaxTreeDataIndex];
+    signal output out;
+
+    component andmany = AndMany(3);
+    var andmanyOffset = 0;
+
+    component c = CheckSharePriceKIndexAnonymousFE();
+    c.index <== dataPath[IndexOffset];
+    andmany.in[andmanyOffset] <== c.out;
+    andmanyOffset++;
+
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        if(i == LeafStartOffset) {
+            newDataPath[i] <== SharePriceK;
+        } else if (i == LeafStartOffset + 1) {
+            newDataPath[i] <== SwapRem;
+        } else {
+            newDataPath[i] <== dataPath[i];
+        }
+    }
+
+    component zero0 = IsZero();
+    zero0.in <== dataPath[LeafStartOffset];
+    andmany.in[andmanyOffset] <== zero0.out;
+    andmanyOffset++;
+
+    component zero1 = IsZero();
+    zero1.in <== dataPath[LeafStartOffset + 1];
+    andmany.in[andmanyOffset] <== zero1.out;
     andmanyOffset++;
 
     out <== andmany.out;
@@ -68,7 +101,7 @@ template AddPool() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(7);
+    component andmany = AndMany(8);
     var andmanyOffset = 0;
 
     var nonce = args[1];
@@ -119,7 +152,6 @@ template AddPool() {
     // STEP2: init pool info
     // circuits: check index of pool
     // circuits: check leafValues[0] and leafValues[1] equal to 0
-    // Init share Price K
     component init = InitPoolInfoFE();
     init.tokenIndex0 <== tokenIndex0;
     init.tokenIndex1 <== tokenIndex1;
@@ -132,7 +164,20 @@ template AddPool() {
     andmany.in[andmanyOffset] <== init.out;
     andmanyOffset++;
 
-    for (var i = 2; i < MaxStep; i++) {
+    //STEP3: init SharePriceK and Rem
+    // circuits: check index of SharePriceK
+    // circuits: check leafValues[0] and leafValues[1] equal to 0
+    component init_k = InitSharePriceKAndSwapRem();
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        init_k.dataPath[i] <== dataPath[2][i];
+    }
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        newDataPath[2][i] <== init_k.newDataPath[i];
+    }
+    andmany.in[andmanyOffset] <== init_k.out;
+    andmanyOffset++;
+
+    for (var i = 3; i < MaxStep; i++) {
         for (var j = 0; j < MaxTreeDataIndex; j++) {
             newDataPath[i][j] <== dataPath[i][j];
         }
