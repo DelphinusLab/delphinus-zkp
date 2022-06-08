@@ -25,7 +25,7 @@ describe("test retrieve op", () => {
         
         //Setup Pool
         const pool = new Pool(storage, new Field(poolIndex));
-        await pool.resetPool(new Field(tokenIndex0), new Field(tokenIndex1), new Field(initSharePriceKBN));
+        await pool.resetPool(new Field(tokenIndex0), new Field(tokenIndex1), new Field(initSharePriceKBN), new Field(0));
         //Setup Account
         const account = new Account(storage, new Field(accountIndex));
         //account2 deposit 1000 token0

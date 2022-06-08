@@ -36,7 +36,7 @@ export class AddPoolCommand extends Command {
     // circuits: check leafValues[0] and leafValues[1] equal to 0
     path.push(await pool.getPoolPath());
     
-    await pool.resetPool(tokenIndex0, tokenIndex1, new Field(initSharePriceKBN));
+    await pool.resetPool(tokenIndex0, tokenIndex1, new Field(initSharePriceKBN), new Field(0));
 
     return path;
   }

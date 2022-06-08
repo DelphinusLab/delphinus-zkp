@@ -23,7 +23,7 @@ describe("test supply op", () => {
         
         //Setup Pool
         const pool = new Pool(storage, poolIndex);
-        await pool.resetPool(new Field(tokenIndex0), new Field(tokenIndex1), new Field(initSharePriceKBN));
+        await pool.resetPool(new Field(tokenIndex0), new Field(tokenIndex1), new Field(initSharePriceKBN), new Field(0));
         //Setup Account
         const account = new Account(storage, accountIndex);
         //account2 deposit 2000 token0
@@ -94,7 +94,7 @@ describe("test supply op", () => {
 
         //Setup Pool
         const pool = new Pool(storage, poolIndex);
-        await pool.resetPool(new Field(tokenIndex0), new Field(tokenIndex1), new Field(initSharePriceKBN));
+        await pool.resetPool(new Field(tokenIndex0), new Field(tokenIndex1), new Field(initSharePriceKBN), new Field(0));
         //Setup Account
         const account = new Account(storage, accountIndex);
         //account2 deposit 2000 token0
