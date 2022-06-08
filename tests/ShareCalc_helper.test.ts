@@ -3,30 +3,49 @@ import BN from "bn.js";
 import { ShareCalcHelper } from "../src/circom/shareCalc_helper"
 
 describe("test ShareCalc_helper class", () => {
-    test("test calcK_new with remainder", async () => {
+    test("test calcK_new with old rem being 0", async () => {
         jest.setTimeout(60000); //1 minute timeout
         
         const shareCalc = new ShareCalcHelper;
         const poolTotal_old = new BN(2000);
         const poolTotal_new = new BN(2200);
         const k = new BN(10);
-        const k_new = shareCalc.calcK_new(poolTotal_old, poolTotal_new, k);
+        const rem = new BN(0);
+        const [k_new, rem_new] = shareCalc.calcKAndRem_new(poolTotal_old, poolTotal_new, k, rem);
 
-        // k_new = 2000*10/2200 = 9.09 rounding up 10
-        expect(k_new.toString()).toEqual('10');
+        // k_new, rem_new = 2000*10/2200 = 9 r 200
+        expect(k_new.toString()).toEqual('10'); // ceil to 10
+        expect(rem_new.toString()).toEqual('2000');  // total_new - rem
     });
 
-    test("test calcK_new with remainder", async () => {
+    test("test calcK_new with old rem being >0 and new rem being 0", async () => {
         jest.setTimeout(60000); //1 minute timeout
         
         const shareCalc = new ShareCalcHelper;
-        const poolTotal_old = new BN(220);
+        const poolTotal_old = new BN(2000);
         const poolTotal_new = new BN(2200);
         const k = new BN(10);
-        const k_new = shareCalc.calcK_new(poolTotal_old, poolTotal_new, k);
+        const rem = new BN(200);
+        const [k_new, rem_new] = shareCalc.calcKAndRem_new(poolTotal_old, poolTotal_new, k, rem);
 
-        // k_new = 2000*10/2200 = 9.09 rounding up 10
-        expect(k_new.toString()).toEqual('1');
+        // k_new = (2000*10-200)/2200 = 9 r 0
+        expect(k_new.toString()).toEqual('9');
+        expect(rem_new.toString()).toEqual('0');
+    });
+
+    test("test calcK_new with old rem being >0 and new rem being >0", async () => {
+        jest.setTimeout(60000); //1 minute timeout
+        
+        const shareCalc = new ShareCalcHelper;
+        const poolTotal_old = new BN(2000);
+        const poolTotal_new = new BN(2200);
+        const k = new BN(10);
+        const rem = new BN(400);
+        const [k_new, rem_new] = shareCalc.calcKAndRem_new(poolTotal_old, poolTotal_new, k, rem);
+
+        // k_new = (2000*10-400)/2200 = 8 r 2000
+        expect(k_new.toString()).toEqual('9');
+        expect(rem_new.toString()).toEqual('200');
     });
 
     test("test calcAmountOut_AMM", async () => {
