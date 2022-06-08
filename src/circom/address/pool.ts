@@ -1,7 +1,6 @@
 import { Field } from "delphinus-curves/src/field";
 import { AddressSpace, getSpaceIndex, toNumber } from "./space";
 import { MerkleTree, PathInfo } from "delphinus-curves/src/merkle-tree-large";
-import { ShareCalcHelper } from "../shareCalc_helper";
 import BN from "bn.js";
 
 export const initSharePriceKBN = new BN('1' + '0'.repeat(24), 10);
@@ -29,11 +28,23 @@ export class Pool  {
     return this.storage.getPath(this.info_index);
   }
 
-  getSharePriceKIndex(){
+  async getKAndRemPath() {
+    return this.storage.getPath(this.getSharePriceKIndex());
+  }
+
+  getSharePriceKIndex() {
     return (
       (AddressSpace.Pool << 30) |
       (toNumber(this.index) << 20) |
       (1 << 2) | 0
+    );
+  }
+
+  getAccumulatedRemIndex() {
+    return (
+      (AddressSpace.Pool << 30) |
+      (toNumber(this.index) << 20) |
+      (1 << 2) | 1
     );
   }
 
@@ -58,13 +69,14 @@ export class Pool  {
     return [tokenIndex0, tokenIndex1, path];
   }
 
-  async getAndAddLiq_withK(
+  async getAndAddLiq_withKAndRem(
     amount0: Field,
     amount1: Field,
-    k_new: Field
-  ): Promise<[Field, Field, PathInfo]> {
-    const path = await this.getPoolPath();
-
+    k_new: Field,
+    rem_new: Field
+  ): Promise<[Field, Field, PathInfo, PathInfo]> {
+    const pool_path = await this.getPoolPath();
+    const KAndRem_path = await this.getKAndRemPath()
     const poolInfo = await this.storage.getLeaves(this.info_index);
     const tokenIndex0 = poolInfo[0];
     const tokenIndex1 = poolInfo[1];
@@ -78,8 +90,8 @@ export class Pool  {
       liq1.add(amount1),
     ]);
     await this.storage.setLeave(this.getSharePriceKIndex(), k_new);
-    
-    return [tokenIndex0, tokenIndex1, path];
+    await this.storage.setLeave(this.getAccumulatedRemIndex(), rem_new);
+    return [tokenIndex0, tokenIndex1, pool_path, KAndRem_path];
   }
 
   async getTokenInfo(){
@@ -98,6 +110,13 @@ export class Pool  {
     await this.storage.setLeave(sharePriceKIndex, k);
   }
 
+  async initAccumulatedRem(
+    r: Field
+  ){
+    const accumulatedRem = this.getAccumulatedRemIndex();
+    await this.storage.setLeave(accumulatedRem, r);
+  }
+
   async getSharePriceK(){
     const sharePriceKIndex = this.getSharePriceKIndex();
     const k = await this.storage.getLeave(sharePriceKIndex);
@@ -107,10 +126,17 @@ export class Pool  {
     throw new Error('SharePriceK has not been initiated yet');
   }
 
+  async getAccumulatedRem(){
+    const accumulatedRemIndex = this.getAccumulatedRemIndex();
+    const r = await this.storage.getLeave(accumulatedRemIndex);
+    return r;
+  }
+
   async resetPool(
       tokenIndex0: Field,
       tokenIndex1: Field,
-      sharePriceK: Field
+      sharePriceK: Field,
+      accumulatedRem: Field
   ) {
     const zero = new Field(0);
     await this.storage.setLeaves(this.info_index, [
@@ -120,6 +146,7 @@ export class Pool  {
       zero,
     ]);
     await this.initSharePriceK(sharePriceK);
+    await this.initAccumulatedRem(accumulatedRem);
   }
 
   async setPool(
@@ -127,14 +154,16 @@ export class Pool  {
     tokenIndex1: Field,
     token0liq: Field,
     token1liq: Field,
-    sharePriceK: Field
-) {
-  await this.storage.setLeaves(this.info_index, [
-    tokenIndex0,
-    tokenIndex1,
-    token0liq,
-    token1liq,
-  ]);
-  await this.initSharePriceK(sharePriceK);
-}
+    sharePriceK: Field,
+    accumulatedRem: Field
+  ) {
+    await this.storage.setLeaves(this.info_index, [
+      tokenIndex0,
+      tokenIndex1,
+      token0liq,
+      token1liq,
+    ]);
+    await this.initSharePriceK(sharePriceK);
+    await this.initAccumulatedRem(accumulatedRem);
+  }
 }

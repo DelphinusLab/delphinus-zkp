@@ -31,12 +31,13 @@ export class AddPoolCommand extends Command {
     // circuits: check caller permission
     path.push(await account.getAndUpdateNonce(nonce));
 
-    // STEP2: init pool info
+    // STEP2: init pool info + pool's K and rem info
     // circuits: check index of pool
     // circuits: check leafValues[0] and leafValues[1] equal to 0
     path.push(await pool.getPoolPath());
+    path.push(await pool.getKAndRemPath());
     
-    await pool.resetPool(tokenIndex0, tokenIndex1, new Field(initSharePriceKBN));
+    await pool.resetPool(tokenIndex0, tokenIndex1, new Field(initSharePriceKBN), new Field(0));
 
     return path;
   }

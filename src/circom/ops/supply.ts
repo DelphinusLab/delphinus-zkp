@@ -68,6 +68,11 @@ export class SupplyCommand extends Command {
       )
     );
 
+    // 6-th path, containing the leaves of pool_K and pool_remainder
+    path.push(
+      await pool.getKAndRemPath()
+    );
+
     return path;
   }
 }
