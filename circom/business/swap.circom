@@ -11,7 +11,6 @@ template Swap() {
     var Token1Offset = LeaveStartOffset + 1;
     var Token0LiqOffset = LeaveStartOffset + 2;
     var Token1LiqOffset = LeaveStartOffset + 3;
-    var SharePriceKOffset = 58;
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
 
@@ -22,7 +21,7 @@ template Swap() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(13);
+    component andmany = AndMany(14);
     var andmanyOffset = 0;
 
     var nonce = args[1];
@@ -151,9 +150,24 @@ template Swap() {
     andmany.in[andmanyOffset] <== change1.out;
     andmanyOffset++;
 
-    for (var i = 0; i < MaxTreeDataIndex; i++) {
-        newDataPath[4][i] <== dataPath[4][i];
-    }
+    // STEP5: update SharePriceK and SwapRem
+    component updateKandRem = UpdateSharePriceKandSwapRem();
+    updateKandRem.token0liq <== dataPath[1][Token0LiqOffset];
+    updateKandRem.token1liq <== dataPath[1][Token1LiqOffset];
+    updateKandRem.amount <== amount;
+    updateKandRem.amountOut <== checkLiq.resultAmount;
 
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        updateKandRem.dataPath[i] <== dataPath[4][i];
+    }
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        newDataPath[4][i] <== updateKandRem.newDataPath[i];
+    }
+    andmany.in[andmanyOffset] <== updateKandRem.out;
+    andmanyOffset++;
+
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        newDataPath[5][i] <== dataPath[5][i];
+    }
     out <== andmany.out;
 }
