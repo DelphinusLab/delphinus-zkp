@@ -45,13 +45,13 @@ export class SwapCommand extends Command {
     const poolTotalLiq_old = token1[1].add(token0[1]);
     const poolTotalLiq_new = token1[1].add(token0[1]).add(amount).sub(amount_out);
     const [k_new, rem_new] = shareCalc.calcKAndRem_new(poolTotalLiq_old.v, poolTotalLiq_new.v, (await pool.getSharePriceK()).v, (await pool.getAccumulatedRem()).v);
-    const [tokenIndex0, tokenIndex1, _path] = await pool.getAndAddLiq_withKAndRem(
+    const [tokenIndex0, tokenIndex1, _poolPath, _KAndRemPath] = await pool.getAndAddLiq_withKAndRem(
       reverse.v.eqn(0) ? amount : new Field(0).sub(amount_out),
       reverse.v.eqn(0) ? new Field(0).sub(amount_out) : amount,
       k_new,
       rem_new
     );
-    path.push(_path);
+    path.push(_poolPath);
 
     // STEP3: udpate balance0
     // circuits: if reverse == 0 then balance0 >= amount else balance0 + amount doesn't overflow
@@ -70,6 +70,9 @@ export class SwapCommand extends Command {
         reverse.v.eqn(0) ? amount_out : new Field(0).sub(amount)
       )
     );
+
+    // 5-th path, containing the leaves of pool_K and pool_remainder
+    path.push(_KAndRemPath);
 
     return path;
   }

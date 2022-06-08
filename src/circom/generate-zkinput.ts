@@ -53,7 +53,7 @@ class ZKPInputBuilder {
   async pushTreeDataWithPadding(
     pathInfoList: PathInfo[],
     storage: L2Storage,
-    len = 5
+    len = 6
   ) {
     const data = [];
     for (const pathInfo of pathInfoList) {

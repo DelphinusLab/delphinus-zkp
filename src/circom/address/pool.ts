@@ -28,6 +28,10 @@ export class Pool  {
     return this.storage.getPath(this.info_index);
   }
 
+  async getKAndRemPath() {
+    return this.storage.getPath(this.getSharePriceKIndex());
+  }
+
   getSharePriceKIndex() {
     return (
       (AddressSpace.Pool << 30) |
@@ -70,9 +74,9 @@ export class Pool  {
     amount1: Field,
     k_new: Field,
     rem_new: Field
-  ): Promise<[Field, Field, PathInfo]> {
-    const path = await this.getPoolPath();
-
+  ): Promise<[Field, Field, PathInfo, PathInfo]> {
+    const pool_path = await this.getPoolPath();
+    const KAndRem_path = await this.getKAndRemPath()
     const poolInfo = await this.storage.getLeaves(this.info_index);
     const tokenIndex0 = poolInfo[0];
     const tokenIndex1 = poolInfo[1];
@@ -87,7 +91,7 @@ export class Pool  {
     ]);
     await this.storage.setLeave(this.getSharePriceKIndex(), k_new);
     await this.storage.setLeave(this.getAccumulatedRemIndex(), rem_new);
-    return [tokenIndex0, tokenIndex1, path];
+    return [tokenIndex0, tokenIndex1, pool_path, KAndRem_path];
   }
 
   async getTokenInfo(){
