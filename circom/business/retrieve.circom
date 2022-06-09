@@ -158,5 +158,11 @@ template Retrieve() {
     andmany.in[andmanyOffset] <== change1.out;
     andmanyOffset++;
 
+    for (var i = 5; i < MaxStep; i++) {
+        for (var j = 0; j < MaxTreeDataIndex; j++) {
+            newDataPath[i][j] <== dataPath[i][j];
+        }
+    }
+    
     out <== andmany.out;
 }
