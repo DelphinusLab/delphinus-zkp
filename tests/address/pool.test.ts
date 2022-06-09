@@ -10,7 +10,7 @@ describe("test pool class", () => {
         const poolIndex = 0;
         const pool = new Pool(storage, poolIndex);
         const k = new Field(11);
-        await pool.initSharePriceK(k);
+        await pool.updateK(k);
         const k_check = await pool.getSharePriceK();
 
         expect(k_check.toString()).toEqual('11');
@@ -42,12 +42,15 @@ describe("test pool class", () => {
         const token1liq = new Field(1000);
         const sharePriceK = new Field(10);
         const accumulatedRem = new Field(0);
-        await pool.setPool(tokenIndex0,tokenIndex1,token0liq,token1liq,sharePriceK, accumulatedRem);
+        await pool.initPoolForTest(tokenIndex0,tokenIndex1,token0liq,token1liq,sharePriceK, accumulatedRem);
+        
         const amount = new Field(600);
         const amount_out = new Field(400);
         const k_new = new Field(11);
         const rem_new = new Field(200);
-        await pool.getAndAddLiq_withKAndRem(amount,amount_out,k_new, rem_new);
+        await pool.updateLiqByAddition(amount,amount_out);
+        await pool.updateKAndRem(k_new, rem_new);
+        
         const k_new_check = await pool.getSharePriceK();
         const rem_new_check = await pool.getAccumulatedRem();
         expect(k_new_check.toString()).toEqual('11');
