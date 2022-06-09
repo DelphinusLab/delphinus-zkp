@@ -363,8 +363,11 @@ template Swap() {
         }
     }
 
-    for (var i = 0; i < MaxTreeDataIndex; i++) {
-        newDataPath[5][i] <== dataPath[5][i];
+    for (var i = 5; i < MaxStep; i++) {
+        for (var j = 0; j < MaxTreeDataIndex; j++) {
+            newDataPath[i][j] <== dataPath[i][j];
+        }
     }
+    
     out <== andmany.out;
 }
