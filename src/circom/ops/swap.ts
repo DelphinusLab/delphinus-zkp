@@ -23,11 +23,11 @@ export class SwapCommand extends Command {
     const pool = new Pool(storage, poolIndex);
     const account = new Account(storage, accountIndex);
     const shareCalc = new ShareCalcHelper;
-    const [token0, token1] = await pool.getTokenInfo();
+    const [tokenIndex0, tokenIndex1, liq0, liq1] = await pool.getTokenIndexAndLiq();
     const amount_out = shareCalc.calcAmountOut_AMM(
       amount.v,
-      reverse.v.eqn(0) ? token1[1].v : token0[1].v,
-      reverse.v.eqn(0) ? token0[1].v : token1[1].v
+      reverse.v.eqn(0) ? liq1.v : liq0.v,
+      reverse.v.eqn(0) ? liq0.v : liq1.v
     );
 
     // circuits: check accountIndex < 2 ^ 20
@@ -38,22 +38,21 @@ export class SwapCommand extends Command {
     // circuits: check nonce
     path.push(await account.getAndUpdateNonce(nonce));
 
-    // STEP2: udpate liquility and SharePriceK
+    // STEP2: udpate liquility
     // circuits: check token0 != 0 || token1 != 0
     // circuits: if reverse == 0 then liq0 + amount doesn't overflow else liq0 >= amount
     // circuits: if reverse == 0 then liq1 >= amount else liq1 + amount doesn't overflow
-    const poolTotalLiq_old = token1[1].add(token0[1]);
-    const poolTotalLiq_new = token1[1].add(token0[1]).add(amount).sub(amount_out);
+    const poolTotalLiq_old = liq1.add(liq0);
+    const poolTotalLiq_new = liq1.add(liq0).add(amount).sub(amount_out);
     const [k_new, rem_new] = shareCalc.calcKAndRem_new(poolTotalLiq_old.v, poolTotalLiq_new.v, (await pool.getSharePriceK()).v, (await pool.getAccumulatedRem()).v);
-    const [tokenIndex0, tokenIndex1, _poolPath, _KAndRemPath] = await pool.getAndAddLiq_withKAndRem(
+    path.push(await pool.updateLiqByAddition(
       reverse.v.eqn(0) ? amount : new Field(0).sub(amount_out),
       reverse.v.eqn(0) ? new Field(0).sub(amount_out) : amount,
-      k_new,
-      rem_new
-    );
-    path.push(_poolPath);
+    ));
+    // STEP3: update SharePriceK and Remainder (but added as 5-th path)
+    const kAndRemPath = await pool.updateKAndRem(k_new, rem_new)
 
-    // STEP3: udpate balance0
+    // STEP4: udpate balance0
     // circuits: if reverse == 0 then balance0 >= amount else balance0 + amount doesn't overflow
     path.push(
       await account.getAndAddBalance(
@@ -62,7 +61,7 @@ export class SwapCommand extends Command {
       )
     );
 
-    // STEP4: udpate balance1
+    // STEP5: udpate balance1
     // circuits: if reverse == 0 then balance1 + amount doesn't overflow else balance1 >= amount
     path.push(
       await account.getAndAddBalance(
@@ -71,8 +70,7 @@ export class SwapCommand extends Command {
       )
     );
 
-    // 5-th path, containing the leaves of pool_K and pool_remainder
-    path.push(_KAndRemPath);
+    path.push(kAndRemPath);
 
     return path;
   }
