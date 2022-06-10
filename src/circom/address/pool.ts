@@ -72,7 +72,7 @@ export class Pool  {
     );
   }
 
-  async initTokenIndexAndLiq(
+  async getAndInitTokenIndexAndLiq(
     tokenIndex0: Field,
     tokenIndex1: Field,
     liq0: Field,
@@ -88,7 +88,7 @@ export class Pool  {
     return path;
   }
 
-  async updateLiqByAddition(
+  async getAndUpdateLiqByAddition(
     amount0: Field,
     amount1: Field
   ): Promise<PathInfo> {
@@ -103,7 +103,7 @@ export class Pool  {
     return path;
   }
 
-  async updateKAndRem(
+  async getAndUpdateKAndRem(
     k_new: Field,
     rem_new: Field
   ): Promise<PathInfo> {
@@ -143,6 +143,6 @@ export class Pool  {
       token0liq,
       token1liq,
     ]);
-    await this.updateKAndRem(sharePriceK, accumulatedRem);
+    await this.getAndUpdateKAndRem(sharePriceK, accumulatedRem);
   }
 }

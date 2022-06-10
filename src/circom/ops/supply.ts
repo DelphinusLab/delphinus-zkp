@@ -34,7 +34,7 @@ export class SupplyCommand extends Command {
     // circuits: check token0 != 0 || token1 != 0
     // circuits: liq0 + amount0 doesn't overflow
     // circuits: liq1 + amount1 doesn't overflow
-    path.push(await pool.updateLiqByAddition(
+    path.push(await pool.getAndUpdateLiqByAddition(
       amount0,
       amount1
     ));

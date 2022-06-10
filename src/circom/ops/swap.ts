@@ -45,7 +45,7 @@ export class SwapCommand extends Command {
     const poolTotalLiq_old = liq1.add(liq0);
     const poolTotalLiq_new = liq1.add(liq0).add(amount).sub(amount_out);
     const [k_new, rem_new] = shareCalc.calcKAndRem_new(poolTotalLiq_old.v, poolTotalLiq_new.v, (await pool.getSharePriceK()).v, (await pool.getAccumulatedRem()).v);
-    path.push(await pool.updateLiqByAddition(
+    path.push(await pool.getAndUpdateLiqByAddition(
       reverse.v.eqn(0) ? amount : new Field(0).sub(amount_out),
       reverse.v.eqn(0) ? new Field(0).sub(amount_out) : amount,
     ));
@@ -69,7 +69,7 @@ export class SwapCommand extends Command {
     );
 
     // STEP5: update SharePriceK and Remainder
-    const kAndRemPath = await pool.updateKAndRem(k_new, rem_new)
+    const kAndRemPath = await pool.getAndUpdateKAndRem(k_new, rem_new)
     path.push(kAndRemPath);
 
     return path;

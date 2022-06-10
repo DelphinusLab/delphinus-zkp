@@ -35,7 +35,7 @@ export class RetrieveCommand extends Command {
     // circuits: check token0 != 0 || token1 != 0
     // circuits: liq0 >= amount0
     // circuits: liq1 >= amount1
-    path.push(await pool.updateLiqByAddition(
+    path.push(await pool.getAndUpdateLiqByAddition(
       new Field(0).sub(amount0),
       new Field(0).sub(amount1)
     ));

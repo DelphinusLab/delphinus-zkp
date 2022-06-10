@@ -48,8 +48,8 @@ describe("test pool class", () => {
         const amount_out = new Field(400);
         const k_new = new Field(11);
         const rem_new = new Field(200);
-        await pool.updateLiqByAddition(amount,amount_out);
-        await pool.updateKAndRem(k_new, rem_new);
+        await pool.getAndUpdateLiqByAddition(amount,amount_out);
+        await pool.getAndUpdateKAndRem(k_new, rem_new);
         
         const k_new_check = await pool.getSharePriceK();
         const rem_new_check = await pool.getAccumulatedRem();
