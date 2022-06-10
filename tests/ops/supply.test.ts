@@ -23,7 +23,7 @@ describe("test supply op", () => {
         
         //Setup Pool
         const pool = new Pool(storage, poolIndex);
-        await pool.resetPool(new Field(tokenIndex0), new Field(tokenIndex1), new Field(initSharePriceKBN), new Field(0));
+        await pool.initPoolForTest(new Field(tokenIndex0), new Field(tokenIndex1), new Field(0), new Field(0), new Field(initSharePriceKBN), new Field(0));
         //Setup Account
         const account = new Account(storage, accountIndex);
         //account2 deposit 2000 token0
@@ -62,8 +62,8 @@ describe("test supply op", () => {
         const nonce_check = await storage.getLeave(account.getAccountNonceIndex());
         const [tokenIndex0_check,tokenIndex1_check,liq0_check,liq1_check] = await storage.getLeaves(poolInfo_Index);
         const share_check = await storage.getLeave(account.getShareInfoIndex(poolIndex));
-        const token0Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenInfo())[0][0]));
-        const token1Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenInfo())[1][0]));
+        const token0Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenIndexAndLiq())[0]));
+        const token1Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenIndexAndLiq())[1]));
 
         expect(nonce_check).toEqual(new Field(nonce + 1));
         expect(tokenIndex0_check.v.toString()).toEqual(`${tokenIndex0}`);
@@ -94,7 +94,7 @@ describe("test supply op", () => {
 
         //Setup Pool
         const pool = new Pool(storage, poolIndex);
-        await pool.resetPool(new Field(tokenIndex0), new Field(tokenIndex1), new Field(initSharePriceKBN), new Field(0));
+        await pool.initPoolForTest(new Field(tokenIndex0), new Field(tokenIndex1), new Field(0), new Field(0), new Field(initSharePriceKBN), new Field(0));
         //Setup Account
         const account = new Account(storage, accountIndex);
         //account2 deposit 2000 token0
@@ -102,7 +102,7 @@ describe("test supply op", () => {
         //account2 deposit 2000 token1
         await account.getAndAddBalance(new Field(tokenIndex1), new Field(depositToken1));
         //account2 supplied 1000 token0 and 1000 token2
-        await pool.getAndAddLiq(new Field(amount0_pre),new Field(amount1_pre));
+        await pool.getAndUpdateLiqByAddition(new Field(amount0_pre),new Field(amount1_pre));
         //Setup share_pre = 0 + (1000 + 1000) * (10^24 - 1) = 2 * 10^27 - 2000
         const share_pre = new Field(amount0_pre + amount1_pre).mul(new Field(initSharePriceKBN).sub(new Field(1)));
         await account.getAndAddShare(poolIndex, share_pre);
@@ -138,8 +138,8 @@ describe("test supply op", () => {
         const nonce_check = await storage.getLeave(account.getAccountNonceIndex());
         const [tokenIndex0_check,tokenIndex1_check,liq0_check,liq1_check] = await storage.getLeaves(poolInfo_Index);
         const share_check = await storage.getLeave(account.getShareInfoIndex(poolIndex));
-        const token0Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenInfo())[0][0]));
-        const token1Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenInfo())[1][0]));
+        const token0Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenIndexAndLiq())[0]));
+        const token1Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenIndexAndLiq())[1]));
 
         expect(nonce_check).toEqual(new Field(nonce + 1));
         expect(tokenIndex0_check.v.toString()).toEqual(`${tokenIndex0}`);

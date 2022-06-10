@@ -21,7 +21,7 @@ export class RetrieveCommand extends Command {
 
     const pool = new Pool(storage, poolIndex);
     const account = new Account(storage, accountIndex);
-
+    const [tokenIndex0, tokenIndex1, liq0, liq1] = await pool.getTokenIndexAndLiq();
 
     // circuits: check accountIndex < 2 ^ 20
     // circuits: check poolIndex < 2 ^ 10
@@ -35,11 +35,10 @@ export class RetrieveCommand extends Command {
     // circuits: check token0 != 0 || token1 != 0
     // circuits: liq0 >= amount0
     // circuits: liq1 >= amount1
-    const [tokenIndex0, tokenIndex1, _path] = await pool.getAndAddLiq(
+    path.push(await pool.getAndUpdateLiqByAddition(
       new Field(0).sub(amount0),
       new Field(0).sub(amount1)
-    );
-    path.push(_path);
+    ));
 
     // STEP3: udpate share
     // circuits: check share >= amount1 + amount0
@@ -63,7 +62,7 @@ export class RetrieveCommand extends Command {
       await account.getAndAddBalance(tokenIndex1, amount1)
     );
 
-    // 6-th path, containing the leaves of pool_K and pool_remainder
+    // STEP6: add the data of pool_K and pool_remainder
     path.push(
       await pool.getKAndRemPath()
     );
