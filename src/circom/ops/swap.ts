@@ -49,10 +49,8 @@ export class SwapCommand extends Command {
       reverse.v.eqn(0) ? amount : new Field(0).sub(amount_out),
       reverse.v.eqn(0) ? new Field(0).sub(amount_out) : amount,
     ));
-    // STEP3: update SharePriceK and Remainder (but added as 5-th path)
-    const kAndRemPath = await pool.updateKAndRem(k_new, rem_new)
 
-    // STEP4: udpate balance0
+    // STEP3: udpate balance0
     // circuits: if reverse == 0 then balance0 >= amount else balance0 + amount doesn't overflow
     path.push(
       await account.getAndAddBalance(
@@ -61,7 +59,7 @@ export class SwapCommand extends Command {
       )
     );
 
-    // STEP5: udpate balance1
+    // STEP4: udpate balance1
     // circuits: if reverse == 0 then balance1 + amount doesn't overflow else balance1 >= amount
     path.push(
       await account.getAndAddBalance(
@@ -70,6 +68,8 @@ export class SwapCommand extends Command {
       )
     );
 
+    // STEP5: update SharePriceK and Remainder
+    const kAndRemPath = await pool.updateKAndRem(k_new, rem_new)
     path.push(kAndRemPath);
 
     return path;
