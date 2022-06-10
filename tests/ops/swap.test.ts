@@ -34,7 +34,7 @@ describe("test swap op", () => {
         //account2 deposit token1
         await account.getAndAddBalance(new Field(tokenIndex1), new Field(depositToken1));
         //account2 supplied token0 and token1 to the pool
-        await pool.updateLiqByAddition(new Field(amount0_pre),new Field(amount1_pre));
+        await pool.getAndUpdateLiqByAddition(new Field(amount0_pre),new Field(amount1_pre));
 
         //Setup Expect Results
         let amount_out, sharePriceK, rem, total_old, total_new, liq0, liq1, token0Balance, token1Balance
@@ -141,7 +141,7 @@ describe("test swap op", () => {
         //account2 deposit 1000 token1
         await account.getAndAddBalance(new Field(tokenIndex1), new Field(depositToken1));
         //account2 supplied 1000 token0 and 1000 token2
-        await pool.updateLiqByAddition(new Field(amount0_pre),new Field(amount1_pre));
+        await pool.getAndUpdateLiqByAddition(new Field(amount0_pre),new Field(amount1_pre));
 
         //Setup Expect Results
         let amount_out, sharePriceK, rem, total_old, total_new, liq0, liq1, token0Balance, token1Balance
@@ -250,7 +250,7 @@ describe("test swap op", () => {
         //account2 deposit 1000 token1
         await account.getAndAddBalance(new Field(tokenIndex1), new Field(depositToken1));
         //account2 supplied 1000 token0 and 1000 token2
-        await pool.updateLiqByAddition(new Field(amount0_pre),new Field(amount1_pre));
+        await pool.getAndUpdateLiqByAddition(new Field(amount0_pre),new Field(amount1_pre));
 
         //Setup Expect Results
         //1: First time swap 100

@@ -33,7 +33,7 @@ describe("test retrieve op", () => {
         //account2 deposit 1000 token1
         await account.getAndAddBalance(new Field(tokenIndex1), new Field(depositToken1));
         //account2 supplied 1000 token0 and 1000 token2
-        await pool.updateLiqByAddition(new Field(amount0_pre),new Field(amount1_pre));
+        await pool.getAndUpdateLiqByAddition(new Field(amount0_pre),new Field(amount1_pre));
         //Setup share_pre = 0 + (1000 + 1000) * (10^24 - 1) = 2 * 10^27 - 2000
         const share_pre = new Field(amount0_pre + amount1_pre).mul(new Field(initSharePriceKBN).sub(new Field(1)));
         await account.getAndAddShare(new Field(poolIndex), share_pre);
