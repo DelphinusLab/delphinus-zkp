@@ -18,7 +18,7 @@ describe("test account class", () => {
             new Field(0).add(amount0).add(amount1)
         );
 
-        const shareInfoIndex = account.getShareInfoIndex(poolIndex);
+        const shareInfoIndex = account.getShareInfoAddress(poolIndex);
         const leafNode = await storage.getLeave(shareInfoIndex);
 
         expect(leafNode.toString()).toEqual('2000');
@@ -40,7 +40,7 @@ describe("test account class", () => {
             new Field(0).add(amount0).add(amount1)
         )
 
-        const shareInfoIndex = account.getShareInfoIndex(poolIndex);
+        const shareInfoIndex = account.getShareInfoAddress(poolIndex);
         const leafNode = await storage.getLeave(shareInfoIndex);
 
         // expect(leafNode.v).toEqual(amountBN.add(amountBN));

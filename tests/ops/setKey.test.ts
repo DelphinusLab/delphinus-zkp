@@ -28,7 +28,7 @@ describe("test SetKey op", () => {
         const pathInfo = await command.run(storage);
 
         const account = new Account(storage, accountIndex);
-        const leafValues = await storage.getLeaves(account.getAccountPublicKeyIndex());
+        const leafValues = await storage.getLeaves(account.getAccountPublicKeyAddress());
 
         expect(leafValues).toEqual([ax, ay, new Field(nonce + 1), new Field(0)]);
     });
