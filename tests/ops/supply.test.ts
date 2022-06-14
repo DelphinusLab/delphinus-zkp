@@ -59,11 +59,11 @@ describe("test supply op", () => {
         );
         await supply_command.run(storage);
 
-        const nonce_check = await storage.getLeave(account.getAccountNonceIndex());
+        const nonce_check = await storage.getLeave(account.getAccountNonceAddress());
         const [tokenIndex0_check,tokenIndex1_check,liq0_check,liq1_check] = await storage.getLeaves(poolInfo_Index);
-        const share_check = await storage.getLeave(account.getShareInfoIndex(poolIndex));
-        const token0Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenIndexAndLiq())[0]));
-        const token1Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenIndexAndLiq())[1]));
+        const share_check = await storage.getLeave(account.getShareInfoAddress(poolIndex));
+        const token0Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[0]));
+        const token1Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[1]));
 
         expect(nonce_check).toEqual(new Field(nonce + 1));
         expect(tokenIndex0_check.v.toString()).toEqual(`${tokenIndex0}`);
@@ -135,11 +135,11 @@ describe("test supply op", () => {
         );
         await supply_command.run(storage);
 
-        const nonce_check = await storage.getLeave(account.getAccountNonceIndex());
+        const nonce_check = await storage.getLeave(account.getAccountNonceAddress());
         const [tokenIndex0_check,tokenIndex1_check,liq0_check,liq1_check] = await storage.getLeaves(poolInfo_Index);
-        const share_check = await storage.getLeave(account.getShareInfoIndex(poolIndex));
-        const token0Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenIndexAndLiq())[0]));
-        const token1Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenIndexAndLiq())[1]));
+        const share_check = await storage.getLeave(account.getShareInfoAddress(poolIndex));
+        const token0Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[0]));
+        const token1Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[1]));
 
         expect(nonce_check).toEqual(new Field(nonce + 1));
         expect(tokenIndex0_check.v.toString()).toEqual(`${tokenIndex0}`);

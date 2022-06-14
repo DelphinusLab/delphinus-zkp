@@ -48,8 +48,8 @@ export class NFT {
     ) {
         const bidder = new Account(this.storage, _bidder);
         const index = toNumber(tokenIndex);
-        const balanceInfoIndex = bidder.getBalanceInfoIndex(index);
-        const balance = await bidder.storage.getLeave(balanceInfoIndex);
+        const balanceInfoAddress = bidder.getBalanceInfoAddress(index);
+        const balance = await bidder.storage.getLeave(balanceInfoAddress);
 
         return balance;
     }

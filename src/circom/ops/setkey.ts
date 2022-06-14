@@ -27,7 +27,7 @@ export class SetKeyCommand extends Command {
     // circuits: check ax == 0 && ay == 0
     path.push(await account.getAccountInfo());
 
-    await storage.setLeaves(account.getAccountPublicKeyIndex(), [
+    await storage.setLeaves(account.getAccountPublicKeyAddress(), [
       x,
       y,
       nonce.add(new Field(1)),

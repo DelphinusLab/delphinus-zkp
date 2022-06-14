@@ -36,9 +36,9 @@ describe("test Addpool op", () => {
         );
         await addpool_command.run(storage);
 
-        const nonce_check = await storage.getLeave(account.getAccountNonceIndex());
+        const nonce_check = await storage.getLeave(account.getAccountNonceAddress());
         const resetPool_check = await storage.getLeaves(poolInfo_Index);
-        const initK_check = await storage.getLeave(pool.getSharePriceKIndex());
+        const initK_check = await storage.getLeave(pool.getSharePriceKAddress());
 
         expect(nonce_check).toEqual(new Field(nonce + 1));
         expect(resetPool_check).toEqual([new Field(tokenIndex0), new Field(tokenIndex1), new Field(0), new Field(0)]);
