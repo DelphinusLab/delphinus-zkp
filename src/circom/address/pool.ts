@@ -7,33 +7,33 @@ export const initSharePriceKBN = new BN('1' + '0'.repeat(24), 10);
 
 export class Pool  {
   private index: number | Field;
-  private info_index: number;
-  private token0_index: number;
-  private token1_index: number;
-  private amount0_index: number;
-  private amount1_index: number;
+  private info_address: number;
+  private token0_address: number;
+  private token1_address: number;
+  private amount0_address: number;
+  private amount1_address: number;
   private storage: MerkleTree;
 
   constructor(storage: MerkleTree, index: number | Field) {
     this.storage = storage;
     this.index = index;
-    this.info_index = getSpaceIndex(AddressSpace.Pool) | (toNumber(this.index) << 20);
-    this.token0_index = this.info_index | 0;
-    this.token1_index = this.info_index | 1;
-    this.amount0_index = this.info_index | 2;
-    this.amount1_index = this.info_index | 3;
+    this.info_address = getSpaceIndex(AddressSpace.Pool) | (toNumber(this.index) << 20);
+    this.token0_address = this.info_address | 0;
+    this.token1_address = this.info_address | 1;
+    this.amount0_address = this.info_address | 2;
+    this.amount1_address = this.info_address | 3;
   }
 
   async getPoolPath(): Promise<PathInfo> {
-    return this.storage.getPath(this.info_index);
+    return this.storage.getPath(this.info_address);
   }
 
   async getKAndRemPath(): Promise<PathInfo> {
-    return this.storage.getPath(this.getSharePriceKIndex());
+    return this.storage.getPath(this.getSharePriceKAddress());
   }
 
   async getTokenIndexAndLiq() {
-    const poolInfo = await this.storage.getLeaves(this.info_index);
+    const poolInfo = await this.storage.getLeaves(this.info_address);
     const tokenIndex0 = poolInfo[0];
     const tokenIndex1 = poolInfo[1];
     const liq0 = poolInfo[2];
@@ -42,8 +42,8 @@ export class Pool  {
   }
 
   async getSharePriceK(){
-    const sharePriceKIndex = this.getSharePriceKIndex();
-    const k = await this.storage.getLeave(sharePriceKIndex);
+    const sharePriceKAddress = this.getSharePriceKAddress();
+    const k = await this.storage.getLeave(sharePriceKAddress);
     if (!k.v.eqn(0)){
       return k
     }
@@ -51,12 +51,12 @@ export class Pool  {
   }
 
   async getAccumulatedRem(){
-    const accumulatedRemIndex = this.getAccumulatedRemIndex();
-    const r = await this.storage.getLeave(accumulatedRemIndex);
+    const accumulatedRemAddress = this.getAccumulatedRemAddress();
+    const r = await this.storage.getLeave(accumulatedRemAddress);
     return r;
   }
 
-  getSharePriceKIndex(): number {
+  getSharePriceKAddress(): number {
     return (
       (AddressSpace.Pool << 30) |
       (toNumber(this.index) << 20) |
@@ -64,7 +64,7 @@ export class Pool  {
     );
   }
 
-  getAccumulatedRemIndex(): number {
+  getAccumulatedRemAddress(): number {
     return (
       (AddressSpace.Pool << 30) |
       (toNumber(this.index) << 20) |
@@ -79,7 +79,7 @@ export class Pool  {
     liq1: Field
   ): Promise<PathInfo> {
     const path = await this.getPoolPath();
-    await this.storage.setLeaves(this.info_index, [
+    await this.storage.setLeaves(this.info_address, [
       tokenIndex0,
       tokenIndex1,
       liq0,
@@ -94,7 +94,7 @@ export class Pool  {
   ): Promise<PathInfo> {
     const path = await this.getPoolPath();
     const [tokenIndex0, tokenIndex1, liq0, liq1] = await this.getTokenIndexAndLiq();
-    await this.storage.setLeaves(this.info_index, [
+    await this.storage.setLeaves(this.info_address, [
       tokenIndex0,
       tokenIndex1,
       liq0.add(amount0),
@@ -108,23 +108,23 @@ export class Pool  {
     rem_new: Field
   ): Promise<PathInfo> {
     const KAndRem_path = await this.getKAndRemPath();
-    await this.storage.setLeave(this.getSharePriceKIndex(), k_new);
-    await this.storage.setLeave(this.getAccumulatedRemIndex(), rem_new);
+    await this.storage.setLeave(this.getSharePriceKAddress(), k_new);
+    await this.storage.setLeave(this.getAccumulatedRemAddress(), rem_new);
     return KAndRem_path;
   }
 
   async updateK(
     k_new: Field
   ){
-    const sharePriceKIndex = this.getSharePriceKIndex();
-    await this.storage.setLeave(sharePriceKIndex, k_new);
+    const sharePriceKAddress = this.getSharePriceKAddress();
+    await this.storage.setLeave(sharePriceKAddress, k_new);
   }
 
   async updateRem(
     rem_new: Field
   ){
-    const accumulatedRem = this.getAccumulatedRemIndex();
-    await this.storage.setLeave(accumulatedRem, rem_new);
+    const accumulatedRemAddress = this.getAccumulatedRemAddress();
+    await this.storage.setLeave(accumulatedRemAddress, rem_new);
   }
 
   // Initialize a pool conveniently 
@@ -137,7 +137,7 @@ export class Pool  {
     sharePriceK: Field,
     accumulatedRem: Field
   ) {
-    await this.storage.setLeaves(this.info_index, [
+    await this.storage.setLeaves(this.info_address, [
       tokenIndex0,
       tokenIndex1,
       token0liq,

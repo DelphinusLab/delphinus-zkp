@@ -96,12 +96,12 @@ describe("test swap op", () => {
         );
         await swap_command.run(storage);
 
-        const nonce_check = await storage.getLeave(account.getAccountNonceIndex());
-        const sharePriceK_check = await storage.getLeave(pool.getSharePriceKIndex());
-        const accumulatedRem_check = await storage.getLeave(pool.getAccumulatedRemIndex());
+        const nonce_check = await storage.getLeave(account.getAccountNonceAddress());
+        const sharePriceK_check = await storage.getLeave(pool.getSharePriceKAddress());
+        const accumulatedRem_check = await storage.getLeave(pool.getAccumulatedRemAddress());
         const [tokenIndex0_check,tokenIndex1_check,liq0_check,liq1_check] = await storage.getLeaves(poolInfo_Index);
-        const token0Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenIndexAndLiq())[0]));
-        const token1Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenIndexAndLiq())[1]));
+        const token0Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[0]));
+        const token1Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[1]));
 
         expect(nonce_check).toEqual(new Field(nonce + 1));
         expect(tokenIndex0_check.v.toString()).toEqual(`${tokenIndex0}`);
@@ -204,12 +204,12 @@ describe("test swap op", () => {
         );
         await swap_command.run(storage);
 
-        const nonce_check = await storage.getLeave(account.getAccountNonceIndex());
-        const sharePriceK_check = await storage.getLeave(pool.getSharePriceKIndex());
-        const accumulatedRem_check = await storage.getLeave(pool.getAccumulatedRemIndex());
+        const nonce_check = await storage.getLeave(account.getAccountNonceAddress());
+        const sharePriceK_check = await storage.getLeave(pool.getSharePriceKAddress());
+        const accumulatedRem_check = await storage.getLeave(pool.getAccumulatedRemAddress());
         const [tokenIndex0_check,tokenIndex1_check,liq0_check,liq1_check] = await storage.getLeaves(poolInfo_Index);
-        const token0Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenIndexAndLiq())[0]));
-        const token1Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenIndexAndLiq())[1]));
+        const token0Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[0]));
+        const token1Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[1]));
 
         expect(nonce_check).toEqual(new Field(nonce + 1));
         expect(tokenIndex0_check.v.toString()).toEqual(`${tokenIndex0}`);
@@ -327,12 +327,12 @@ describe("test swap op", () => {
             await swap_command.run(storage);
         }
 
-        const nonce_check = await storage.getLeave(account.getAccountNonceIndex());
-        const sharePriceK_check = await storage.getLeave(pool.getSharePriceKIndex());
-        const accumulatedRem_check = await storage.getLeave(pool.getAccumulatedRemIndex());
+        const nonce_check = await storage.getLeave(account.getAccountNonceAddress());
+        const sharePriceK_check = await storage.getLeave(pool.getSharePriceKAddress());
+        const accumulatedRem_check = await storage.getLeave(pool.getAccumulatedRemAddress());
         const [tokenIndex0_check,tokenIndex1_check,liq0_check,liq1_check] = await storage.getLeaves(poolInfo_Index);
-        const token0Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenIndexAndLiq())[0]));
-        const token1Balance_check = await storage.getLeave(account.getBalanceInfoIndex((await pool.getTokenIndexAndLiq())[1]));
+        const token0Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[0]));
+        const token1Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[1]));
 
         expect(nonce_check).toEqual(new Field(nonce + swap_times));
         expect(tokenIndex0_check.v.toString()).toEqual(`${tokenIndex0}`);

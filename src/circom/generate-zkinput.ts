@@ -144,8 +144,8 @@ export async function genZKPInput(
       // input: key path
       const accountIndex = commandWorker.callerAccountIndex;
       const account = new Account(storage, accountIndex);
-      const keyIndex = account.getAccountPublicKeyIndex();
-      builder.pushKeyData(await storage.getPath(keyIndex));
+      const keyAddress = account.getAccountPublicKeyAddress();
+      builder.pushKeyData(await storage.getPath(keyAddress));
 
       // input: data path
       const pathInfo = await commandWorker.run(storage);
