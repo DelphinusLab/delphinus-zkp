@@ -27,7 +27,7 @@ export class ShareCalcHelper {
         liqX: BN
     ){
         let share_new;
-        let amp = new BN(10 * 15);
+        let amp = new BN(10 ** 15);
         if(share_total.eqn(0)){
             share_new = amountX.mul(amp);
         }else{
