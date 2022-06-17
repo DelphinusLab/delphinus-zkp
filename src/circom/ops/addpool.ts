@@ -1,7 +1,7 @@
 import { Field } from "delphinus-curves/src/field";
 import { PathInfo } from "delphinus-curves/src/merkle-tree-large";
 import { L2Storage } from "../address-space";
-import { Pool, initSharePriceKBN } from "../address/pool";
+import { Pool } from "../address/pool";
 import { Account } from "../address/account";
 import { Command } from "../command";
 

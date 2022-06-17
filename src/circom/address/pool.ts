@@ -3,8 +3,6 @@ import { AddressSpace, getSpaceIndex, toNumber } from "./space";
 import { MerkleTree, PathInfo } from "delphinus-curves/src/merkle-tree-large";
 import BN from "bn.js";
 
-export const initSharePriceKBN = new BN('1' + '0'.repeat(24), 10);
-
 export class Pool  {
   private index: number | Field;
   private info_address: number;
