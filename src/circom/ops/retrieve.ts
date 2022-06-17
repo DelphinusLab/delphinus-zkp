@@ -4,6 +4,7 @@ import { L2Storage } from "../address-space";
 import { Pool } from "../address/pool";
 import { Account } from "../address/account";
 import { Command } from "../command";
+import { ShareCalcHelper } from "../shareCalc_helper";
 
 export class RetrieveCommand extends Command {
   get callerAccountIndex() {
@@ -42,7 +43,9 @@ export class RetrieveCommand extends Command {
 
     // STEP3: udpate share
     // circuits: check share >= amount1 + amount0
-    const share_new = amount0.add(amount1).mul(await pool.getSharePriceK());
+    const share_total = await pool.getShareTotal();
+    const shareCalc = new ShareCalcHelper;
+    const share_new = shareCalc.calcWithdraw_Share_New(amount0.v, share_total.v, liq0.v);
     path.push(
       await account.getAndAddShare(
         poolIndex,
@@ -62,9 +65,9 @@ export class RetrieveCommand extends Command {
       await account.getAndAddBalance(tokenIndex1, amount1)
     );
 
-    // STEP6: add the data of pool_K and pool_remainder
+    // STEP6: add Share Total
     path.push(
-      await pool.getKAndRemPath()
+      await pool.getAndUpdateShareTotal(new Field(0).sub(share_new))
     );
 
     return path;

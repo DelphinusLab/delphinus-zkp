@@ -21,18 +21,32 @@ export class ShareCalcHelper {
         return new Field(amount_out)
     }
 
-    calcKAndRem_new(
-        poolTotal_old: BN,
-        poolTotal_new: BN,
-        k: BN,
-        rem: BN
-    ) {
-        let k_new: BN = poolTotal_old.mul(k).sub(rem).div(poolTotal_new);
-        let rem_new: BN = poolTotal_old.mul(k).sub(rem).mod(poolTotal_new);
-        if (!rem_new.eqn(0)) {
-            k_new = k_new.add(new BN(1));
-            rem_new = poolTotal_new.sub(rem_new);
+    calcSupply_Share_New(
+        amountX: BN,
+        share_total: BN,
+        liqX: BN
+    ){
+        let share_new;
+        let amp = new BN(10 * 15);
+        if(share_total.eqn(0)){
+            share_new = amountX.mul(amp);
+        }else{
+            share_new = amountX.mul(share_total).div(liqX);
         }
-        return [new Field(k_new), new Field(rem_new)];
+        return new Field(share_new)
+    }
+
+    calcWithdraw_Share_New(
+        amountX: BN,
+        share_total: BN,
+        liqX: BN
+    ){
+        const share_new = amountX.mul(share_total).div(liqX);
+        const rem = amountX.mul(share_total).mod(liqX);
+        if(!rem.eqn(0)){
+            return new Field(share_new).add(new Field(1));
+        }else {
+            return new Field(share_new);
+        }
     }
 }
