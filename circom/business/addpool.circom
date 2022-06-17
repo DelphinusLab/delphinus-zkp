@@ -46,19 +46,18 @@ template InitPoolInfoFE() {
     out <== andmany.out;
 }
 
-template InitSharePriceKAndSwapRem() {
+template InitTotalShare() {
     var IndexOffset = 0;
     var LeafStartOffset = 61;
     var MaxTreeDataIndex = 66;
-    // SharePriceK = (1 / sharePrice) * 10 ^ 24, initial value is 10 ^ 24
-    var SharePriceK = 10 ** 24;
+    var TotalShare = 0;
     var SwapRem = 0;
 
     signal input dataPath[MaxTreeDataIndex];
     signal output newDataPath[MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(3);
+    component andmany = AndMany(2);
     var andmanyOffset = 0;
 
     component c = CheckSharePriceKIndexAnonymousFE();
@@ -68,9 +67,7 @@ template InitSharePriceKAndSwapRem() {
 
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         if(i == LeafStartOffset) {
-            newDataPath[i] <== SharePriceK;
-        } else if (i == LeafStartOffset + 1) {
-            newDataPath[i] <== SwapRem;
+            newDataPath[i] <== TotalShare;
         } else {
             newDataPath[i] <== dataPath[i];
         }
@@ -79,11 +76,6 @@ template InitSharePriceKAndSwapRem() {
     component zero0 = IsZero();
     zero0.in <== dataPath[LeafStartOffset];
     andmany.in[andmanyOffset] <== zero0.out;
-    andmanyOffset++;
-
-    component zero1 = IsZero();
-    zero1.in <== dataPath[LeafStartOffset + 1];
-    andmany.in[andmanyOffset] <== zero1.out;
     andmanyOffset++;
 
     out <== andmany.out;
@@ -164,17 +156,17 @@ template AddPool() {
     andmany.in[andmanyOffset] <== init.out;
     andmanyOffset++;
 
-    //STEP3: init SharePriceK and Rem
-    // circuits: check index of SharePriceK
-    // circuits: check leafValues[0] and leafValues[1] equal to 0
-    component init_k = InitSharePriceKAndSwapRem();
+    //STEP3: init TotalShare in Pool
+    // circuits: check index of TotalShare
+    // circuits: check leafValues[0] equal to 0
+    component init_share = InitTotalShare();
     for (var i = 0; i < MaxTreeDataIndex; i++) {
-        init_k.dataPath[i] <== dataPath[2][i];
+        init_share.dataPath[i] <== dataPath[2][i];
     }
     for (var i = 0; i < MaxTreeDataIndex; i++) {
-        newDataPath[2][i] <== init_k.newDataPath[i];
+        newDataPath[2][i] <== init_share.newDataPath[i];
     }
-    andmany.in[andmanyOffset] <== init_k.out;
+    andmany.in[andmanyOffset] <== init_share.out;
     andmanyOffset++;
 
     for (var i = 3; i < MaxStep; i++) {

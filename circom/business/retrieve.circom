@@ -9,8 +9,10 @@ template Retrieve() {
     var LeaveStartOffset = 61;
     var Token0Offset = LeaveStartOffset;
     var Token1Offset = LeaveStartOffset + 1;
+    var Token0LiqOffset = LeaveStartOffset + 2;
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
+    var precisionFactor = 10 ** 15;
 
     signal input args[CommandArgs];
     signal input dataPath[MaxStep][MaxTreeDataIndex];
@@ -19,7 +21,7 @@ template Retrieve() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(16);
+    component andmany = AndMany(17);
     var andmanyOffset = 0;
 
     var nonce = args[1];
@@ -95,7 +97,7 @@ template Retrieve() {
     andmany.in[andmanyOffset] <== checkLiq.out;
     andmanyOffset++;
 
-    // STEP3: udpate share
+    // STEP3: udpate user's share
     component shareIndex = CheckShareIndex();
     shareIndex.account <== account;
     shareIndex.pool <== pool;
@@ -103,14 +105,37 @@ template Retrieve() {
     andmany.in[andmanyOffset] <== shareIndex.out;
     andmanyOffset++;
 
-    var shareDiff = (amount0 + amount1) * dataPath[5][LeaveStartOffset];
+    var token0Liq = dataPath[1][Token0LiqOffset];
+    
+    // share_delta = x * pool.share / pool.x
+    component deltaShare = Divide();
+    deltaShare.numerator <== amount0 * dataPath[5][LeaveStartOffset];
+    deltaShare.denominator <== token0Liq;
+    // if (share_rem > 0) : share_delta += 1
+    component shareDiff = BiSelect();
+    shareDiff.cond <== deltaShare.remainder;
+    shareDiff.in[0] <== deltaShare.result;
+    shareDiff.in[1] <== deltaShare.result + 1;
+
+    // check shareDiff <= user.share
+    component getUserShare = GetValueFromTreePath();
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        getUserShare.treeData[i] <== dataPath[2][i];
+    }
+    var userShare = getUserShare.out;
+    component shareAmountCheck = LessThanFE(250);
+    shareAmountCheck.in[0] <== shareDiff.out;
+    shareAmountCheck.in[1] <== userShare + 1;
+    andmany.in[andmanyOffset] <== shareAmountCheck.out;
+    andmanyOffset++;
+
     component shareDiffRange = Check2PowerRangeFE(250);
-    shareDiffRange.in <== shareDiff;
+    shareDiffRange.in <== shareDiff.out;
     andmany.in[andmanyOffset] <== shareDiffRange.out;
     andmanyOffset++;
 
     component shareChange = ChangeValueFromTreePath();
-    shareChange.diff <== -shareDiff;
+    shareChange.diff <== -shareDiff.out;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         shareChange.treeData[i] <== dataPath[2][i];
     }
@@ -158,9 +183,12 @@ template Retrieve() {
     andmany.in[andmanyOffset] <== change1.out;
     andmanyOffset++;
 
-    for (var i = 5; i < MaxStep; i++) {
-        for (var j = 0; j < MaxTreeDataIndex; j++) {
-            newDataPath[i][j] <== dataPath[i][j];
+    // STEP6: update pool's total share
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        if (i == LeaveStartOffset) {
+            newDataPath[5][i] <== dataPath[5][i] - shareDiff.out;
+        } else {
+            newDataPath[5][i] <== dataPath[5][i];
         }
     }
     
