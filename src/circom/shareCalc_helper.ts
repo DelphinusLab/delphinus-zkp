@@ -36,7 +36,7 @@ export class ShareCalcHelper {
         return new Field(share_new)
     }
 
-    calcWithdraw_Share_New(
+    calcRetrieve_Share_New(
         amountX: BN,
         share_total: BN,
         liqX: BN

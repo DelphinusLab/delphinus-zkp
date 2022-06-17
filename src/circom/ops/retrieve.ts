@@ -45,7 +45,7 @@ export class RetrieveCommand extends Command {
     // circuits: check share >= amount1 + amount0
     const share_total = await pool.getShareTotal();
     const shareCalc = new ShareCalcHelper;
-    const share_new = shareCalc.calcWithdraw_Share_New(amount0.v, share_total.v, liq0.v);
+    const share_new = shareCalc.calcRetrieve_Share_New(amount0.v, share_total.v, liq0.v);
     path.push(
       await account.getAndAddShare(
         poolIndex,
