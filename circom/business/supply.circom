@@ -21,7 +21,7 @@ template Supply() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(16);
+    component andmany = AndMany(17);
     var andmanyOffset = 0;
 
     var nonce = args[1];
@@ -42,14 +42,14 @@ template Supply() {
     andmany.in[andmanyOffset] <== rangecheck1.out;
     andmanyOffset++;
 
-    // circuits: check amount0 < 2 ^ 125
-    component rangecheck2 = Check2PowerRangeFE(125);
+    // circuits: check amount0 < 2 ^ 99
+    component rangecheck2 = Check2PowerRangeFE(99);
     rangecheck2.in <== amount0;
     andmany.in[andmanyOffset] <== rangecheck2.out;
     andmanyOffset++;
 
-    // circuits: check amount1 < 2 ^ 125
-    component rangecheck3 = Check2PowerRangeFE(125);
+    // circuits: check amount1 < 2 ^ 99
+    component rangecheck3 = Check2PowerRangeFE(99);
     rangecheck3.in <== amount1;
     andmany.in[andmanyOffset] <== rangecheck3.out;
     andmanyOffset++;
@@ -105,17 +105,23 @@ template Supply() {
     andmany.in[andmanyOffset] <== shareIndex.out;
     andmanyOffset++;
 
-    var token0Liq = dataPath[1][Token0LiqOffset];
-
     // share_delta = x * pool.share / pool.x
     component deltaShare = Divide();
     deltaShare.numerator <== amount0 * dataPath[5][LeaveStartOffset];
-    deltaShare.denominator <== token0Liq;
+    deltaShare.denominator <== dataPath[1][Token0LiqOffset];
 
+    // if totalShare = 0 ? initialization : use delta
     component shareDiff = BiSelect();
-    shareDiff.cond <== token0Liq;
+    shareDiff.cond <== dataPath[5][Token0LiqOffset];
     shareDiff.in[0] <== amount0 * precisionFactor;
     shareDiff.in[1] <== deltaShare.result;
+
+    component shareDiffCheck = BiSelect();
+    shareDiffCheck.cond <== dataPath[5][Token0LiqOffset];
+    shareDiffCheck.in[0] <== 1;
+    shareDiffCheck.in[1] <== deltaShare.out;
+    andmany.in[andmanyOffset] <== shareDiffCheck.out;
+    andmanyOffset++;
 
     component shareDiffRange = Check2PowerRangeFE(250);
     shareDiffRange.in <== shareDiff.out;

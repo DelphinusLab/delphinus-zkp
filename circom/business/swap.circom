@@ -240,8 +240,8 @@ template Swap() {
     andmany.in[andmanyOffset] <== 1 - amountIsZero.out;
     andmanyOffset++;
 
-    // circuits: check amount < 2 ^ 125
-    component rangecheck3 = Check2PowerRangeFE(125);
+    // circuits: check amount < 2 ^ 99
+    component rangecheck3 = Check2PowerRangeFE(99);
     rangecheck3.in <== amount;
     andmany.in[andmanyOffset] <== rangecheck3.out;
     andmanyOffset++;
