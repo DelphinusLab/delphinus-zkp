@@ -24,7 +24,7 @@ export class SwapCommand extends Command {
     const account = new Account(storage, accountIndex);
     const shareCalc = new ShareCalcHelper;
     const [tokenIndex0, tokenIndex1, liq0, liq1] = await pool.getTokenIndexAndLiq();
-    const amountOut = shareCalc.calcAmountOut_AMM(
+    const amountOut = shareCalc.calcAmountOutAMM(
       amount.v,
       reverse.v.eqn(0) ? liq1.v : liq0.v,
       reverse.v.eqn(0) ? liq0.v : liq1.v

@@ -19,7 +19,7 @@ describe("test ops", () => {
         let storage: L2Storage = new L2Storage(true);
 
         //test scenario1
-        const config = await fs.readJSONSync(`${__dirname}/examples/scenario1.json`);
+        const config = await fs.readJSONSync(`${__dirname}/examples/case5.json`);
         
         for (let i = 0; i < config.scenario.length; i++) {
             const account = new Account(storage, config.scenario[i].accountIndex);

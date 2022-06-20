@@ -2,22 +2,22 @@ import { Field } from "delphinus-curves/src/field";
 import BN from "bn.js";
 
 export class ShareCalcHelper {
-    profit_AMM(
+    profitAMM(
         amount: BN,
-        token_SwapFrom_amount: BN,
-        token_SwapTo_amount: BN
+        tokenSwapFromamount: BN,
+        tokenSwapToamount: BN
     ){
-        const amount_out = token_SwapFrom_amount.mul(amount).mul(new BN(1021)).div(token_SwapTo_amount.add(amount).mul(new BN(1024)));
+        const amount_out = tokenSwapFromamount.mul(amount).mul(new BN(1021)).div(tokenSwapToamount.add(amount).mul(new BN(1024)));
         const profit = amount.sub(amount_out);
         return new Field(profit)
     }
 
-    calcAmountOut_AMM(
+    calcAmountOutAMM(
         amount: BN,
-        tokenliq_SwapFrom: BN,
-        tokenliq_SwapTo: BN
+        tokenliqSwapFrom: BN,
+        tokenliqSwapTo: BN
     ){
-        const amount_out = tokenliq_SwapFrom.mul(amount).mul(new BN(1021)).div(tokenliq_SwapTo.add(amount).mul(new BN(1024)));
+        const amount_out = tokenliqSwapFrom.mul(amount).mul(new BN(1021)).div(tokenliqSwapTo.add(amount).mul(new BN(1024)));
         return new Field(amount_out)
     }
 
