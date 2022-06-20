@@ -38,12 +38,12 @@ template CalculateSwapNewLiq() {
     andmany.in[andmanyOffset] <== 1 - amountInputIsZero.out;
     andmanyOffset++;
 
-    component token0liqcheck = Check2PowerRangeFE(125);
+    component token0liqcheck = Check2PowerRangeFE(99);
     token0liqcheck.in <== poolLiqIn;
     andmany.in[andmanyOffset] <== token0liqcheck.out;
     andmanyOffset++;
 
-    component token1liqcheck = Check2PowerRangeFE(125);
+    component token1liqcheck = Check2PowerRangeFE(99);
     token1liqcheck.in <== poolLiqOut;
     andmany.in[andmanyOffset] <== token1liqcheck.out;
     andmanyOffset++;
