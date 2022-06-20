@@ -21,7 +21,7 @@ template Retrieve() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(17);
+    component andmany = AndMany(18);
     var andmanyOffset = 0;
 
     var nonce = args[1];
@@ -42,14 +42,14 @@ template Retrieve() {
     andmany.in[andmanyOffset] <== rangecheck1.out;
     andmanyOffset++;
 
-    // circuits: check amount0 < 2 ^ 125
-    component rangecheck2 = Check2PowerRangeFE(125);
+    // circuits: check amount0 < 2 ^ 99
+    component rangecheck2 = Check2PowerRangeFE(99);
     rangecheck2.in <== amount0;
     andmany.in[andmanyOffset] <== rangecheck2.out;
     andmanyOffset++;
 
-    // circuits: check amount1 < 2 ^ 125
-    component rangecheck3 = Check2PowerRangeFE(125);
+    // circuits: check amount1 < 2 ^ 99
+    component rangecheck3 = Check2PowerRangeFE(99);
     rangecheck3.in <== amount1;
     andmany.in[andmanyOffset] <== rangecheck3.out;
     andmanyOffset++;
@@ -111,6 +111,9 @@ template Retrieve() {
     component deltaShare = Divide();
     deltaShare.numerator <== amount0 * dataPath[5][LeaveStartOffset];
     deltaShare.denominator <== token0Liq;
+    andmany.in[andmanyOffset] <== deltaShare.out;
+    andmanyOffset++;
+
     // if (share_rem > 0) : share_delta += 1
     component shareDiff = BiSelect();
     shareDiff.cond <== deltaShare.remainder;
