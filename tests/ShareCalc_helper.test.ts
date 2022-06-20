@@ -3,7 +3,7 @@ import BN from "bn.js";
 import { ShareCalcHelper } from "../src/circom/shareCalc_helper"
 
 describe("test ShareCalc_helper class", () => {
-    test("test calcSupply_Share_New supply 1000 to a new pool", async () => {
+    test("test calcSupplyShare supply 1000 to a new pool", async () => {
         jest.setTimeout(60000); //1 minute timeout
         
         const shareCalc = new ShareCalcHelper;
@@ -17,7 +17,7 @@ describe("test ShareCalc_helper class", () => {
         expect(share_new.toString()).toEqual(`${share_check}`);
     });
 
-    test("test calcSupply_Share_New supply 1000 to an exist pool", async () => {
+    test("test calcSupplyShare supply 1000 to an exist pool", async () => {
         jest.setTimeout(60000); //1 minute timeout
         
         const shareCalc = new ShareCalcHelper;
@@ -29,7 +29,7 @@ describe("test ShareCalc_helper class", () => {
         expect(share_new.toString()).toEqual("6666");
     });
 
-    test("test calcRetrieve_Share_New retrieve 50 without rem", async () => {
+    test("test calcRetrieveShare retrieve 50 without rem", async () => {
         jest.setTimeout(60000); //1 minute timeout
         
         const shareCalc = new ShareCalcHelper;
@@ -41,7 +41,7 @@ describe("test ShareCalc_helper class", () => {
         expect(shareDelta.toString()).toEqual("100");
     });
 
-    test("test calcRetrieve_Share_New retrieve 50 with rem", async () => {
+    test("test calcRetrieveShare retrieve 50 with rem", async () => {
         jest.setTimeout(60000); //1 minute timeout
         
         const shareCalc = new ShareCalcHelper;
@@ -53,14 +53,14 @@ describe("test ShareCalc_helper class", () => {
         expect(shareDelta.toString()).toEqual("84");
     });
 
-    test("test calcAmountOut_AMM", async () => {
+    test("test calcAmountOutAMM", async () => {
         jest.setTimeout(60000); //1 minute timeout
         
         const shareCalc = new ShareCalcHelper;
         const amount = new BN(500);
         const tokenliqSwapFrom = new BN(1000);
         const tokenliqSwapTo = new BN(5000);
-        const amountOut = shareCalc.calcAmountOut_AMM(amount,tokenliqSwapFrom,tokenliqSwapTo);
+        const amountOut = shareCalc.calcAmountOutAMM(amount,tokenliqSwapFrom,tokenliqSwapTo);
 
         // amount_out = 1000*500*1021/((5000+500)*1024) = 90.64 rounding down 90
         expect(amountOut.toString()).toEqual('90');
