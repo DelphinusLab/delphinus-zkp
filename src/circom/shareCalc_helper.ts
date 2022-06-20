@@ -21,32 +21,32 @@ export class ShareCalcHelper {
         return new Field(amount_out)
     }
 
-    calcSupply_Share_New(
+    calcSupplyShare(
         amountX: BN,
-        share_total: BN,
+        shareTotal: BN,
         liqX: BN
     ){
-        let share_new;
+        let shareDelta;
         let amp = new BN(10 ** 15);
-        if(share_total.eqn(0)){
-            share_new = amountX.mul(amp);
+        if(shareTotal.eqn(0)){
+            shareDelta = amountX.mul(amp);
         }else{
-            share_new = amountX.mul(share_total).div(liqX);
+            shareDelta = amountX.mul(shareTotal).div(liqX);
         }
-        return new Field(share_new)
+        return new Field(shareDelta)
     }
 
-    calcRetrieve_Share_New(
+    calcRetrieveShare(
         amountX: BN,
-        share_total: BN,
+        shareTotal: BN,
         liqX: BN
     ){
-        const share_new = amountX.mul(share_total).div(liqX);
-        const rem = amountX.mul(share_total).mod(liqX);
+        const shareDelta = amountX.mul(shareTotal).div(liqX);
+        const rem = amountX.mul(shareTotal).mod(liqX);
         if(!rem.eqn(0)){
-            return new Field(share_new).add(new Field(1));
+            return new Field(shareDelta).add(new Field(1));
         }else {
-            return new Field(share_new);
+            return new Field(shareDelta);
         }
     }
 }

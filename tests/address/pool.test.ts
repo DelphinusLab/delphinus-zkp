@@ -9,11 +9,11 @@ describe("test pool class", () => {
         
         const poolIndex = 0;
         const pool = new Pool(storage, poolIndex);
-        const init_share = new Field(5);
-        await pool.getAndInitShareTotal(init_share);
+        const initShare = new Field(5);
+        await pool.getAndInitShareTotal(initShare);
         
-        const init_share_check = await pool.getShareTotal();
-        expect(init_share_check.toString()).toEqual('5');
+        const initShareCheck = await pool.getShareTotal();
+        expect(initShareCheck.toString()).toEqual('5');
     });
 
     test("test getAndUpdateShareTotal", async () => {
@@ -24,10 +24,10 @@ describe("test pool class", () => {
         const pool = new Pool(storage, poolIndex);
         const init_share = new Field(5);
         await pool.getAndInitShareTotal(init_share);
-        const share_new = new Field(5);
-        await pool.getAndUpdateShareTotal(share_new);
+        const shareDelta = new Field(5);
+        await pool.getAndAddShareTotal(shareDelta);
         
-        const share_total_check = await pool.getShareTotal();
-        expect(share_total_check.toString()).toEqual('10');
+        const shareTotalCheck = await pool.getShareTotal();
+        expect(shareTotalCheck.toString()).toEqual('10');
     });
 });

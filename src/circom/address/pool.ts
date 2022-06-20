@@ -79,19 +79,19 @@ export class Pool  {
   }
 
   async getAndInitShareTotal(
-    init_share: Field
+    initShare: Field
   ): Promise<PathInfo> {
     const path = await this.getShareTotalPath();
-    await this.storage.setLeave(this.getShareTotalAddress(), init_share);
+    await this.storage.setLeave(this.getShareTotalAddress(), initShare);
     return path;
   }
 
-  async getAndUpdateShareTotal(
-    share_new: Field
+  async getAndAddShareTotal(
+    shareDelta: Field
   ): Promise<PathInfo> {
     const path = await this.getShareTotalPath();
-    const share_old = await this.getShareTotal();
-    await this.storage.setLeave(this.getShareTotalAddress(), share_old.add(share_new));
+    const shareTotalOld = await this.getShareTotal();
+    await this.storage.setLeave(this.getShareTotalAddress(), shareTotalOld.add(shareDelta));
     return path;
   }
 

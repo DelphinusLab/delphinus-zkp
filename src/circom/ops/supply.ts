@@ -42,13 +42,13 @@ export class SupplyCommand extends Command {
 
     // STEP3: udpate share
     // circuits: check share + amount1 + amount0 not overflow
-    const share_total = await pool.getShareTotal();
+    const shareTotal = await pool.getShareTotal();
     const shareCalc = new ShareCalcHelper;
-    const share_new = shareCalc.calcSupply_Share_New(amount0.v, share_total.v, liq0.v);
+    const shareDelta = shareCalc.calcSupplyShare(amount0.v, shareTotal.v, liq0.v);
     path.push(
       await account.getAndAddShare(
         poolIndex,
-        share_new
+        shareDelta
       )
     );
 
@@ -72,7 +72,7 @@ export class SupplyCommand extends Command {
 
     // STEP6: add Share Total
     path.push(
-      await pool.getAndUpdateShareTotal(share_new)
+      await pool.getAndAddShareTotal(shareDelta)
     );
 
     return path;

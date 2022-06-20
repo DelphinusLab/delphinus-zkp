@@ -1,0 +1,110 @@
+{
+    "scenario":[
+            {
+                "op_name": "setkey",
+                "nonce": 0,
+                "accountIndex": 1,
+                "ax": 1,
+                "ay": 2
+            },
+            {
+                "op_name": "addpool",
+                "nonce": 1,
+                "tokenIndex0": 0,
+                "tokenIndex1": 1,
+                "poolIndex": 0,
+                "callerAccountIndex": 1
+            },
+            {
+                "op_name": "setkey",
+                "nonce": 0,
+                "accountIndex": 2,
+                "ax": 3,
+                "ay": 4
+            },
+            {
+                "op_name": "deposit",
+                "nonce": 2,
+                "accountIndex": 2,
+                "tokenIndex": 0,
+                "amount": 100,
+                "callerAccountIndex": 1,
+                "l1_tx_hash": 0
+            },
+            {
+                "op_name": "deposit",
+                "nonce": 3,
+                "accountIndex": 2,
+                "tokenIndex": 1,
+                "amount": 100,
+                "callerAccountIndex": 1,
+                "l1_tx_hash": 1
+            },
+            {
+                "op_name": "supply",
+                "nonce": 1,
+                "accountIndex": 2,
+                "poolIndex": 0,
+                "amount0": 20,
+                "amount1": 20,
+                "liq0_check":20,
+                "liq1_check":20,
+                "userShare_check":20000000000000000,
+                "userBalance0_check":80,
+                "userBalance1_check":80,
+                "poolShareTotal_check":20000000000000000
+            },
+            {
+                "op_name": "swap",
+                "nonce": 2,
+                "accountIndex": 2,
+                "poolIndex": 0,
+                "reverse": 1,
+                "amount": 2,
+                "liq0_check":19,
+                "liq1_check":22,
+                "userBalance0_check":81,
+                "userBalance1_check":78
+            },
+            {
+                "op_name": "swap",
+                "nonce": 3,
+                "accountIndex": 2,
+                "poolIndex": 0,
+                "reverse": 0,
+                "amount": 18,
+                "liq0_check":37,
+                "liq1_check":12,
+                "userBalance0_check":63,
+                "userBalance1_check":88
+            },
+            {
+                "op_name": "retrieve",
+                "nonce": 4,
+                "accountIndex": 2,
+                "poolIndex": 0,
+                "amount0": 36,
+                "amount1": 11,
+                "liq0_check":1,
+                "liq1_check":1,
+                "userShare_check":540540540540540,
+                "userBalance0_check":99,
+                "userBalance1_check":99,
+                "poolShareTotal_check":540540540540540
+            },
+            {
+                "op_name": "retrieve",
+                "nonce": 5,
+                "accountIndex": 2,
+                "poolIndex": 0,
+                "amount0": 1,
+                "amount1": 1,
+                "liq0_check":0,
+                "liq1_check":0,
+                "userShare_check":0,
+                "userBalance0_check":100,
+                "userBalance1_check":100,
+                "poolShareTotal_check":0
+            }
+        ]
+}

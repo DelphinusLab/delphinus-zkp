@@ -102,11 +102,6 @@ describe("test ops", () => {
                 const pool = new Pool(storage, config.scenario[i].poolIndex);
                 const account = new Account(storage, config.scenario[i].accountIndex);
                 const poolInfo_Index = getSpaceIndex(AddressSpace.Pool) | config.scenario[i].poolIndex << 20;
-                const [tokenIndex0,tokenIndex1,liq0_old,liq1_old] = await storage.getLeaves(poolInfo_Index);
-                const share_old = await storage.getLeave(account.getShareInfoAddress(config.scenario[i].poolIndex));
-                const token0Balance_old = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[0]));
-                const token1Balance_old = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[1]));
-                const ShareTotal_old = await storage.getLeave(pool.getShareTotalAddress());
 
                 const supply_command = new SupplyCommand(
                     [
@@ -127,35 +122,21 @@ describe("test ops", () => {
                 const nonce_check = await storage.getLeave(account.getAccountNonceAddress());
                 const [tokenIndex0_check,tokenIndex1_check,liq0_check,liq1_check] = await storage.getLeaves(poolInfo_Index);
                 const share_check = await storage.getLeave(account.getShareInfoAddress(config.scenario[i].poolIndex));
-                let share_new;
-                if (ShareTotal_old.v.eqn(0)){
-                    const amp = new BN(10 ** 15);
-                    share_new = new BN(config.scenario[i].amount0).mul(amp);
-                }else{
-                    share_new = new BN(config.scenario[i].amount0).mul(ShareTotal_old.v).div(liq0_old.v);
-                }
                 const token0Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[0]));
                 const token1Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[1]));
                 const ShareTotal_check = await storage.getLeave(pool.getShareTotalAddress());
 
                 expect(nonce_check).toEqual(new Field(config.scenario[i].nonce + 1));
-                expect(tokenIndex0_check.v.toString()).toEqual(tokenIndex0.v.toString());
-                expect(tokenIndex1_check.v.toString()).toEqual(tokenIndex1.v.toString());
-                expect(liq0_check.v.toString()).toEqual(liq0_old.v.add(new BN(config.scenario[i].amount0)).toString());
-                expect(liq1_check.v.toString()).toEqual(liq1_old.v.add(new BN(config.scenario[i].amount1)).toString());
-                expect(share_check.v.toString()).toEqual(share_old.v.add(share_new).toString());
-                expect(token0Balance_check.v.toString()).toEqual(token0Balance_old.v.sub(new BN(config.scenario[i].amount0)).toString());
-                expect(token1Balance_check.v.toString()).toEqual(token1Balance_old.v.sub(new BN(config.scenario[i].amount1)).toString());
-                expect(ShareTotal_check.v.toString()).toEqual(`${ShareTotal_old.v.add(share_new)}`);
+                expect(liq0_check.v.toString()).toEqual(`${config.scenario[i].liq0_check}`);
+                expect(liq1_check.v.toString()).toEqual(`${config.scenario[i].liq1_check}`);
+                expect(share_check.v.toString()).toEqual(`${config.scenario[i].userShare_check}`);
+                expect(token0Balance_check.v.toString()).toEqual(`${config.scenario[i].userBalance0_check}`);
+                expect(token1Balance_check.v.toString()).toEqual(`${config.scenario[i].userBalance1_check}`);
+                expect(ShareTotal_check.v.toString()).toEqual(`${config.scenario[i].poolShareTotal_check}`);
             }else if(config.scenario[i].op_name == 'retrieve'){
                 const pool = new Pool(storage, config.scenario[i].poolIndex);
                 const account = new Account(storage, config.scenario[i].accountIndex);
                 const poolInfo_Index = getSpaceIndex(AddressSpace.Pool) | config.scenario[i].poolIndex << 20;
-                const [tokenIndex0,tokenIndex1,liq0_old,liq1_old] = await storage.getLeaves(poolInfo_Index);
-                const share_old = await storage.getLeave(account.getShareInfoAddress(config.scenario[i].poolIndex));
-                const token0Balance_old = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[0]));
-                const token1Balance_old = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[1]));
-                const ShareTotal_old = await storage.getLeave(pool.getShareTotalAddress());
 
                 const retrieve_command = new RetrieveCommand(
                     [
@@ -176,32 +157,21 @@ describe("test ops", () => {
                 const nonce_check = await storage.getLeave(account.getAccountNonceAddress());
                 const [tokenIndex0_check,tokenIndex1_check,liq0_check,liq1_check] = await storage.getLeaves(poolInfo_Index);
                 const share_check = await storage.getLeave(account.getShareInfoAddress(config.scenario[i].poolIndex));
-                const rem = new BN(config.scenario[i].amount0).mul(ShareTotal_old.v).mod(liq0_old.v);
-                const share_new = new BN(config.scenario[i].amount0).mul(ShareTotal_old.v).div(liq0_old.v);
                 const token0Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[0]));
                 const token1Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[1]));
                 const ShareTotal_check = await storage.getLeave(pool.getShareTotalAddress());
 
                 expect(nonce_check).toEqual(new Field(config.scenario[i].nonce + 1));
-                expect(tokenIndex0_check.v.toString()).toEqual(tokenIndex0.v.toString());
-                expect(tokenIndex1_check.v.toString()).toEqual(tokenIndex1.v.toString());
-                expect(liq0_check.v.toString()).toEqual(liq0_old.v.sub(new BN(config.scenario[i].amount0)).toString());
-                expect(liq1_check.v.toString()).toEqual(liq1_old.v.sub(new BN(config.scenario[i].amount1)).toString());
-                expect(share_check.v.toString()).toEqual(share_old.v.sub(share_new).toString());
-                expect(token0Balance_check.v.toString()).toEqual(token0Balance_old.v.add(new BN(config.scenario[i].amount0)).toString());
-                expect(token1Balance_check.v.toString()).toEqual(token1Balance_old.v.add(new BN(config.scenario[i].amount1)).toString());
-                if (rem.eqn(0)){
-                    expect(ShareTotal_check.v.toString()).toEqual(`${ShareTotal_old.v.sub(share_new)}`);
-                }else{
-                    expect(ShareTotal_check.v.toString()).toEqual(`${ShareTotal_old.v.sub(share_new).sub(new BN(1))}`);
-                }
+                expect(liq0_check.v.toString()).toEqual(`${config.scenario[i].liq0_check}`);
+                expect(liq1_check.v.toString()).toEqual(`${config.scenario[i].liq1_check}`);
+                expect(share_check.v.toString()).toEqual(`${config.scenario[i].userShare_check}`);
+                expect(token0Balance_check.v.toString()).toEqual(`${config.scenario[i].userBalance0_check}`);
+                expect(token1Balance_check.v.toString()).toEqual(`${config.scenario[i].userBalance1_check}`);
+                expect(ShareTotal_check.v.toString()).toEqual(`${config.scenario[i].poolShareTotal_check}`);
             }else if(config.scenario[i].op_name == 'swap'){
                 const pool = new Pool(storage, config.scenario[i].poolIndex);
                 const account = new Account(storage, config.scenario[i].accountIndex);
                 const poolInfo_Index = getSpaceIndex(AddressSpace.Pool) | config.scenario[i].poolIndex << 20;
-                const [tokenIndex0,tokenIndex1,liq0_old,liq1_old] = await storage.getLeaves(poolInfo_Index);
-                const token0Balance_old = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[0]));
-                const token1Balance_old = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[1]));
 
                 const swap_command = new SwapCommand(
                     [
@@ -224,23 +194,11 @@ describe("test ops", () => {
                 const token0Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[0]));
                 const token1Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[1]));
 
-                const shareCalc = new ShareCalcHelper;
                 expect(nonce_check).toEqual(new Field(config.scenario[i].nonce + 1));
-                expect(tokenIndex0_check.v.toString()).toEqual(tokenIndex0.v.toString());
-                expect(tokenIndex1_check.v.toString()).toEqual(tokenIndex1.v.toString());
-                if (config.scenario[i].reverse == 0){
-                    const amount_out0 = shareCalc.calcAmountOut_AMM(new BN(config.scenario[i].amount),liq1_old.v,liq0_old.v);
-                    expect(liq0_check.v.toString()).toEqual(liq0_old.v.add(new BN(config.scenario[i].amount)).toString());
-                    expect(liq1_check.v.toString()).toEqual(liq1_old.v.sub(amount_out0.v).toString());
-                    expect(token0Balance_check.v.toString()).toEqual(token0Balance_old.v.sub(new BN(config.scenario[i].amount)).toString());
-                    expect(token1Balance_check.v.toString()).toEqual(token1Balance_old.v.add(amount_out0.v).toString());
-                }else if (config.scenario[i].reverse == 1) {
-                    const amount_out1 = shareCalc.profit_AMM(new BN(config.scenario[i].amount),liq0_old.v,liq1_old.v);
-                    expect(liq0_check.v.toString()).toEqual(liq0_old.v.sub(amount_out1.v).toString());
-                    expect(liq1_check.v.toString()).toEqual(liq1_old.v.add(new BN(config.scenario[i].amount)).toString());
-                    expect(token0Balance_check.v.toString()).toEqual(token0Balance_old.v.add(amount_out1.v).toString());
-                    expect(token1Balance_check.v.toString()).toEqual(token1Balance_old.v.sub(new BN(config.scenario[i].amount)).toString());
-                }
+                expect(liq0_check.v.toString()).toEqual(`${config.scenario[i].liq0_check}`);
+                expect(liq1_check.v.toString()).toEqual(`${config.scenario[i].liq1_check}`);
+                expect(token0Balance_check.v.toString()).toEqual(`${config.scenario[i].userBalance0_check}`);
+                expect(token1Balance_check.v.toString()).toEqual(`${config.scenario[i].userBalance1_check}`);
             }
         }
     });
