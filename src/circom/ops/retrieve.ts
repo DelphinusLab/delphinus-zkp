@@ -43,13 +43,13 @@ export class RetrieveCommand extends Command {
 
     // STEP3: udpate share
     // circuits: check share >= amount1 + amount0
-    const share_total = await pool.getShareTotal();
+    const shareTotal = await pool.getShareTotal();
     const shareCalc = new ShareCalcHelper;
-    const share_new = shareCalc.calcRetrieve_Share_New(amount0.v, share_total.v, liq0.v);
+    const shareDelta = shareCalc.calcRetrieveShare(amount0.v, shareTotal.v, liq0.v);
     path.push(
       await account.getAndAddShare(
         poolIndex,
-        new Field(0).sub(share_new)
+        new Field(0).sub(shareDelta)
       )
     );
 
@@ -67,7 +67,7 @@ export class RetrieveCommand extends Command {
 
     // STEP6: add Share Total
     path.push(
-      await pool.getAndUpdateShareTotal(new Field(0).sub(share_new))
+      await pool.getAndAddShareTotal(new Field(0).sub(shareDelta))
     );
 
     return path;
