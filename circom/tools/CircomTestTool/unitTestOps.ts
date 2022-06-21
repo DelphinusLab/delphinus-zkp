@@ -142,7 +142,7 @@ async function unitTestDeposit(
                     new Field(args.accountIndex),
                     new Field(args.tokenIndex),
                     new Field(args.amount),
-                    new Field(0),
+                    new Field(args.l1_tx_hash),
                     new Field(args.callerAccountIndex),
                     new Field(0)
                 ]
