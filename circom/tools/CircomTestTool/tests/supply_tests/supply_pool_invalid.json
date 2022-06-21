@@ -1,5 +1,5 @@
 {
-    "_COMMENT":"Supply Error: new nonce should be 2",
+    "_COMMENT":"Supply Error: Pool not exist (no addpool)",
 
     "Ops":[
             {
@@ -17,14 +17,6 @@
                 "accountIndex":"1",
                 "msg":"Bob",
                 "derive_key":"/delphinus/nft/Bob"
-            },
-            {
-                "op_name": "addpool",
-                "callerAccountIndex":"0",
-                "nonce": "1",
-                "tokenIndex0":"0",
-                "tokenIndex1":"1",
-                "poolIndex":"0"
             },
             {
                 "op_name": "deposit",
@@ -47,7 +39,7 @@
             {
                 "op_name": "supply",
                 "callerAccountIndex":"0",
-                "nonce": "2",
+                "nonce": "1",
                 "accountIndex":"1",
                 "poolIndex":"0",
                 "amount0":"1000",
