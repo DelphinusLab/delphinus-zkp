@@ -21,7 +21,7 @@ template Supply() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(17);
+    component andmany = AndMany(18);
     var andmanyOffset = 0;
 
     var nonce = args[1];
@@ -177,6 +177,12 @@ template Supply() {
     andmany.in[andmanyOffset] <== change1.out;
     andmanyOffset++;
 
+
+    // check total share < 2 ^ 250
+    component totalShareRangeCheck = Check2PowerRangeFE(250);
+    totalShareRangeCheck.in <== dataPath[5][LeaveStartOffset] + shareDiff.out;
+    andmany.in[andmanyOffset] <== totalShareRangeCheck.out;
+    andmanyOffset++;
 
     // STEP6: update pool's total share
     for (var i = 0; i < MaxTreeDataIndex; i++) {

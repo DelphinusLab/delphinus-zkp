@@ -1,0 +1,22 @@
+{
+    "_COMMENT":"Addpool Sucess",
+
+    "Ops":[
+            {
+                "op_name": "setkey",
+                "callerAccountIndex":"0",
+                "nonce": "0",
+                "accountIndex":"0",
+                "msg":"Alice",
+                "derive_key":"/delphinus/nft/Alice"
+            },
+            {
+                "op_name": "addpool",
+                "callerAccountIndex":"0",
+                "nonce": "1",
+                "tokenIndex0":"10",
+                "tokenIndex1":"20",
+                "poolIndex":"0"
+            }
+        ]
+}
