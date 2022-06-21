@@ -4,6 +4,7 @@ import { L2Storage } from "../address-space";
 import { Pool } from "../address/pool";
 import { Account } from "../address/account";
 import { Command } from "../command";
+import { ShareCalcHelper } from "../shareCalc_helper";
 
 export class SupplyCommand extends Command {
   get callerAccountIndex() {
@@ -41,11 +42,13 @@ export class SupplyCommand extends Command {
 
     // STEP3: udpate share
     // circuits: check share + amount1 + amount0 not overflow
-    const share_new = amount0.add(amount1).mul((await pool.getSharePriceK()).sub(new Field(1)));
+    const shareTotal = await pool.getShareTotal();
+    const shareCalc = new ShareCalcHelper;
+    const shareDelta = shareCalc.calcSupplyShare(amount0.v, shareTotal.v, liq0.v);
     path.push(
       await account.getAndAddShare(
         poolIndex,
-        share_new
+        shareDelta
       )
     );
 
@@ -67,9 +70,9 @@ export class SupplyCommand extends Command {
       )
     );
 
-    // STEP6: add the data of pool_K and pool_remainder
+    // STEP6: add Share Total
     path.push(
-      await pool.getKAndRemPath()
+      await pool.getAndAddShareTotal(shareDelta)
     );
 
     return path;
