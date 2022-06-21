@@ -38,12 +38,12 @@ template CalculateSwapNewLiq() {
     andmany.in[andmanyOffset] <== 1 - amountInputIsZero.out;
     andmanyOffset++;
 
-    component token0liqcheck = Check2PowerRangeFE(125);
+    component token0liqcheck = Check2PowerRangeFE(99);
     token0liqcheck.in <== poolLiqIn;
     andmany.in[andmanyOffset] <== token0liqcheck.out;
     andmanyOffset++;
 
-    component token1liqcheck = Check2PowerRangeFE(125);
+    component token1liqcheck = Check2PowerRangeFE(99);
     token1liqcheck.in <== poolLiqOut;
     andmany.in[andmanyOffset] <== token1liqcheck.out;
     andmanyOffset++;
@@ -213,7 +213,7 @@ template Swap() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(14);
+    component andmany = AndMany(13);
     var andmanyOffset = 0;
 
     var nonce = args[1];
@@ -240,8 +240,8 @@ template Swap() {
     andmany.in[andmanyOffset] <== 1 - amountIsZero.out;
     andmanyOffset++;
 
-    // circuits: check amount < 2 ^ 125
-    component rangecheck3 = Check2PowerRangeFE(125);
+    // circuits: check amount < 2 ^ 99
+    component rangecheck3 = Check2PowerRangeFE(99);
     rangecheck3.in <== amount;
     andmany.in[andmanyOffset] <== rangecheck3.out;
     andmanyOffset++;
@@ -342,28 +342,7 @@ template Swap() {
     andmany.in[andmanyOffset] <== change1.out;
     andmanyOffset++;
 
-    // STEP5: update SharePriceK and SwapRem
-    component SharePriceKAndRem = CalculateNewSharePriceK();
-    SharePriceKAndRem.token0liq <== dataPath[1][Token0LiqOffset];
-    SharePriceKAndRem.token1liq <== dataPath[1][Token1LiqOffset];
-    SharePriceKAndRem.amount <== amount - checkLiq.resultAmount;
-    SharePriceKAndRem.sharePriceK <== dataPath[4][LeaveStartOffset];
-    SharePriceKAndRem.swapRem <== dataPath[4][LeaveStartOffset + 1];
-
-    andmany.in[andmanyOffset] <== SharePriceKAndRem.out;
-    andmanyOffset++;
-
-    for (var i = 0; i < MaxTreeDataIndex; i++) {
-        if (i == LeaveStartOffset) {
-            newDataPath[4][i] <== SharePriceKAndRem.newSharePriceK;
-        } else if (i == LeaveStartOffset + 1) {
-            newDataPath[4][i] <== SharePriceKAndRem.newSwapRem;
-        } else {
-            newDataPath[4][i] <== dataPath[4][i];
-        }
-    }
-
-    for (var i = 5; i < MaxStep; i++) {
+    for (var i = 4; i < MaxStep; i++) {
         for (var j = 0; j < MaxTreeDataIndex; j++) {
             newDataPath[i][j] <== dataPath[i][j];
         }
