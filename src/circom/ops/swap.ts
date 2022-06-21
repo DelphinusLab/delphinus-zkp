@@ -24,7 +24,7 @@ export class SwapCommand extends Command {
     const account = new Account(storage, accountIndex);
     const shareCalc = new ShareCalcHelper;
     const [tokenIndex0, tokenIndex1, liq0, liq1] = await pool.getTokenIndexAndLiq();
-    const amount_out = shareCalc.calcAmountOut_AMM(
+    const amountOut = shareCalc.calcAmountOutAMM(
       amount.v,
       reverse.v.eqn(0) ? liq1.v : liq0.v,
       reverse.v.eqn(0) ? liq0.v : liq1.v
@@ -42,12 +42,9 @@ export class SwapCommand extends Command {
     // circuits: check token0 != 0 || token1 != 0
     // circuits: if reverse == 0 then liq0 + amount doesn't overflow else liq0 >= amount
     // circuits: if reverse == 0 then liq1 >= amount else liq1 + amount doesn't overflow
-    const poolTotalLiq_old = liq1.add(liq0);
-    const poolTotalLiq_new = liq1.add(liq0).add(amount).sub(amount_out);
-    const [k_new, rem_new] = shareCalc.calcKAndRem_new(poolTotalLiq_old.v, poolTotalLiq_new.v, (await pool.getSharePriceK()).v, (await pool.getAccumulatedRem()).v);
     path.push(await pool.getAndUpdateLiqByAddition(
-      reverse.v.eqn(0) ? amount : new Field(0).sub(amount_out),
-      reverse.v.eqn(0) ? new Field(0).sub(amount_out) : amount,
+      reverse.v.eqn(0) ? amount : new Field(0).sub(amountOut),
+      reverse.v.eqn(0) ? new Field(0).sub(amountOut) : amount,
     ));
 
     // STEP3: udpate balance0
@@ -55,7 +52,7 @@ export class SwapCommand extends Command {
     path.push(
       await account.getAndAddBalance(
         tokenIndex0,
-        reverse.v.eqn(0) ? new Field(0).sub(amount) : amount_out
+        reverse.v.eqn(0) ? new Field(0).sub(amount) : amountOut
       )
     );
 
@@ -64,13 +61,9 @@ export class SwapCommand extends Command {
     path.push(
       await account.getAndAddBalance(
         tokenIndex1,
-        reverse.v.eqn(0) ? amount_out : new Field(0).sub(amount)
+        reverse.v.eqn(0) ? amountOut : new Field(0).sub(amount)
       )
     );
-
-    // STEP5: update SharePriceK and Remainder
-    const kAndRemPath = await pool.getAndUpdateKAndRem(k_new, rem_new)
-    path.push(kAndRemPath);
 
     return path;
   }

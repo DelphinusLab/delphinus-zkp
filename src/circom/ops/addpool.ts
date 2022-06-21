@@ -1,7 +1,7 @@
 import { Field } from "delphinus-curves/src/field";
 import { PathInfo } from "delphinus-curves/src/merkle-tree-large";
 import { L2Storage } from "../address-space";
-import { Pool, initSharePriceKBN } from "../address/pool";
+import { Pool } from "../address/pool";
 import { Account } from "../address/account";
 import { Command } from "../command";
 
@@ -35,8 +35,8 @@ export class AddPoolCommand extends Command {
     // circuits: check leafValues[0] and leafValues[1] equal to 0
     path.push(await pool.getAndInitTokenIndexAndLiq(tokenIndex0, tokenIndex1, new Field(0), new Field(0)));
 
-    // STEP3: init pool's sharePriceK and remainder
-    path.push(await pool.getAndUpdateKAndRem(new Field(initSharePriceKBN), new Field(0)));
+    // STEP3: init pool's share_total
+    path.push(await pool.getAndInitShareTotal(new Field(0)));
 
     return path;
   }
