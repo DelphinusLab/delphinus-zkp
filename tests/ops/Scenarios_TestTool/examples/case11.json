@@ -1,0 +1,176 @@
+{
+    "_COMMENT":"Multi_supplier_multi_swap_cannot_retrieve_all_test: A supply, multi-swap, B supply,  B retrieve, A retrieve",
+
+    "scenario":[
+            {
+                "op_name": "setkey",
+                "nonce": 0,
+                "accountIndex": 1,
+                "ax": 1,
+                "ay": 2
+            },
+            {
+                "op_name": "addpool",
+                "nonce": 1,
+                "tokenIndex0": 0,
+                "tokenIndex1": 1,
+                "poolIndex": 0,
+                "callerAccountIndex": 1
+            },
+            {
+                "op_name": "setkey",
+                "nonce": 0,
+                "accountIndex": 2,
+                "ax": 3,
+                "ay": 4
+            },
+            {
+                "op_name": "setkey",
+                "nonce": 0,
+                "accountIndex": 3,
+                "ax": 5,
+                "ay": 6
+            },
+            {
+                "op_name": "setkey",
+                "nonce": 0,
+                "accountIndex": 4,
+                "ax": 7,
+                "ay": 8
+            },
+            {
+                "op_name": "deposit",
+                "nonce": 2,
+                "accountIndex": 2,
+                "tokenIndex": 0,
+                "amount": 10000,
+                "callerAccountIndex": 1,
+                "l1_tx_hash": 0
+            },
+            {
+                "op_name": "deposit",
+                "nonce": 3,
+                "accountIndex": 2,
+                "tokenIndex": 1,
+                "amount": 10000,
+                "callerAccountIndex": 1,
+                "l1_tx_hash": 1
+            },
+            {
+                "op_name": "deposit",
+                "nonce": 4,
+                "accountIndex": 3,
+                "tokenIndex": 0,
+                "amount": 10000,
+                "callerAccountIndex": 1,
+                "l1_tx_hash": 2
+            },
+            {
+                "op_name": "deposit",
+                "nonce": 5,
+                "accountIndex": 3,
+                "tokenIndex": 1,
+                "amount": 10000,
+                "callerAccountIndex": 1,
+                "l1_tx_hash": 3
+            },
+            {
+                "op_name": "deposit",
+                "nonce": 6,
+                "accountIndex": 4,
+                "tokenIndex": 0,
+                "amount": 10000,
+                "callerAccountIndex": 1,
+                "l1_tx_hash": 4
+            },
+            {
+                "op_name": "deposit",
+                "nonce": 7,
+                "accountIndex": 4,
+                "tokenIndex": 1,
+                "amount": 10000,
+                "callerAccountIndex": 1,
+                "l1_tx_hash": 5
+            },
+            {
+                "op_name": "supply",
+                "nonce": 1,
+                "accountIndex": 2,
+                "poolIndex": 0,
+                "amount0": 1000,
+                "amount1": 1000,
+                "liq0_check":1000,
+                "liq1_check":1000,
+                "userShare_check":"1000000000000000000",
+                "userBalance0_check":9000,
+                "userBalance1_check":9000,
+                "poolShareTotal_check":"1000000000000000000"
+            },
+            {
+                "op_name": "swap",
+                "nonce": 1,
+                "accountIndex": 4,
+                "poolIndex": 0,
+                "reverse": 1,
+                "amount": 1000,
+                "liq0_check":502,
+                "liq1_check":2000,
+                "userBalance0_check":10498,
+                "userBalance1_check":9000
+            },
+            {
+                "op_name": "swap",
+                "nonce": 2,
+                "accountIndex": 4,
+                "poolIndex": 0,
+                "reverse": 0,
+                "amount": 2000,
+                "liq0_check": 2502,
+                "liq1_check": 406,
+                "userBalance0_check": 8498,
+                "userBalance1_check": 10594
+            },
+            {
+                "op_name": "supply",
+                "nonce": 1,
+                "accountIndex": 3,
+                "poolIndex": 0,
+                "amount0": 2000,
+                "amount1": 325,
+                "liq0_check":4502,
+                "liq1_check":731,
+                "userShare_check":"799360511590727418",
+                "userBalance0_check":8000,
+                "userBalance1_check":9675,
+                "poolShareTotal_check":"1799360511590727418"
+            },
+            {
+                "op_name": "retrieve",
+                "nonce": 2,
+                "accountIndex": 3,
+                "poolIndex": 0,
+                "amount0": 1999,
+                "amount1": 324,
+                "liq0_check":2503,
+                "liq1_check":407,
+                "userShare_check": "399680255795363",
+                "userBalance0_check":9999,
+                "userBalance1_check":9999,
+                "poolShareTotal_check": "1000399680255795363"
+            },
+            {
+                "op_name": "retrieve",
+                "nonce": 2,
+                "accountIndex": 2,
+                "poolIndex": 0,
+                "amount0": 2502,
+                "amount1": 406,
+                "liq0_check":1,
+                "liq1_check":1,
+                "userShare_check": "0",
+                "userBalance0_check":11502,
+                "userBalance1_check":9406,
+                "poolShareTotal_check": "399680255795363"
+            }
+        ]
+}
