@@ -112,12 +112,11 @@ template Supply() {
 
     // if totalShare = 0 ? initialization : use delta
     component shareDiff = BiSelect();
-    shareDiff.cond <== dataPath[5][Token0LiqOffset];
+    shareDiff.cond <== dataPath[5][LeaveStartOffset];
     shareDiff.in[0] <== amount0 * precisionFactor;
     shareDiff.in[1] <== deltaShare.result;
-
     component shareDiffCheck = BiSelect();
-    shareDiffCheck.cond <== dataPath[5][Token0LiqOffset];
+    shareDiffCheck.cond <== dataPath[5][LeaveStartOffset];
     shareDiffCheck.in[0] <== 1;
     shareDiffCheck.in[1] <== deltaShare.out;
     andmany.in[andmanyOffset] <== shareDiffCheck.out;
