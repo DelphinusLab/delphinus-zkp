@@ -1,5 +1,5 @@
 {
-    "_COMMENT":"Case 2. A supply -> B supply -> multi-swap -> B retrieve -> A retrieve -> A try to retrieve rest(fail)",
+    "_COMMENT":"Case 2. A supply -> B supply -> multi-swap -> B retrieve all -> A retrieve all -> A try to retrieve(fail)",
 
     "Ops":[
             {
@@ -67,7 +67,7 @@
                 "nonce": "2",
                 "accountIndex":"1",
                 "tokenIndex":"0",
-                "amount":"2000",
+                "amount":"1000",
                 "l1_tx_hash":"0"
             },
             {
@@ -76,7 +76,7 @@
                 "nonce": "3",
                 "accountIndex":"1",
                 "tokenIndex":"1",
-                "amount":"2000",
+                "amount":"1000",
                 "l1_tx_hash":"1"
             },
             {
@@ -85,8 +85,8 @@
                 "nonce": "4",
                 "accountIndex":"1",
                 "poolIndex":"0",
-                "amount0":"2000",
-                "amount1":"2000"
+                "amount0":"1000",
+                "amount1":"1000"
             },
             {
                 "op_name": "deposit",
@@ -113,7 +113,7 @@
                 "accountIndex":"2",
                 "poolIndex":"0",
                 "reverse":"0",
-                "amount":"500"
+                "amount":"100"
             },
             {
                 "op_name": "swap",
@@ -122,7 +122,7 @@
                 "accountIndex":"2",
                 "poolIndex":"0",
                 "reverse":"1",
-                "amount":"1000"
+                "amount":"100"
             },
             {
                 "op_name": "retrieve",
@@ -130,8 +130,8 @@
                 "nonce": "5",
                 "accountIndex":"1",
                 "poolIndex":"0",
-                "amount0":"1682",
-                "amount1":"2382"
+                "amount0":"998",
+                "amount1":"1003"
             },
             {
                 "op_name": "retrieve",
@@ -139,8 +139,8 @@
                 "nonce": "4",
                 "accountIndex":"0",
                 "poolIndex":"0",
-                "amount0":"841",
-                "amount1":"1189"
+                "amount0":"998",
+                "amount1":"1003"
             },
             {
                 "op_name": "retrieve",

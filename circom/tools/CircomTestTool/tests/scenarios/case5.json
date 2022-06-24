@@ -1,5 +1,5 @@
 {
-    "_COMMENT":"Case 5. A supply -> multi-swap -> B supply -> B retrieve -> A retrieve all -> B retrieve rest -> A try to retrieve(fail)",
+    "_COMMENT":"Case 5. A supply -> multi-swap -> B supply -> multi-swap  -> B retrieve -> A retrieve -> A try to retrieve(fail)",
 
     "Ops":[
             {
@@ -124,14 +124,32 @@
                 "amount0":"2000",
                 "amount1":"325"
             },
+            {
+                "op_name": "swap",
+                "callerAccountIndex":"2",
+                "nonce": "5",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "reverse":"1",
+                "amount":"1000"
+            },
+            {
+                "op_name": "swap",
+                "callerAccountIndex":"2",
+                "nonce": "6",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "reverse":"0",
+                "amount":"2000"
+            },
 			{
                 "op_name": "retrieve",
                 "callerAccountIndex":"1",
                 "nonce": "5",
                 "accountIndex":"1",
                 "poolIndex":"0",
-                "amount0":"1999",
-                "amount1":"324"
+                "amount0":"1735",
+                "amount1":"376"
             },
             {
                 "op_name": "retrieve",
@@ -139,17 +157,8 @@
                 "nonce": "4",
                 "accountIndex":"0",
                 "poolIndex":"0",
-                "amount0":"2502",
-                "amount1":"406"
-            },
-            {
-                "op_name": "retrieve",
-                "callerAccountIndex":"1",
-                "nonce": "6",
-                "accountIndex":"1",
-                "poolIndex":"0",
-                "amount0":"1",
-                "amount1":"1"
+                "amount0":"2172",
+                "amount1":"471"
             },
             {
                 "op_name": "retrieve",
