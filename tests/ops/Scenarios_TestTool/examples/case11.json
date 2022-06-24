@@ -145,32 +145,56 @@
                 "poolShareTotal_check":"1799360511590727418"
             },
             {
+                "op_name": "swap",
+                "nonce": 3,
+                "accountIndex": 4,
+                "poolIndex": 0,
+                "reverse": 1,
+                "amount": 1000,
+                "liq0_check": 1909,
+                "liq1_check": 1731,
+                "userBalance0_check": 11091,
+                "userBalance1_check": 9594
+            },
+            {
+                "op_name": "swap",
+                "nonce": 4,
+                "accountIndex": 4,
+                "poolIndex": 0,
+                "reverse": 0,
+                "amount": 2000,
+                "liq0_check": 3909,
+                "liq1_check": 848,
+                "userBalance0_check": 9091,
+                "userBalance1_check": 10477
+            },
+            {
                 "op_name": "retrieve",
                 "nonce": 2,
                 "accountIndex": 3,
                 "poolIndex": 0,
-                "amount0": 1999,
-                "amount1": 324,
-                "liq0_check":2503,
-                "liq1_check":407,
-                "userShare_check": "399680255795363",
-                "userBalance0_check":9999,
-                "userBalance1_check":9999,
-                "poolShareTotal_check": "1000399680255795363"
+                "amount0": 1735,
+                "amount1": 376,
+                "liq0_check":2174,
+                "liq1_check":472,
+                "userShare_check": "718790534213713",
+                "userBalance0_check":9735,
+                "userBalance1_check":10051,
+                "poolShareTotal_check": "1000718790534213713"
             },
             {
                 "op_name": "retrieve",
                 "nonce": 2,
                 "accountIndex": 2,
                 "poolIndex": 0,
-                "amount0": 2502,
-                "amount1": 406,
-                "liq0_check":1,
+                "amount0": 2172,
+                "amount1": 471,
+                "liq0_check":2,
                 "liq1_check":1,
-                "userShare_check": "0",
-                "userBalance0_check":11502,
-                "userBalance1_check":9406,
-                "poolShareTotal_check": "399680255795363"
+                "userShare_check": "201833928099271",
+                "userBalance0_check":11172,
+                "userBalance1_check":9471,
+                "poolShareTotal_check": "920624462312984"
             }
         ]
 }

@@ -86,13 +86,28 @@
             "accountIndex": 2,
             "poolIndex": 0,
             "amount0": 500,
-            "amount1": 500,
+            "amount1": 509,
             "liq0_check":492,
-            "liq1_check":510,
+            "liq1_check":501,
             "userShare_check":"495967741935483870",
             "userBalance0_check":9508,
-            "userBalance1_check":9490,
+            "userBalance1_check":9499,
             "poolShareTotal_check":"495967741935483870"
+        },
+        {
+            "op_name": "retrieve",
+            "nonce": 5,
+            "accountIndex": 2,
+            "poolIndex": 0,
+            "amount0": 492,
+            "amount1": 501,
+            "liq0_check":0,
+            "liq1_check":0,
+            "userShare_check":"0",
+            "userBalance0_check":10000,
+            "userBalance1_check":10000,
+            "poolShareTotal_check":"0"
         }
+
     ]
 }
