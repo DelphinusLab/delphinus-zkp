@@ -1,5 +1,5 @@
 {
-    "_COMMENT":"Multi_supplier_multi_swap_cannot_retrieve_all_test: A supply, multi-swap, B supply,  B retrieve, A retrieve",
+    "_COMMENT":"Multi_supplier_multi_swap_cannot_retrieve_all_test: A supply, multi-swap, B supply, multi swap, B retrieve, A retrieve",
 
     "scenario":[
             {
