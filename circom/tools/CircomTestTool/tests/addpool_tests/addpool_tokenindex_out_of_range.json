@@ -14,7 +14,7 @@
                 "op_name": "addpool",
                 "callerAccountIndex":"0",
                 "nonce": "1",
-                "tokenIndex0":"1000",
+                "tokenIndex0":"2000",
                 "tokenIndex1":"1",
                 "poolIndex":"0"
             }
