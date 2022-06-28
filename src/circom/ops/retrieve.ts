@@ -27,6 +27,7 @@ export class RetrieveCommand extends Command {
     // circuits: check accountIndex < 2 ^ 20
     // circuits: check poolIndex < 2 ^ 10
     // circuits: amount1 + amount0 not overflow
+    // circuits: check amount0 * liq1 >= amount1 * liq0
 
     // STEP1: udpate nonce
     // circuits: check nonce
