@@ -53,15 +53,6 @@
                 "poolIndex":"0",
                 "amount0":"1000",
                 "amount1":"999"
-            },
-            {
-                "op_name": "retrieve",
-                "callerAccountIndex":"0",
-                "nonce": "6",
-                "accountIndex":"0",
-                "poolIndex":"0",
-                "amount0":"2000",
-                "amount1":"2000"
             }
         ]
 }

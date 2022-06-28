@@ -67,8 +67,17 @@
                 "nonce": "2",
                 "accountIndex":"2",
                 "poolIndex":"0",
-                "amount0":"500",
-                "amount1":"501"
+                "amount0":"200",
+                "amount1":"200"
+            },
+            {
+                "op_name": "retrieve",
+                "callerAccountIndex":"2",
+                "nonce": "3",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "amount0":"200",
+                "amount1":"201"
             }
         ]
 }
