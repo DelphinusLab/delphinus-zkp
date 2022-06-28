@@ -10,6 +10,7 @@ template Retrieve() {
     var Token0Offset = LeaveStartOffset;
     var Token1Offset = LeaveStartOffset + 1;
     var Token0LiqOffset = LeaveStartOffset + 2;
+    var Token1LiqOffset = LeaveStartOffset + 3;
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
     var precisionFactor = 10 ** 15;
@@ -21,7 +22,7 @@ template Retrieve() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(18);
+    component andmany = AndMany(19);
     var andmanyOffset = 0;
 
     var nonce = args[1];
@@ -52,6 +53,13 @@ template Retrieve() {
     component rangecheck3 = Check2PowerRangeFE(99);
     rangecheck3.in <== amount1;
     andmany.in[andmanyOffset] <== rangecheck3.out;
+    andmanyOffset++;
+
+    //check x * pool.Y - y * pool.X >= 0
+    component amount1Check = GreaterEqThan(250);
+    amount1Check.in[0] <== amount0 * dataPath[1][Token1LiqOffset];
+    amount1Check.in[1] <== amount1 * dataPath[1][Token0LiqOffset];
+    andmany.in[andmanyOffset] <== amount1Check.out;
     andmanyOffset++;
 
     // circuits: check signer is account
