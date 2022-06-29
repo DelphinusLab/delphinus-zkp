@@ -131,7 +131,7 @@
                 "accountIndex":"1",
                 "poolIndex":"0",
                 "amount0":"499",
-                "amount1":"499"
+                "amount1":"490"
             },
             {
                 "op_name": "retrieve",
@@ -140,7 +140,7 @@
                 "accountIndex":"0",
                 "poolIndex":"0",
                 "amount0":"510",
-                "amount1":"492"
+                "amount1":"501"
             },
             {
                 "op_name": "retrieve",
