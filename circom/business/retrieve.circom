@@ -56,7 +56,7 @@ template Retrieve() {
     andmanyOffset++;
 
     //check x * pool.Y - y * pool.X >= 0
-    component amount1Check = GreaterEqThan(250);
+    component amount1Check = GreaterEqThanFE(250);
     amount1Check.in[0] <== amount0 * dataPath[1][Token1LiqOffset];
     amount1Check.in[1] <== amount1 * dataPath[1][Token0LiqOffset];
     andmany.in[andmanyOffset] <== amount1Check.out;
