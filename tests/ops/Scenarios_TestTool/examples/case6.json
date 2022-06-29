@@ -150,12 +150,12 @@
                 "accountIndex": 3,
                 "poolIndex": 0,
                 "amount0": 499,
-                "amount1": 499,
+                "amount1": 490,
                 "liq0_check":511,
-                "liq1_check":493,
+                "liq1_check":502,
                 "userShare_check":980392156862745,
                 "userBalance0_check":999,
-                "userBalance1_check":999,
+                "userBalance1_check":990,
                 "poolShareTotal_check":"500980392156862745"
             },
             {
@@ -164,12 +164,12 @@
                 "accountIndex": 2,
                 "poolIndex": 0,
                 "amount0": 510,
-                "amount1": 492,
+                "amount1": 501,
                 "liq0_check":1,
                 "liq1_check":1,
                 "userShare_check":0,
                 "userBalance0_check":1010,
-                "userBalance1_check":992,
+                "userBalance1_check":1001,
                 "poolShareTotal_check":980392156862745
             }
         ]
