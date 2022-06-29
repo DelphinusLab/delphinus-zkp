@@ -13,8 +13,7 @@ Giving root hash and digest path for validation
 1. b00 Balance: (20bits) account index + (10bits) token index
 2. b01 Pool: 
     * (10bits) pool index + (18bits) 0 + (2bits) poolinfo (token0index, token1index, amount0, amount1)
-    * (10bits) pool index + (17bits) 0 + (1bit)1 + (2bits) 00 (K)
-    * (10bits) pool index + (17bits) 0 + (1bit)1 + (2bits) 01 (SwapRem)
+    * (10bits) pool index + (17bits) 0 + (1bit)1 + (2bits) 00 (share_total)
 3. b10 Share: (20bits) account index + (10bits) pool index
 4. b11 Account: (20bits) account index + (4bits) MetaType(0) + (6bits) info data (0 & 1 - public key, 2 - nonce, other -reserved)
 5. b11 NFT: (20bits) nft index + (4bits) MetaType(1) + (6bits) info data (0 - owner, 1 - bidder, 2 - biddingAmount, 3 - reserved)
