@@ -129,6 +129,7 @@ template CalculateShareIndependentTokenAmount(){
     signal input poolX;
     signal input poolY;
     signal output amountY;
+    signal output rem;
     signal output out;
 
     component ratio = Divide();
@@ -136,6 +137,7 @@ template CalculateShareIndependentTokenAmount(){
     ratio.denominator <== poolX;
 
     amountY <== ratio.result;
+    rem <== ratio.remainder;
     out <== ratio.out;
 }
 

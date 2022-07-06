@@ -60,6 +60,10 @@ template Supply() {
     YDelta.amountX <== amount0;
     YDelta.poolX <== dataPath[1][Token0LiqOffset];
     YDelta.poolY <== dataPath[1][Token1LiqOffset];
+    component amountY = BiSelect();
+    amountY.cond <== YDelta.rem;
+    amountY.in[0] <== YDelta.amountY;
+    amountY.in[1] <== YDelta.amountY + 1;
     andmany.in[andmanyOffset] <== YDelta.out;
     andmanyOffset++;
 
@@ -103,7 +107,7 @@ template Supply() {
     component checkLiq = CheckAndUpdateLiqFE(0);
     checkLiq.pool <== pool;
     checkLiq.amount0 <== amount0;
-    checkLiq.amount1 <== YDelta.amountY + 1;
+    checkLiq.amount1 <== amountY.out;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         checkLiq.dataPath[i] <== dataPath[1][i];
     }
@@ -182,7 +186,7 @@ template Supply() {
     andmanyOffset++;
 
     component change1 = ChangeValueFromTreePath();
-    change1.diff <== -YDelta.amountY - 1;
+    change1.diff <== -amountY.out;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         change1.treeData[i] <== dataPath[4][i];
     }
