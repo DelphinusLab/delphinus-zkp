@@ -128,7 +128,7 @@ template CalcTokenAmountY(){
     signal input amountX;
     signal input poolX;
     signal input poolY;
-    signal output amountY;
+    signal output result;
     signal output rem;
     signal output out;
 
@@ -136,7 +136,7 @@ template CalcTokenAmountY(){
     ratio.numerator <== amountX * poolY;
     ratio.denominator <== poolX;
 
-    amountY <== ratio.result;
+    result <== ratio.result;
     rem <== ratio.remainder;
     out <== ratio.out;
 }

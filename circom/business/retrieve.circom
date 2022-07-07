@@ -29,7 +29,7 @@ template Retrieve() {
     var account = args[2];
     var pool = args[3];
     var amount0 = args[4];
-    var allowedMaxAmount1 = args[5];
+    var allowedMinAmount1 = args[5];
 
     // circuits: check accountIndex < 2 ^ 20
     component rangecheck0 = Check2PowerRangeFE(20);
@@ -49,9 +49,9 @@ template Retrieve() {
     andmany.in[andmanyOffset] <== rangecheck2.out;
     andmanyOffset++;
 
-    // circuits: check allowedMaxAmount1 < 2 ^ 99
+    // circuits: check allowedMinAmount1 < 2 ^ 99
     component rangecheck3 = Check2PowerRangeFE(99);
-    rangecheck3.in <== allowedMaxAmount1;
+    rangecheck3.in <== allowedMinAmount1;
     andmany.in[andmanyOffset] <== rangecheck3.out;
     andmanyOffset++;
 
@@ -66,7 +66,7 @@ template Retrieve() {
     //check x * pool.Y - y * pool.X >= 0
     component amount1Check = GreaterEqThanFE(250);
     amount1Check.in[0] <== amount0 * dataPath[1][Token1LiqOffset];
-    amount1Check.in[1] <== allowedMaxAmount1 * dataPath[1][Token0LiqOffset];
+    amount1Check.in[1] <== allowedMinAmount1 * dataPath[1][Token0LiqOffset];
     andmany.in[andmanyOffset] <== amount1Check.out;
     andmanyOffset++;
 
@@ -103,7 +103,7 @@ template Retrieve() {
     component checkLiq = CheckAndUpdateLiqFE(1);
     checkLiq.pool <== pool;
     checkLiq.amount0 <== amount0;
-    checkLiq.amount1 <== YDelta.amountY;
+    checkLiq.amount1 <== YDelta.result;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         checkLiq.dataPath[i] <== dataPath[1][i];
     }
@@ -192,7 +192,7 @@ template Retrieve() {
     andmanyOffset++;
 
     component change1 = ChangeValueFromTreePath();
-    change1.diff <== YDelta.amountY;
+    change1.diff <== YDelta.result;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         change1.treeData[i] <== dataPath[4][i];
     }

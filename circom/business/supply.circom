@@ -22,7 +22,7 @@ template Supply() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(20);
+    component andmany = AndMany(19);
     var andmanyOffset = 0;
 
     var nonce = args[1];
@@ -62,10 +62,12 @@ template Supply() {
     YDelta.poolY <== dataPath[1][Token1LiqOffset];
     component amountY = BiSelect();
     amountY.cond <== YDelta.rem;
-    amountY.in[0] <== YDelta.amountY;
-    amountY.in[1] <== YDelta.amountY + 1;
-    andmany.in[andmanyOffset] <== YDelta.out;
-    andmanyOffset++;
+    amountY.in[0] <== YDelta.result;
+    amountY.in[1] <== YDelta.result + 1;
+    component amount1 = BiSelect();
+    amount1.cond <== YDelta.out;
+    amount1.in[0] <== allowedMaxAmount1;
+    amount1.in[1] <== amountY.out;
 
     //check y * pool.X - x * pool.Y >=0
     component amount1Check = GreaterEqThanFE(250);
@@ -107,7 +109,7 @@ template Supply() {
     component checkLiq = CheckAndUpdateLiqFE(0);
     checkLiq.pool <== pool;
     checkLiq.amount0 <== amount0;
-    checkLiq.amount1 <== amountY.out;
+    checkLiq.amount1 <== amount1.out;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         checkLiq.dataPath[i] <== dataPath[1][i];
     }
@@ -186,7 +188,7 @@ template Supply() {
     andmanyOffset++;
 
     component change1 = ChangeValueFromTreePath();
-    change1.diff <== -amountY.out;
+    change1.diff <== -amount1.out;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         change1.treeData[i] <== dataPath[4][i];
     }
