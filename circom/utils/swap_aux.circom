@@ -124,7 +124,7 @@ template Divide(){
 }
 
 //rounding down results: amountY += 1 in supply
-template CalculateShareIndependentTokenAmount(){
+template CalcTokenAmountY(){
     signal input amountX;
     signal input poolX;
     signal input poolY;

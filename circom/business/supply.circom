@@ -29,7 +29,7 @@ template Supply() {
     var account = args[2];
     var pool = args[3];
     var amount0 = args[4];
-    var amount1 = args[5];
+    var allowedMaxAmount1 = args[5];
 
     // circuits: check accountIndex < 2 ^ 20
     component rangecheck0 = Check2PowerRangeFE(20);
@@ -49,14 +49,14 @@ template Supply() {
     andmany.in[andmanyOffset] <== rangecheck2.out;
     andmanyOffset++;
 
-    // circuits: check amount1 < 2 ^ 99
+    // circuits: check allowedMaxAmount1 < 2 ^ 99
     component rangecheck3 = Check2PowerRangeFE(99);
-    rangecheck3.in <== amount1;
+    rangecheck3.in <== allowedMaxAmount1;
     andmany.in[andmanyOffset] <== rangecheck3.out;
     andmanyOffset++;
 
     // calc y_delta: rounding down result
-    component YDelta = CalculateShareIndependentTokenAmount();
+    component YDelta = CalcTokenAmountY();
     YDelta.amountX <== amount0;
     YDelta.poolX <== dataPath[1][Token0LiqOffset];
     YDelta.poolY <== dataPath[1][Token1LiqOffset];
@@ -69,7 +69,7 @@ template Supply() {
 
     //check y * pool.X - x * pool.Y >=0
     component amount1Check = GreaterEqThanFE(250);
-    amount1Check.in[0] <== amount1 * dataPath[1][Token0LiqOffset];
+    amount1Check.in[0] <== allowedMaxAmount1 * dataPath[1][Token0LiqOffset];
     amount1Check.in[1] <== amount0 * dataPath[1][Token1LiqOffset];
     andmany.in[andmanyOffset] <== amount1Check.out;
     andmanyOffset++;
