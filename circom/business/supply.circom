@@ -22,7 +22,7 @@ template Supply() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(19);
+    component andmany = AndMany(20);
     var andmanyOffset = 0;
 
     var nonce = args[1];
@@ -53,6 +53,12 @@ template Supply() {
     component rangecheck3 = Check2PowerRangeFE(99);
     rangecheck3.in <== allowedMaxAmount1;
     andmany.in[andmanyOffset] <== rangecheck3.out;
+    andmanyOffset++;
+
+    // circuits: Check amount0 * allowedMaxAmount1 != 0
+    component zeroCheck = IsZero();
+    zeroCheck.in <== amount0 * allowedMaxAmount1;
+    andmany.in[andmanyOffset] <== 1 - zeroCheck.out;
     andmanyOffset++;
 
     // calc y_delta: rounding down result
