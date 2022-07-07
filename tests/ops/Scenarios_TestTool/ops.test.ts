@@ -13,31 +13,36 @@ import { AddressSpace, getSpaceIndex } from "../../../src/circom/address/space";
 import fs from "fs-extra";
 import path from "path";
 
-describe("test ops", () => {
-    test("test Input json scenario", async () => {
-        let fileNames = [
-            "multiSupplierMultiSwapMultiRetrieveSmallAmountTest.json",
-            "multiSupplierMultiSwapMultiSupplySmallAmountRetrieveAllTest.json",
-            "multiSupplierMultiSwapMultiSupplySmallAmountNotRetrieveAllTest.json",
-            "multiSupplierMultiSwapCannotRetrieveAllTestSwapAfterSupply.json",
-            "multiSupplierMultiSwapCannotRetrieveAllTestSwapNotAfterSupply.json",
-            "multiSupplierMultiSwapRetrieveAllTestSwapAfterSupply.json",
-            "multiSupplierMultiSwapRetrieveAllTestSwapNotAfterSupply.json",
-            "singleSupplierMultiSwapRetrieveAllTest.json"
-        ]
 
-        for(let i=0; i<fileNames.length; i++) {
+
+describe("test ops", () => {
+    const files = fs.readdirSync(__dirname + "/examples/");
+    let filesMap = files.map((fileName) => { return [fileName] });
+
+    test.each(filesMap)
+        ("Testing %p scenario", async (fileName) => {
+            /*let fileNames = [
+                "multiSupplierMultiSwapMultiRetrieveSmallAmountTest.json",
+                "multiSupplierMultiSwapMultiSupplySmallAmountRetrieveAllTest.json",
+                "multiSupplierMultiSwapMultiSupplySmallAmountNotRetrieveAllTest.json",
+                "multiSupplierMultiSwapCannotRetrieveAllTestSwapAfterSupply.json",
+                "multiSupplierMultiSwapCannotRetrieveAllTestSwapNotAfterSupply.json",
+                "multiSupplierMultiSwapRetrieveAllTestSwapAfterSupply.json",
+                "multiSupplierMultiSwapRetrieveAllTestSwapNotAfterSupply.json",
+                "singleSupplierMultiSwapRetrieveAllTest.json"
+            ]*/
+
             jest.setTimeout(120000);
             let storage: L2Storage = new L2Storage(true);
 
             //test scenario1
-            let filePath = path.resolve(__dirname, "./examples/" + fileNames[i]);
+            let filePath = path.resolve(__dirname, "./examples/" + fileName);
             const config = await fs.readJSONSync(filePath);
 
             for (let i = 0; i < config.scenario.length; i++) {
                 const account = new Account(storage, config.scenario[i].accountIndex);
 
-                if(config.scenario[i].op_name == 'setkey'){
+                if (config.scenario[i].op_name == 'setkey') {
                     const setkey_command = new SetKeyCommand(
                         [
                             new Field(0),
@@ -57,7 +62,7 @@ describe("test ops", () => {
                     const leafValues_check = await storage.getLeaves(account.getAccountPublicKeyAddress());
 
                     expect(leafValues_check).toEqual([new Field(config.scenario[i].ax), new Field(config.scenario[i].ay), new Field(config.scenario[i].nonce + 1), new Field(0)]);
-                }else if(config.scenario[i].op_name == 'addpool'){
+                } else if (config.scenario[i].op_name == 'addpool') {
                     const account = new Account(storage, config.scenario[i].callerAccountIndex);
                     const pool = new Pool(storage, config.scenario[i].poolIndex);
                     const poolInfo_Index = getSpaceIndex(AddressSpace.Pool) | config.scenario[i].poolIndex << 20;
@@ -85,7 +90,7 @@ describe("test ops", () => {
                     expect(nonce_check).toEqual(new Field(config.scenario[i].nonce + 1));
                     expect(resetPool_check).toEqual([new Field(config.scenario[i].tokenIndex0), new Field(config.scenario[i].tokenIndex1), new Field(0), new Field(0)]);
                     expect(ShareTotal_check).toEqual(new Field(0));
-                }else if(config.scenario[i].op_name == 'deposit'){
+                } else if (config.scenario[i].op_name == 'deposit') {
                     const caller = new Account(storage, config.scenario[i].callerAccountIndex);
                     const account = new Account(storage, config.scenario[i].accountIndex);
                     const balance = await storage.getLeave(account.getBalanceInfoAddress(config.scenario[i].tokenIndex));
@@ -111,7 +116,7 @@ describe("test ops", () => {
 
                     expect(nonce_check).toEqual(new Field(config.scenario[i].nonce + 1));
                     expect(balance_check.v.toString()).toEqual(balance.v.add(new BN(config.scenario[i].amount)).toString());
-                }else if(config.scenario[i].op_name == 'supply'){
+                } else if (config.scenario[i].op_name == 'supply') {
                     const pool = new Pool(storage, config.scenario[i].poolIndex);
                     const account = new Account(storage, config.scenario[i].accountIndex);
                     const poolInfo_Index = getSpaceIndex(AddressSpace.Pool) | config.scenario[i].poolIndex << 20;
@@ -133,7 +138,7 @@ describe("test ops", () => {
                     await supply_command.run(storage);
 
                     const nonce_check = await storage.getLeave(account.getAccountNonceAddress());
-                    const [tokenIndex0_check,tokenIndex1_check,liq0_check,liq1_check] = await storage.getLeaves(poolInfo_Index);
+                    const [tokenIndex0_check, tokenIndex1_check, liq0_check, liq1_check] = await storage.getLeaves(poolInfo_Index);
                     const share_check = await storage.getLeave(account.getShareInfoAddress(config.scenario[i].poolIndex));
                     const token0Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[0]));
                     const token1Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[1]));
@@ -146,7 +151,7 @@ describe("test ops", () => {
                     expect(token0Balance_check.v.toString()).toEqual(`${config.scenario[i].userBalance0_check}`);
                     expect(token1Balance_check.v.toString()).toEqual(`${config.scenario[i].userBalance1_check}`);
                     expect(ShareTotal_check.v.toString()).toEqual(`${config.scenario[i].poolShareTotal_check}`);
-                }else if(config.scenario[i].op_name == 'retrieve'){
+                } else if (config.scenario[i].op_name == 'retrieve') {
                     const pool = new Pool(storage, config.scenario[i].poolIndex);
                     const account = new Account(storage, config.scenario[i].accountIndex);
                     const poolInfo_Index = getSpaceIndex(AddressSpace.Pool) | config.scenario[i].poolIndex << 20;
@@ -168,7 +173,7 @@ describe("test ops", () => {
                     await retrieve_command.run(storage);
 
                     const nonce_check = await storage.getLeave(account.getAccountNonceAddress());
-                    const [tokenIndex0_check,tokenIndex1_check,liq0_check,liq1_check] = await storage.getLeaves(poolInfo_Index);
+                    const [tokenIndex0_check, tokenIndex1_check, liq0_check, liq1_check] = await storage.getLeaves(poolInfo_Index);
                     const share_check = await storage.getLeave(account.getShareInfoAddress(config.scenario[i].poolIndex));
                     const token0Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[0]));
                     const token1Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[1]));
@@ -181,7 +186,7 @@ describe("test ops", () => {
                     expect(token0Balance_check.v.toString()).toEqual(`${config.scenario[i].userBalance0_check}`);
                     expect(token1Balance_check.v.toString()).toEqual(`${config.scenario[i].userBalance1_check}`);
                     expect(ShareTotal_check.v.toString()).toEqual(`${config.scenario[i].poolShareTotal_check}`);
-                }else if(config.scenario[i].op_name == 'swap'){
+                } else if (config.scenario[i].op_name == 'swap') {
                     const pool = new Pool(storage, config.scenario[i].poolIndex);
                     const account = new Account(storage, config.scenario[i].accountIndex);
                     const poolInfo_Index = getSpaceIndex(AddressSpace.Pool) | config.scenario[i].poolIndex << 20;
@@ -203,7 +208,7 @@ describe("test ops", () => {
                     await swap_command.run(storage);
 
                     const nonce_check = await storage.getLeave(account.getAccountNonceAddress());
-                    const [tokenIndex0_check,tokenIndex1_check,liq0_check,liq1_check] = await storage.getLeaves(poolInfo_Index);
+                    const [tokenIndex0_check, tokenIndex1_check, liq0_check, liq1_check] = await storage.getLeaves(poolInfo_Index);
                     const token0Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[0]));
                     const token1Balance_check = await storage.getLeave(account.getBalanceInfoAddress((await pool.getTokenIndexAndLiq())[1]));
 
@@ -214,6 +219,5 @@ describe("test ops", () => {
                     expect(token1Balance_check.v.toString()).toEqual(`${config.scenario[i].userBalance1_check}`);
                 }
             }
-        }
-    });
+        });
 });
