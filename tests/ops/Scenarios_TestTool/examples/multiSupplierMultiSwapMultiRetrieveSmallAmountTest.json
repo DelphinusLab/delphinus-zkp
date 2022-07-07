@@ -1,5 +1,5 @@
 {
-    "_COMMENT":"multi_supplier_multi_swap_multi_withdraw_small_amount_test",
+    "_COMMENT":"multiSupplierMultiSwapMultiRetrieveSmallAmountTest: A supply big, B supply big, multi swap, A retrieve a lot and leave some share which is 10 token value (which means if retrieve once, A can retrieve 10), A multi time retrieve n times, each retrieve 1",
 
     "scenario":[
             {

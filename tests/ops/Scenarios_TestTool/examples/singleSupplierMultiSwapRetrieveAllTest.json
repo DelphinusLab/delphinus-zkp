@@ -1,5 +1,5 @@
 {
-    "_COMMENT":"single_supplier_multi_swap_retrieve_all_test",
+    "_COMMENT":"singleSupplierMultiSwapRetrieveAllTest: A supply, A multi swap, A retrieve twice to retrieve all",
 
     "scenario":[
         {

@@ -1,5 +1,5 @@
 {
-    "_COMMENT":"Multi_supplier_multi_swap_multi_supply_small_amount_test: A supply big, B supply big, multi swap, A withdraw all, A multi supply 10 times small amount, B withdraw",
+    "_COMMENT":"multiSupplierMultiSwapMultiSupplySmallAmountRetrieveAllTest: A supply big, B supply big, multi swap, A retrieve all, A multi supply 10 times small amount, B retrieve",
 
     "scenario":[
             {
@@ -304,12 +304,12 @@
                 "accountIndex": 3,
                 "poolIndex": 0,
                 "amount0": 5100,
-                "amount1": 4903,
+                "amount1": 4906,
                 "liq0_check":100,
-                "liq1_check":100,
+                "liq1_check":97,
                 "userShare_check": 9,
                 "userBalance0_check":10100,
-                "userBalance1_check":9903,
+                "userBalance1_check":9906,
                 "poolShareTotal_check": "98039215686274509"
             }
         ]
