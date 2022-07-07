@@ -21,17 +21,6 @@ describe("test ops", () => {
 
     test.each(filesMap)
         ("Testing %p scenario", async (fileName) => {
-            /*let fileNames = [
-                "multiSupplierMultiSwapMultiRetrieveSmallAmountTest.json",
-                "multiSupplierMultiSwapMultiSupplySmallAmountRetrieveAllTest.json",
-                "multiSupplierMultiSwapMultiSupplySmallAmountNotRetrieveAllTest.json",
-                "multiSupplierMultiSwapCannotRetrieveAllTestSwapAfterSupply.json",
-                "multiSupplierMultiSwapCannotRetrieveAllTestSwapNotAfterSupply.json",
-                "multiSupplierMultiSwapRetrieveAllTestSwapAfterSupply.json",
-                "multiSupplierMultiSwapRetrieveAllTestSwapNotAfterSupply.json",
-                "singleSupplierMultiSwapRetrieveAllTest.json"
-            ]*/
-
             jest.setTimeout(120000);
             let storage: L2Storage = new L2Storage(true);
 
