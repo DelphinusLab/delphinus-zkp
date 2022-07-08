@@ -123,6 +123,24 @@ template Divide(){
     out <== andmany.out;
 }
 
+//rounding down results: amountY += 1 in supply
+template CalcTokenAmountY(){
+    signal input amountX;
+    signal input poolX;
+    signal input poolY;
+    signal output result;
+    signal output rem;
+    signal output out;
+
+    component ratio = Divide();
+    ratio.numerator <== amountX * poolY;
+    ratio.denominator <== poolX;
+
+    result <== ratio.result;
+    rem <== ratio.remainder;
+    out <== ratio.out;
+}
+
 template GetValueFromTreePath() {
     var IndexOffset = 0;
     var NodesPerLevel = 4;

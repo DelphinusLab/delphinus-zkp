@@ -22,14 +22,14 @@ template Supply() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(19);
+    component andmany = AndMany(21);
     var andmanyOffset = 0;
 
     var nonce = args[1];
     var account = args[2];
     var pool = args[3];
     var amount0 = args[4];
-    var amount1 = args[5];
+    var allowedMaxAmount1 = args[5];
 
     // circuits: check accountIndex < 2 ^ 20
     component rangecheck0 = Check2PowerRangeFE(20);
@@ -49,15 +49,48 @@ template Supply() {
     andmany.in[andmanyOffset] <== rangecheck2.out;
     andmanyOffset++;
 
-    // circuits: check amount1 < 2 ^ 99
+    // circuits: check allowedMaxAmount1 < 2 ^ 99
     component rangecheck3 = Check2PowerRangeFE(99);
-    rangecheck3.in <== amount1;
+    rangecheck3.in <== allowedMaxAmount1;
     andmany.in[andmanyOffset] <== rangecheck3.out;
     andmanyOffset++;
 
+    // circuits: Check amount0 * allowedMaxAmount1 != 0
+    component zeroCheck = IsZero();
+    zeroCheck.in <== amount0 * allowedMaxAmount1;
+    andmany.in[andmanyOffset] <== 1 - zeroCheck.out;
+    andmanyOffset++;
+
+    // check if pool empty (pool.x = 0)
+    component IsPoolNotEmpty = BiSelect();
+    IsPoolNotEmpty.cond <== dataPath[1][Token0LiqOffset];
+    IsPoolNotEmpty.in[0] <== 0;
+    IsPoolNotEmpty.in[1] <== 1;
+
+    // calc y_delta: rounding down result
+    component YDelta = CalcTokenAmountY();
+    YDelta.amountX <== amount0;
+    YDelta.poolX <== dataPath[1][Token0LiqOffset];
+    YDelta.poolY <== dataPath[1][Token1LiqOffset];
+    component YDeltaCheck = BiSelect();
+    YDeltaCheck.cond <== IsPoolNotEmpty.out;
+    YDeltaCheck.in[0] <== 1;
+    YDeltaCheck.in[1] <== YDelta.out;
+    andmany.in[andmanyOffset] <== YDeltaCheck.out;
+    andmanyOffset++;
+
+    component amountY = BiSelect();
+    amountY.cond <== YDelta.rem;
+    amountY.in[0] <== YDelta.result;
+    amountY.in[1] <== YDelta.result + 1;
+    component amount1 = BiSelect();
+    amount1.cond <== IsPoolNotEmpty.out;
+    amount1.in[0] <== allowedMaxAmount1;
+    amount1.in[1] <== amountY.out;
+
     //check y * pool.X - x * pool.Y >=0
     component amount1Check = GreaterEqThanFE(250);
-    amount1Check.in[0] <== amount1 * dataPath[1][Token0LiqOffset];
+    amount1Check.in[0] <== allowedMaxAmount1 * dataPath[1][Token0LiqOffset];
     amount1Check.in[1] <== amount0 * dataPath[1][Token1LiqOffset];
     andmany.in[andmanyOffset] <== amount1Check.out;
     andmanyOffset++;
@@ -95,7 +128,7 @@ template Supply() {
     component checkLiq = CheckAndUpdateLiqFE(0);
     checkLiq.pool <== pool;
     checkLiq.amount0 <== amount0;
-    checkLiq.amount1 <== amount1;
+    checkLiq.amount1 <== amount1.out;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         checkLiq.dataPath[i] <== dataPath[1][i];
     }
@@ -118,17 +151,18 @@ template Supply() {
     deltaShare.numerator <== amount0 * dataPath[5][LeaveStartOffset];
     deltaShare.denominator <== dataPath[1][Token0LiqOffset];
 
-    // if totalShare = 0 ? initialization : use delta
-    component shareDiff = BiSelect();
-    shareDiff.cond <== dataPath[5][LeaveStartOffset];
-    shareDiff.in[0] <== amount0 * precisionFactor;
-    shareDiff.in[1] <== deltaShare.result;
     component shareDiffCheck = BiSelect();
-    shareDiffCheck.cond <== dataPath[5][LeaveStartOffset];
+    shareDiffCheck.cond <== IsPoolNotEmpty.out;
     shareDiffCheck.in[0] <== 1;
     shareDiffCheck.in[1] <== deltaShare.out;
     andmany.in[andmanyOffset] <== shareDiffCheck.out;
     andmanyOffset++;
+
+    // if pool.x = 0 ? initialization : use delta
+    component shareDiff = BiSelect();
+    shareDiff.cond <== IsPoolNotEmpty.out;
+    shareDiff.in[0] <== amount0 * precisionFactor;
+    shareDiff.in[1] <== deltaShare.result;
 
     component shareDiffRange = Check2PowerRangeFE(250);
     shareDiffRange.in <== shareDiff.out;
@@ -174,7 +208,7 @@ template Supply() {
     andmanyOffset++;
 
     component change1 = ChangeValueFromTreePath();
-    change1.diff <== -amount1;
+    change1.diff <== -amount1.out;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         change1.treeData[i] <== dataPath[4][i];
     }

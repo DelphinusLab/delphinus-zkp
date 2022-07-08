@@ -1,0 +1,227 @@
+{
+    "_COMMENT":"multiSupplierMultiSwapMultiSupplySmallAmountNotRetrieveAllTest: A supply big, B supply big, A multi swap, A retrieve a lot, A multi supply 10 times small amount, A retrieve, A retrieve(fail)",
+
+    "Ops":[
+            {
+                "op_name": "setkey",
+                "callerAccountIndex":"1",
+                "nonce": "0",
+                "accountIndex":"1",
+                "msg":"Alice",
+                "derive_key":"/delphinus/nft/Alice"
+            },
+            {
+                "op_name": "setkey",
+                "callerAccountIndex":"2",
+                "nonce": "0",
+                "accountIndex":"2",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft/Bob"
+            },
+            {
+                "op_name": "setkey",
+                "callerAccountIndex":"3",
+                "nonce": "0",
+                "accountIndex":"3",
+                "msg":"Carol",
+                "derive_key":"/delphinus/nft/Carol"
+            },
+            {
+                "op_name": "addpool",
+                "callerAccountIndex":"1",
+                "nonce": "1",
+                "tokenIndex0":"0",
+                "tokenIndex1":"1",
+                "poolIndex":"0"
+            },
+            {
+                "op_name": "deposit",
+                "callerAccountIndex":"1",
+                "nonce": "2",
+                "accountIndex":"2",
+                "tokenIndex":"0",
+                "amount":"2000",
+                "l1_tx_hash":"0"
+            },
+            {
+                "op_name": "deposit",
+                "callerAccountIndex":"1",
+                "nonce": "3",
+                "accountIndex":"2",
+                "tokenIndex":"1",
+                "amount":"2000",
+                "l1_tx_hash":"1"
+            },
+            {
+                "op_name": "deposit",
+                "callerAccountIndex":"1",
+                "nonce": "4",
+                "accountIndex":"3",
+                "tokenIndex":"0",
+                "amount":"2000",
+                "l1_tx_hash":"2"
+            },
+            {
+                "op_name": "deposit",
+                "callerAccountIndex":"1",
+                "nonce": "5",
+                "accountIndex":"3",
+                "tokenIndex":"1",
+                "amount":"2000",
+                "l1_tx_hash":"3"
+            },
+            {
+                "op_name": "supply",
+                "callerAccountIndex":"2",
+                "nonce": "1",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "amount0":"1000",
+                "amount1":"1000"
+            },
+            {
+                "op_name": "supply",
+                "callerAccountIndex":"3",
+                "nonce": "1",
+                "accountIndex":"3",
+                "poolIndex":"0",
+                "amount0":"500",
+                "amount1":"500"
+            },
+            {
+                "op_name": "swap",
+                "callerAccountIndex":"2",
+                "nonce": "2",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "reverse":"1",
+                "amount":"100"
+            },
+            {
+                "op_name": "swap",
+                "callerAccountIndex":"2",
+                "nonce": "3",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "reverse":"0",
+                "amount":"100"
+            },
+            {
+                "op_name": "retrieve",
+                "callerAccountIndex":"2",
+                "nonce": "4",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "amount0":"1004",
+                "amount1":"996"
+            },
+            {
+                "op_name": "supply",
+                "callerAccountIndex":"2",
+                "nonce": "5",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "amount0":"1",
+                "amount1":"1"
+            },
+            {
+                "op_name": "supply",
+                "callerAccountIndex":"2",
+                "nonce": "6",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "amount0":"1",
+                "amount1":"1"
+            },
+            {
+                "op_name": "supply",
+                "callerAccountIndex":"2",
+                "nonce": "7",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "amount0":"1",
+                "amount1":"1"
+            },
+            {
+                "op_name": "supply",
+                "callerAccountIndex":"2",
+                "nonce": "8",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "amount0":"1",
+                "amount1":"1"
+            },
+            {
+                "op_name": "supply",
+                "callerAccountIndex":"2",
+                "nonce": "9",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "amount0":"1",
+                "amount1":"1"
+            },
+            {
+                "op_name": "supply",
+                "callerAccountIndex":"2",
+                "nonce": "10",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "amount0":"1",
+                "amount1":"1"
+            },
+            {
+                "op_name": "supply",
+                "callerAccountIndex":"2",
+                "nonce": "11",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "amount0":"1",
+                "amount1":"1"
+            },
+            {
+                "op_name": "supply",
+                "callerAccountIndex":"2",
+                "nonce": "12",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "amount0":"1",
+                "amount1":"1"
+            },
+            {
+                "op_name": "supply",
+                "callerAccountIndex":"2",
+                "nonce": "13",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "amount0":"1",
+                "amount1":"1"
+            },
+            {
+                "op_name": "supply",
+                "callerAccountIndex":"2",
+                "nonce": "14",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "amount0":"1",
+                "amount1":"1"
+            },
+            {
+                "op_name": "retrieve",
+                "callerAccountIndex":"2",
+                "nonce": "15",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "amount0":"10",
+                "amount1":"9"
+            },
+            {
+                "op_name": "retrieve",
+                "callerAccountIndex":"2",
+                "nonce": "16",
+                "accountIndex":"2",
+                "poolIndex":"0",
+                "amount0":"0",
+                "amount1":"1"
+            }
+        ]
+}

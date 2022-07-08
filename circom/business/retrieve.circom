@@ -22,14 +22,14 @@ template Retrieve() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(19);
+    component andmany = AndMany(20);
     var andmanyOffset = 0;
 
     var nonce = args[1];
     var account = args[2];
     var pool = args[3];
     var amount0 = args[4];
-    var amount1 = args[5];
+    var allowedMinAmount1 = args[5];
 
     // circuits: check accountIndex < 2 ^ 20
     component rangecheck0 = Check2PowerRangeFE(20);
@@ -49,16 +49,24 @@ template Retrieve() {
     andmany.in[andmanyOffset] <== rangecheck2.out;
     andmanyOffset++;
 
-    // circuits: check amount1 < 2 ^ 99
+    // circuits: check allowedMinAmount1 < 2 ^ 99
     component rangecheck3 = Check2PowerRangeFE(99);
-    rangecheck3.in <== amount1;
+    rangecheck3.in <== allowedMinAmount1;
     andmany.in[andmanyOffset] <== rangecheck3.out;
+    andmanyOffset++;
+
+    // calc y_delta: rounding down result
+    component YDelta = CalcTokenAmountY();
+    YDelta.amountX <== amount0;
+    YDelta.poolX <== dataPath[1][Token0LiqOffset];
+    YDelta.poolY <== dataPath[1][Token1LiqOffset];
+    andmany.in[andmanyOffset] <== YDelta.out;
     andmanyOffset++;
 
     //check x * pool.Y - y * pool.X >= 0
     component amount1Check = GreaterEqThanFE(250);
     amount1Check.in[0] <== amount0 * dataPath[1][Token1LiqOffset];
-    amount1Check.in[1] <== amount1 * dataPath[1][Token0LiqOffset];
+    amount1Check.in[1] <== allowedMinAmount1 * dataPath[1][Token0LiqOffset];
     andmany.in[andmanyOffset] <== amount1Check.out;
     andmanyOffset++;
 
@@ -95,7 +103,7 @@ template Retrieve() {
     component checkLiq = CheckAndUpdateLiqFE(1);
     checkLiq.pool <== pool;
     checkLiq.amount0 <== amount0;
-    checkLiq.amount1 <== amount1;
+    checkLiq.amount1 <== YDelta.result;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         checkLiq.dataPath[i] <== dataPath[1][i];
     }
@@ -184,7 +192,7 @@ template Retrieve() {
     andmanyOffset++;
 
     component change1 = ChangeValueFromTreePath();
-    change1.diff <== amount1;
+    change1.diff <== YDelta.result;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         change1.treeData[i] <== dataPath[4][i];
     }

@@ -1,5 +1,5 @@
 {
-    "_COMMENT":"Case 3. A supply -> multi-swap -> B supply ->  B retrieve -> A retrieve all -> B retrieve rest -> A try to retrieve(fail)",
+    "_COMMENT":"multiSupplierMultiSwapRetrieveAllTestSwapNotAfterSupply: A supply, multi-swap, B supply,  B retrieve, A retrieve, A retrieve(fail)",
 
     "Ops":[
             {
@@ -131,7 +131,7 @@
                 "accountIndex":"1",
                 "poolIndex":"0",
                 "amount0":"499",
-                "amount1":"490"
+                "amount1":"480"
             },
             {
                 "op_name": "retrieve",
@@ -140,7 +140,7 @@
                 "accountIndex":"0",
                 "poolIndex":"0",
                 "amount0":"510",
-                "amount1":"501"
+                "amount1":"493"
             },
             {
                 "op_name": "retrieve",
