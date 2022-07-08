@@ -1,5 +1,5 @@
 {
-    "_COMMENT":"Multi_supplier_multi_swap_cannot_retrieve_all_test: A supply, B supply, multi-swap , A retrieve, B retrieve",
+    "_COMMENT":"multiSupplierMultiSwapCannotRetrieveAllTestSwapAfterSupply: A supply, B supply, multi-swap , A retrieve, B retrieve",
 
     "scenario":[
             {
@@ -150,12 +150,12 @@
                 "accountIndex": 2,
                 "poolIndex": 0,
                 "amount0": 996,
-                "amount1": 997,
+                "amount1": 1003,
                 "liq0_check":499,
-                "liq1_check":510,
+                "liq1_check":504,
                 "userShare_check":"668896321070234",
                 "userBalance0_check":9996,
-                "userBalance1_check":9997,
+                "userBalance1_check":10003,
                 "poolShareTotal_check":"500668896321070234"
             },
             {
@@ -164,12 +164,12 @@
                 "accountIndex": 3,
                 "poolIndex": 0,
                 "amount0": 498,
-                "amount1": 509,
+                "amount1": 502,
                 "liq0_check":1,
-                "liq1_check":1,
+                "liq1_check":2,
                 "userShare_check": "334448160535117",
                 "userBalance0_check":9998,
-                "userBalance1_check":10009,
+                "userBalance1_check":10002,
                 "poolShareTotal_check": "1003344481605351"
             }
         ]
