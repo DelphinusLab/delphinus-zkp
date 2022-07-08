@@ -62,10 +62,10 @@ template Supply() {
     andmanyOffset++;
 
     // check if pool empty (pool.x = 0)
-    component IsPoolEmpty = BiSelect();
-    IsPoolEmpty.cond <== dataPath[1][Token0LiqOffset];
-    IsPoolEmpty.in[0] <== 0;
-    IsPoolEmpty.in[1] <== 1;
+    component IsPoolNotEmpty = BiSelect();
+    IsPoolNotEmpty.cond <== dataPath[1][Token0LiqOffset];
+    IsPoolNotEmpty.in[0] <== 0;
+    IsPoolNotEmpty.in[1] <== 1;
 
     // calc y_delta: rounding down result
     component YDelta = CalcTokenAmountY();
@@ -73,7 +73,7 @@ template Supply() {
     YDelta.poolX <== dataPath[1][Token0LiqOffset];
     YDelta.poolY <== dataPath[1][Token1LiqOffset];
     component YDeltaCheck = BiSelect();
-    YDeltaCheck.cond <== IsPoolEmpty.out;
+    YDeltaCheck.cond <== IsPoolNotEmpty.out;
     YDeltaCheck.in[0] <== 1;
     YDeltaCheck.in[1] <== YDelta.out;
     andmany.in[andmanyOffset] <== YDeltaCheck.out;
@@ -84,7 +84,7 @@ template Supply() {
     amountY.in[0] <== YDelta.result;
     amountY.in[1] <== YDelta.result + 1;
     component amount1 = BiSelect();
-    amount1.cond <== IsPoolEmpty.out;
+    amount1.cond <== IsPoolNotEmpty.out;
     amount1.in[0] <== allowedMaxAmount1;
     amount1.in[1] <== amountY.out;
 
@@ -152,7 +152,7 @@ template Supply() {
     deltaShare.denominator <== dataPath[1][Token0LiqOffset];
 
     component shareDiffCheck = BiSelect();
-    shareDiffCheck.cond <== IsPoolEmpty.out;
+    shareDiffCheck.cond <== IsPoolNotEmpty.out;
     shareDiffCheck.in[0] <== 1;
     shareDiffCheck.in[1] <== deltaShare.out;
     andmany.in[andmanyOffset] <== shareDiffCheck.out;
@@ -160,7 +160,7 @@ template Supply() {
 
     // if pool.x = 0 ? initialization : use delta
     component shareDiff = BiSelect();
-    shareDiff.cond <== IsPoolEmpty.out;
+    shareDiff.cond <== IsPoolNotEmpty.out;
     shareDiff.in[0] <== amount0 * precisionFactor;
     shareDiff.in[1] <== deltaShare.result;
 
