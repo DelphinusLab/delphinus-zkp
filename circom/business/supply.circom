@@ -71,7 +71,7 @@ template Supply() {
     amountY.in[0] <== YDelta.result;
     amountY.in[1] <== YDelta.result + 1;
     component amount1 = BiSelect();
-    amount1.cond <== YDelta.out;
+    amount1.cond <== dataPath[1][Token0LiqOffset];
     amount1.in[0] <== allowedMaxAmount1;
     amount1.in[1] <== amountY.out;
 
