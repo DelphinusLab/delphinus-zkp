@@ -10,14 +10,6 @@
                 "ay": 2
             },
             {
-                "op_name": "addpool",
-                "nonce": 1,
-                "tokenIndex0": 0,
-                "tokenIndex1": 1,
-                "poolIndex": 0,
-                "callerAccountIndex": 1
-            },
-            {
                 "op_name": "setkey",
                 "nonce": 0,
                 "accountIndex": 2,
@@ -30,6 +22,14 @@
                 "accountIndex": 3,
                 "ax": 5,
                 "ay": 6
+            },
+            {
+                "op_name": "addpool",
+                "nonce": 1,
+                "tokenIndex0": 0,
+                "tokenIndex1": 1,
+                "poolIndex": 0,
+                "callerAccountIndex": 1
             },
             {
                 "op_name": "deposit",
@@ -97,7 +97,7 @@
             },
             {
                 "op_name": "swap",
-                "nonce": 1,
+                "nonce": 2,
                 "accountIndex": 2,
                 "poolIndex": 0,
                 "reverse": 1,
@@ -109,7 +109,7 @@
             },
             {
                 "op_name": "swap",
-                "nonce": 2,
+                "nonce": 3,
                 "accountIndex": 2,
                 "poolIndex": 0,
                 "reverse": 0,
@@ -121,7 +121,7 @@
             },
             {
                 "op_name": "retrieve",
-                "nonce": 5,
+                "nonce": 4,
                 "accountIndex": 2,
                 "poolIndex": 0,
                 "amount0": 1004,
@@ -135,7 +135,7 @@
             },
             {
                 "op_name": "supply",
-                "nonce": 6,
+                "nonce": 5,
                 "accountIndex": 2,
                 "poolIndex": 0,
                 "amount0": 1,
@@ -149,7 +149,7 @@
             },
             {
                 "op_name": "supply",
-                "nonce": 7,
+                "nonce": 6,
                 "accountIndex": 2,
                 "poolIndex": 0,
                 "amount0": 1,
@@ -163,7 +163,7 @@
             },
             {
                 "op_name": "supply",
-                "nonce": 8,
+                "nonce": 7,
                 "accountIndex": 2,
                 "poolIndex": 0,
                 "amount0": 1,
@@ -177,7 +177,7 @@
             },
             {
                 "op_name": "supply",
-                "nonce": 9,
+                "nonce": 8,
                 "accountIndex": 2,
                 "poolIndex": 0,
                 "amount0": 1,
@@ -191,7 +191,7 @@
             },
             {
                 "op_name": "supply",
-                "nonce": 10,
+                "nonce": 9,
                 "accountIndex": 2,
                 "poolIndex": 0,
                 "amount0": 1,
@@ -205,7 +205,7 @@
             },
             {
                 "op_name": "supply",
-                "nonce": 11,
+                "nonce": 10,
                 "accountIndex": 2,
                 "poolIndex": 0,
                 "amount0": 1,
@@ -219,7 +219,7 @@
             },
             {
                 "op_name": "supply",
-                "nonce": 12,
+                "nonce": 11,
                 "accountIndex": 2,
                 "poolIndex": 0,
                 "amount0": 1,
@@ -233,7 +233,7 @@
             },
             {
                 "op_name": "supply",
-                "nonce": 13,
+                "nonce": 12,
                 "accountIndex": 2,
                 "poolIndex": 0,
                 "amount0": 1,
@@ -247,7 +247,7 @@
             },
             {
                 "op_name": "supply",
-                "nonce": 14,
+                "nonce": 13,
                 "accountIndex": 2,
                 "poolIndex": 0,
                 "amount0": 1,
@@ -261,7 +261,7 @@
             },
             {
                 "op_name": "supply",
-                "nonce": 15,
+                "nonce": 14,
                 "accountIndex": 2,
                 "poolIndex": 0,
                 "amount0": 1,
@@ -275,7 +275,7 @@
             },
             {
                 "op_name": "retrieve",
-                "nonce": 16,
+                "nonce": 15,
                 "accountIndex": 2,
                 "poolIndex": 0,
                 "amount0": 10,
