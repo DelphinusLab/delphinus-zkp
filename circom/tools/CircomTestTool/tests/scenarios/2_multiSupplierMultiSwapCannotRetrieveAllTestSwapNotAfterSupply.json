@@ -1,5 +1,5 @@
 {
-    "_COMMENT":"Case 5. A supply -> multi-swap -> B supply -> multi-swap  -> B retrieve -> A retrieve -> A try to retrieve(fail)",
+    "_COMMENT":"multiSupplierMultiSwapCannotRetrieveAllTestSwapNotAfterSupply: A supply, multi-swap, B supply, multi swap, B retrieve, A retrieve, A retrieve(fail)",
 
     "Ops":[
             {

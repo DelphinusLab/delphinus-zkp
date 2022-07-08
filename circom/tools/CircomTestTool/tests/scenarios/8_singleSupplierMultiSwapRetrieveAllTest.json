@@ -1,5 +1,5 @@
 {
-    "_COMMENT":"Case 2. A supply -> B supply -> multi-swap -> B retrieve all -> A retrieve all -> A try to retrieve(fail)",
+    "_COMMENT":"singleSupplierMultiSwapRetrieveAllTest: A supply, A multi swap, A retrieve twice to retrieve all, A retrieve(fail)",
 
     "Ops":[
             {
@@ -40,7 +40,7 @@
                 "nonce": "1",
                 "accountIndex":"0",
                 "tokenIndex":"0",
-                "amount":"1000",
+                "amount":"3000",
                 "l1_tx_hash":"0"
             },
             {
@@ -49,7 +49,7 @@
                 "nonce": "2",
                 "accountIndex":"0",
                 "tokenIndex":"1",
-                "amount":"1000",
+                "amount":"3000",
                 "l1_tx_hash":"1"
             },
             {
@@ -60,92 +60,47 @@
                 "poolIndex":"0",
                 "amount0":"1000",
                 "amount1":"1000"
-            },
-            {
-                "op_name": "deposit",
-                "callerAccountIndex":"1",
-                "nonce": "2",
-                "accountIndex":"1",
-                "tokenIndex":"0",
-                "amount":"1000",
-                "l1_tx_hash":"0"
-            },
-            {
-                "op_name": "deposit",
-                "callerAccountIndex":"1",
-                "nonce": "3",
-                "accountIndex":"1",
-                "tokenIndex":"1",
-                "amount":"1000",
-                "l1_tx_hash":"1"
-            },
-            {
-                "op_name": "supply",
-                "callerAccountIndex":"1",
-                "nonce": "4",
-                "accountIndex":"1",
-                "poolIndex":"0",
-                "amount0":"1000",
-                "amount1":"1000"
-            },
-            {
-                "op_name": "deposit",
-                "callerAccountIndex":"2",
-                "nonce": "1",
-                "accountIndex":"2",
-                "tokenIndex":"0",
-                "amount":"3000",
-                "l1_tx_hash":"0"
-            },
-            {
-                "op_name": "deposit",
-                "callerAccountIndex":"2",
-                "nonce": "2",
-                "accountIndex":"2",
-                "tokenIndex":"1",
-                "amount":"3000",
-                "l1_tx_hash":"1"
             },
             {
                 "op_name": "swap",
-                "callerAccountIndex":"2",
-                "nonce": "3",
-                "accountIndex":"2",
+                "callerAccountIndex":"0",
+                "nonce": "4",
+                "accountIndex":"0",
                 "poolIndex":"0",
                 "reverse":"0",
                 "amount":"100"
             },
             {
                 "op_name": "swap",
-                "callerAccountIndex":"2",
-                "nonce": "4",
-                "accountIndex":"2",
+                "callerAccountIndex":"0",
+                "nonce": "5",
+                "accountIndex":"0",
                 "poolIndex":"0",
                 "reverse":"1",
                 "amount":"100"
             },
             {
                 "op_name": "retrieve",
-                "callerAccountIndex":"1",
-                "nonce": "5",
-                "accountIndex":"1",
-                "poolIndex":"0",
-                "amount0":"998",
-                "amount1":"1003"
-            },
-            {
-                "op_name": "retrieve",
                 "callerAccountIndex":"0",
-                "nonce": "4",
+                "nonce": "6",
                 "accountIndex":"0",
                 "poolIndex":"0",
-                "amount0":"998",
-                "amount1":"1003"
+                "amount0":"500",
+                "amount1":"509"
             },
             {
                 "op_name": "retrieve",
                 "callerAccountIndex":"0",
-                "nonce": "5",
+                "nonce": "7",
+                "accountIndex":"0",
+                "poolIndex":"0",
+                "amount0":"492",
+                "amount1":"501"
+            },
+            {
+                "op_name": "retrieve",
+                "callerAccountIndex":"0",
+                "nonce": "8",
                 "accountIndex":"0",
                 "poolIndex":"0",
                 "amount0":"1",
