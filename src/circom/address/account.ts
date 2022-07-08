@@ -1,6 +1,8 @@
 import { Field } from "delphinus-curves/src/field";
 import { AddressSpace, MetaType, getMetaAddress, toNumber } from "./space";
 import { MerkleTree, PathInfo } from "delphinus-curves/src/merkle-tree-large";
+import { ShareCalcHelper } from "../shareCalc_helper";
+
 export class Account {
   index: number;
   storage: MerkleTree;
@@ -9,7 +11,7 @@ export class Account {
     this.index = toNumber(index);
   }
 
-  getBalanceInfoIndex(tokenIndex: number | Field) {
+  getBalanceInfoAddress(tokenIndex: number | Field) {
     return (
       (AddressSpace.Balance << 30) |
       (this.index << 10) |
@@ -17,7 +19,7 @@ export class Account {
     );
   }
 
-  getShareInfoIndex(
+  getShareInfoAddress(
       poolIndex: number | Field
   ) {
     return (
@@ -27,18 +29,18 @@ export class Account {
     );
   }
 
-  getAccountPublicKeyIndex() {
+  getAccountPublicKeyAddress() {
     return getMetaAddress(this.index, MetaType.Account) | 0;
   }
 
-  getAccountNonceIndex() {
+  getAccountNonceAddress() {
     return getMetaAddress(this.index, MetaType.Account) | 2;
   }
 
   async getAndUpdateNonce(nonce: Field) {
-    const nonceIndex = this.getAccountNonceIndex();
-    const path = await this.storage.getPath(nonceIndex);
-    await this.storage.setLeave(nonceIndex, nonce.add(new Field(1)));
+    const nonceAddress = this.getAccountNonceAddress();
+    const path = await this.storage.getPath(nonceAddress);
+    await this.storage.setLeave(nonceAddress, nonce.add(new Field(1)));
     return path;
   }
 
@@ -47,12 +49,12 @@ export class Account {
     amount: Field
   ) {
     const tokenIndex = toNumber(_tokenIndex);
-    const balanceInfoIndex = this.getBalanceInfoIndex(tokenIndex);
+    const balanceInfoAddress = this.getBalanceInfoAddress(tokenIndex);
 
-    const path = await this.storage.getPath(balanceInfoIndex);
-    const balance = await this.storage.getLeave(balanceInfoIndex);
+    const path = await this.storage.getPath(balanceInfoAddress);
+    const balance = await this.storage.getLeave(balanceInfoAddress);
 
-    await this.storage.setLeave(balanceInfoIndex, balance.add(amount));
+    await this.storage.setLeave(balanceInfoAddress, balance.add(amount));
     return path;
   }
 
@@ -61,16 +63,16 @@ export class Account {
     amount: Field
   ) {
     const poolIndex = toNumber(_poolIndex);
-    const shareInfoIndex = this.getShareInfoIndex(poolIndex);
+    const shareInfoAddress = this.getShareInfoAddress(poolIndex);
 
-    const path = await this.storage.getPath(shareInfoIndex);
-    const share = await this.storage.getLeave(shareInfoIndex);
+    const path = await this.storage.getPath(shareInfoAddress);
+    const share = await this.storage.getLeave(shareInfoAddress);
 
-    await this.storage.setLeave(shareInfoIndex, share.add(amount));
+    await this.storage.setLeave(shareInfoAddress, share.add(amount));
     return path;
   }
 
   async getAccountInfo() {
-    return this.storage.getPath(this.getAccountPublicKeyIndex());
+    return this.storage.getPath(this.getAccountPublicKeyAddress());
   }
 }

@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "build": "npx tsc",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "unittest": "jest --verbose"
   },
   "author": "ZhenXunGe",
   "license": "UNLICENSED",
@@ -28,6 +29,9 @@
     "@types/fs-extra": "^9.0.12",
     "@types/lru-cache": "^5.1.1",
     "@types/sha256": "^0.2.0",
+    "@types/jest": "^26.0.15",
+    "jest": "^26.0.0",
+    "ts-jest": "^26.0.0",
     "typescript": "^4.3.4"
   }
 }

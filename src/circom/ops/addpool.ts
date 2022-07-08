@@ -12,7 +12,6 @@ export class AddPoolCommand extends Command {
 
   async run(storage: L2Storage) {
     const path = [] as PathInfo[];
-
     const nonce = this.args[3];
     const tokenIndex0 = this.args[4];
     const tokenIndex1 = this.args[5];
@@ -31,11 +30,13 @@ export class AddPoolCommand extends Command {
     // circuits: check caller permission
     path.push(await account.getAndUpdateNonce(nonce));
 
-    // STEP2: init pool info
+    // STEP2: init pool's token index and liq
     // circuits: check index of pool
     // circuits: check leafValues[0] and leafValues[1] equal to 0
-    path.push(await pool.getPoolPath());
-    await pool.resetPool(tokenIndex0, tokenIndex1);
+    path.push(await pool.getAndInitTokenIndexAndLiq(tokenIndex0, tokenIndex1, new Field(0), new Field(0)));
+
+    // STEP3: init pool's share_total
+    path.push(await pool.getAndInitShareTotal(new Field(0)));
 
     return path;
   }

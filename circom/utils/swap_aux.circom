@@ -86,6 +86,61 @@ template AndMany(N) {
     out <== acc;
 }
 
+template Divide(){
+    signal input numerator;
+    signal input denominator;
+    signal output result;
+    signal output remainder;
+    signal output out;
+
+    component andmany = AndMany(2);
+    var andmanyOffset = 0;
+
+    signal divisor;
+    var temp_divisor = 0;
+    var temp_out = 0;
+    if(denominator > 0){
+        temp_divisor = denominator;
+        temp_out = 1;
+    }else{
+        temp_divisor = 1;
+        temp_out = 0;
+    }
+    andmany.in[andmanyOffset] <-- temp_out;
+    andmanyOffset++;
+
+    divisor <-- temp_divisor;
+    result <-- numerator \ divisor;
+    remainder <-- numerator - result * divisor;
+    numerator === result * divisor + remainder;
+
+    component lessthan = LessThanFE(250);
+    lessthan.in[0] <== remainder;
+    lessthan.in[1] <== denominator;
+    andmany.in[andmanyOffset] <== lessthan.out;
+    andmanyOffset++;
+
+    out <== andmany.out;
+}
+
+//rounding down results: amountY += 1 in supply
+template CalcTokenAmountY(){
+    signal input amountX;
+    signal input poolX;
+    signal input poolY;
+    signal output result;
+    signal output rem;
+    signal output out;
+
+    component ratio = Divide();
+    ratio.numerator <== amountX * poolY;
+    ratio.denominator <== poolX;
+
+    result <== ratio.result;
+    rem <== ratio.remainder;
+    out <== ratio.out;
+}
+
 template GetValueFromTreePath() {
     var IndexOffset = 0;
     var NodesPerLevel = 4;
@@ -194,6 +249,21 @@ template CheckPoolInfoIndexAnonymousFE() {
     out <== eq.out;
 }
 
+// b01 Pool.SharePriceKIndex: (10bits) pool index + (17bits) 0 + 1 + 00
+template CheckSharePriceKIndexAnonymousFE() {
+    signal input index;
+    signal output out;
+
+    component n2b = Num2Bits(10);
+    n2b.in <-- (index >> 20) & ((1 << 10) - 1);
+
+    component eq = IsEqual();
+    eq.in[0] <== n2b.in * (1 << 20) + (1 << 30) + (1 << 2);
+    eq.in[1] <== index;
+
+    out <== eq.out;
+}
+
 template CheckPoolInfoIndexFE() {
     signal input pool;
     signal input index;
@@ -285,7 +355,7 @@ template CheckAlign() {
 
     component isAlign = IsZero();
     isAlign.in <== offset;
-    
+
     out <== isAlign.out;
 }
 
@@ -356,4 +426,95 @@ template CheckPermission(privilege) {
     // TODO: fill privilege decision.
 
     out <== 1;
+}
+
+// update liquidity for supply and retrieve
+template CheckAndUpdateLiqFE(N) {
+    var MaxTreeDataIndex = 66;
+    var IndexOffset = 0;
+    var LeaveStartOffset = 61;
+    var Token0Offset = LeaveStartOffset;
+    var Token1Offset = LeaveStartOffset + 1;
+    var Token0LiqOffset = LeaveStartOffset + 2;
+    var Token1LiqOffset = LeaveStartOffset + 3;
+
+    signal input pool;
+    signal input amount0;
+    signal input amount1;
+    signal input dataPath[MaxTreeDataIndex];
+    signal output newDataPath[MaxTreeDataIndex];
+    signal output out;
+
+    component andmany = AndMany(8);
+    var andmanyOffset = 0;
+
+    component poolIndex = CheckPoolInfoIndexFE();
+    poolIndex.pool <== pool;
+    poolIndex.index <== dataPath[IndexOffset];
+    andmany.in[andmanyOffset] <== poolIndex.out;
+    andmanyOffset++;
+
+    var token0 = dataPath[Token0Offset];
+    var token1 = dataPath[Token1Offset];
+    var token0liq = dataPath[Token0LiqOffset];
+    var token1liq = dataPath[Token1LiqOffset];
+
+    component token0check = Check2PowerRangeFE(10);
+    token0check.in <== token0;
+    andmany.in[andmanyOffset] <== token0check.out;
+    andmanyOffset++;
+
+    component token1check = Check2PowerRangeFE(10);
+    token1check.in <== token1;
+    andmany.in[andmanyOffset] <== token1check.out;
+    andmanyOffset++;
+
+    component tokenEq = IsEqual();
+    tokenEq.in[0] <== token0;
+    tokenEq.in[1] <== token1;
+    andmany.in[andmanyOffset] <== 1 - tokenEq.out;
+    andmanyOffset++;
+
+    component token0liqcheck = Check2PowerRangeFE(250);
+    token0liqcheck.in <== token0liq;
+    andmany.in[andmanyOffset] <== token0liqcheck.out;
+    andmanyOffset++;
+
+    component token1lliqcheck = Check2PowerRangeFE(250);
+    token1lliqcheck.in <== token1liq;
+    andmany.in[andmanyOffset] <== token1lliqcheck.out;
+    andmanyOffset++;
+
+    var newtoken0liq;
+    var newtoken1liq;
+
+    // N: 0 -> supply, 1 -> retrieve
+    if(N == 0) {
+      newtoken0liq = token0liq + amount0;
+      newtoken1liq = token1liq + amount1;
+    } else if(N == 1) {
+      newtoken0liq = token0liq - amount0;
+      newtoken1liq = token1liq - amount1;
+    }
+
+    component newtoken0liqcheck = Check2PowerRangeFE(250);
+    newtoken0liqcheck.in <== newtoken0liq;
+    andmany.in[andmanyOffset] <== newtoken0liqcheck.out;
+    andmanyOffset++;
+
+    component newtoken1lliqcheck = Check2PowerRangeFE(250);
+    newtoken1lliqcheck.in <== newtoken1liq;
+    andmany.in[andmanyOffset] <== newtoken1lliqcheck.out;
+    andmanyOffset++;
+
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        if (i == Token0LiqOffset) {
+            newDataPath[i] <== newtoken0liq;
+        } else if (i == Token1LiqOffset) {
+            newDataPath[i] <== newtoken1liq;
+        } else {
+            newDataPath[i] <== dataPath[i];
+        }
+    }
+    out <== andmany.out;
 }

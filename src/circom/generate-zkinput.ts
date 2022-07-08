@@ -53,7 +53,7 @@ class ZKPInputBuilder {
   async pushTreeDataWithPadding(
     pathInfoList: PathInfo[],
     storage: L2Storage,
-    len = 5
+    len = 6
   ) {
     const data = [];
     for (const pathInfo of pathInfoList) {
@@ -144,8 +144,8 @@ export async function genZKPInput(
       // input: key path
       const accountIndex = commandWorker.callerAccountIndex;
       const account = new Account(storage, accountIndex);
-      const keyIndex = account.getAccountPublicKeyIndex();
-      builder.pushKeyData(await storage.getPath(keyIndex));
+      const keyAddress = account.getAccountPublicKeyAddress();
+      builder.pushKeyData(await storage.getPath(keyAddress));
 
       // input: data path
       const pathInfo = await commandWorker.run(storage);

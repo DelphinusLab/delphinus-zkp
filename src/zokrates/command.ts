@@ -44,15 +44,15 @@ export class Index {
   }
 }
 
-export function getPoolStoreIndex(poolIndex: number) {
+export function getPoolStoreAddress(poolIndex: number) {
   return (StoreNameSpace.PoolStore << 30) | (poolIndex << 20);
 }
 
-export function getBalanceStoreIndex(accountIndex: number, tokenIndex: number) {
+export function getBalanceStoreAddress(accountIndex: number, tokenIndex: number) {
   return (StoreNameSpace.BalanceStore << 30) | (accountIndex << 10) | tokenIndex;
 }
 
-export function getShareStoreIndex(accountIndex: number, poolIndex: number) {
+export function getShareStoreAddress(accountIndex: number, poolIndex: number) {
   return (StoreNameSpace.ShareStore << 30) | (accountIndex << 10) | poolIndex;
 }
 

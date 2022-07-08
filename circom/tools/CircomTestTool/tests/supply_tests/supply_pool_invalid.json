@@ -1,0 +1,49 @@
+{
+    "_COMMENT":"Supply Error: Pool not exist (no addpool)",
+
+    "Ops":[
+            {
+                "op_name": "setkey",
+                "callerAccountIndex":"0",
+                "nonce": "0",
+                "accountIndex":"0",
+                "msg":"Alice",
+                "derive_key":"/delphinus/nft/Alice"
+            },
+            {
+                "op_name": "setkey",
+                "callerAccountIndex":"1",
+                "nonce": "0",
+                "accountIndex":"1",
+                "msg":"Bob",
+                "derive_key":"/delphinus/nft/Bob"
+            },
+            {
+                "op_name": "deposit",
+                "callerAccountIndex":"1",
+                "nonce": "1",
+                "accountIndex":"0",
+                "tokenIndex":"0",
+                "amount":"2000",
+                "l1_tx_hash":"0"
+            },
+            {
+                "op_name": "deposit",
+                "callerAccountIndex":"1",
+                "nonce": "2",
+                "accountIndex":"0",
+                "tokenIndex":"1",
+                "amount":"3000",
+                "l1_tx_hash":"1"
+            },
+            {
+                "op_name": "supply",
+                "callerAccountIndex":"0",
+                "nonce": "1",
+                "accountIndex":"1",
+                "poolIndex":"0",
+                "amount0":"1000",
+                "amount1":"1000"
+            }
+        ]
+}

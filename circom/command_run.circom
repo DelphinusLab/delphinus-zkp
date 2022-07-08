@@ -34,7 +34,7 @@ template RunCommand() {
     var RootHashIndex = 65;
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
-    var MaxStep = 5;
+    var MaxStep = 6;
     var NCOMMANDS = 12;
 
     signal input args[CommandArgs];
@@ -339,7 +339,7 @@ template RunCommand() {
 template CheckCommandsRun(N) {
     var RootHashIndex = 65;
     var MaxTreeDataIndex = 66;
-    var MaxStep = 5;
+    var MaxStep = 6;
     var CommandArgs = 6;
 
     signal input commandHash[2];

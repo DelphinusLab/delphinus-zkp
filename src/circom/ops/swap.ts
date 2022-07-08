@@ -4,6 +4,7 @@ import { L2Storage } from "../address-space";
 import { Pool } from "../address/pool";
 import { Command } from "../command";
 import { Account } from "../address/account";
+import { ShareCalcHelper } from "../shareCalc_helper";
 
 export class SwapCommand extends Command {
   get callerAccountIndex() {
@@ -21,6 +22,13 @@ export class SwapCommand extends Command {
 
     const pool = new Pool(storage, poolIndex);
     const account = new Account(storage, accountIndex);
+    const shareCalc = new ShareCalcHelper;
+    const [tokenIndex0, tokenIndex1, liq0, liq1] = await pool.getTokenIndexAndLiq();
+    const amountOut = shareCalc.calcAmountOutAMM(
+      amount.v,
+      reverse.v.eqn(0) ? liq1.v : liq0.v,
+      reverse.v.eqn(0) ? liq0.v : liq1.v
+    );
 
     // circuits: check accountIndex < 2 ^ 20
     // circuits: check poolIndex < 2 ^ 10
@@ -34,18 +42,17 @@ export class SwapCommand extends Command {
     // circuits: check token0 != 0 || token1 != 0
     // circuits: if reverse == 0 then liq0 + amount doesn't overflow else liq0 >= amount
     // circuits: if reverse == 0 then liq1 >= amount else liq1 + amount doesn't overflow
-    const [tokenIndex0, tokenIndex1, _path] = await pool.getAndAddLiq(
-      reverse.v.eqn(0) ? amount : new Field(0).sub(amount),
-      reverse.v.eqn(0) ? new Field(0).sub(amount) : amount
-    );
-    path.push(_path);
+    path.push(await pool.getAndUpdateLiqByAddition(
+      reverse.v.eqn(0) ? amount : new Field(0).sub(amountOut),
+      reverse.v.eqn(0) ? new Field(0).sub(amountOut) : amount,
+    ));
 
     // STEP3: udpate balance0
     // circuits: if reverse == 0 then balance0 >= amount else balance0 + amount doesn't overflow
     path.push(
       await account.getAndAddBalance(
         tokenIndex0,
-        reverse.v.eqn(0) ? new Field(0).sub(amount) : amount
+        reverse.v.eqn(0) ? new Field(0).sub(amount) : amountOut
       )
     );
 
@@ -54,7 +61,7 @@ export class SwapCommand extends Command {
     path.push(
       await account.getAndAddBalance(
         tokenIndex1,
-        reverse.v.eqn(0) ? amount : new Field(0).sub(amount)
+        reverse.v.eqn(0) ? amountOut : new Field(0).sub(amount)
       )
     );
 

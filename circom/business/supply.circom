@@ -4,7 +4,7 @@ include "../utils/bit.circom";
 include "../utils/swap_aux.circom";
 
 template Supply() {
-    var MaxStep = 5;
+    var MaxStep = 6;
     var IndexOffset = 0;
     var LeaveStartOffset = 61;
     var Token0Offset = LeaveStartOffset;
@@ -13,6 +13,7 @@ template Supply() {
     var Token1LiqOffset = LeaveStartOffset + 3;
     var MaxTreeDataIndex = 66;
     var CommandArgs = 6;
+    var precisionFactor = 10 ** 15;
 
     signal input args[CommandArgs];
     signal input dataPath[MaxStep][MaxTreeDataIndex];
@@ -21,14 +22,14 @@ template Supply() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(22);
+    component andmany = AndMany(21);
     var andmanyOffset = 0;
 
     var nonce = args[1];
     var account = args[2];
     var pool = args[3];
     var amount0 = args[4];
-    var amount1 = args[5];
+    var allowedMaxAmount1 = args[5];
 
     // circuits: check accountIndex < 2 ^ 20
     component rangecheck0 = Check2PowerRangeFE(20);
@@ -42,16 +43,56 @@ template Supply() {
     andmany.in[andmanyOffset] <== rangecheck1.out;
     andmanyOffset++;
 
-    // circuits: check amount0 < 2 ^ 250
-    component rangecheck2 = Check2PowerRangeFE(250);
+    // circuits: check amount0 < 2 ^ 99
+    component rangecheck2 = Check2PowerRangeFE(99);
     rangecheck2.in <== amount0;
     andmany.in[andmanyOffset] <== rangecheck2.out;
     andmanyOffset++;
 
-    // circuits: check amount1 < 2 ^ 250
-    component rangecheck3 = Check2PowerRangeFE(250);
-    rangecheck3.in <== amount1;
+    // circuits: check allowedMaxAmount1 < 2 ^ 99
+    component rangecheck3 = Check2PowerRangeFE(99);
+    rangecheck3.in <== allowedMaxAmount1;
     andmany.in[andmanyOffset] <== rangecheck3.out;
+    andmanyOffset++;
+
+    // circuits: Check amount0 * allowedMaxAmount1 != 0
+    component zeroCheck = IsZero();
+    zeroCheck.in <== amount0 * allowedMaxAmount1;
+    andmany.in[andmanyOffset] <== 1 - zeroCheck.out;
+    andmanyOffset++;
+
+    // check if pool empty (pool.x = 0)
+    component IsPoolNotEmpty = BiSelect();
+    IsPoolNotEmpty.cond <== dataPath[1][Token0LiqOffset];
+    IsPoolNotEmpty.in[0] <== 0;
+    IsPoolNotEmpty.in[1] <== 1;
+
+    // calc y_delta: rounding down result
+    component YDelta = CalcTokenAmountY();
+    YDelta.amountX <== amount0;
+    YDelta.poolX <== dataPath[1][Token0LiqOffset];
+    YDelta.poolY <== dataPath[1][Token1LiqOffset];
+    component YDeltaCheck = BiSelect();
+    YDeltaCheck.cond <== IsPoolNotEmpty.out;
+    YDeltaCheck.in[0] <== 1;
+    YDeltaCheck.in[1] <== YDelta.out;
+    andmany.in[andmanyOffset] <== YDeltaCheck.out;
+    andmanyOffset++;
+
+    component amountY = BiSelect();
+    amountY.cond <== YDelta.rem;
+    amountY.in[0] <== YDelta.result;
+    amountY.in[1] <== YDelta.result + 1;
+    component amount1 = BiSelect();
+    amount1.cond <== IsPoolNotEmpty.out;
+    amount1.in[0] <== allowedMaxAmount1;
+    amount1.in[1] <== amountY.out;
+
+    //check y * pool.X - x * pool.Y >=0
+    component amount1Check = GreaterEqThanFE(250);
+    amount1Check.in[0] <== allowedMaxAmount1 * dataPath[1][Token0LiqOffset];
+    amount1Check.in[1] <== amount0 * dataPath[1][Token1LiqOffset];
+    andmany.in[andmanyOffset] <== amount1Check.out;
     andmanyOffset++;
 
     // circuits: check signer is account
@@ -84,54 +125,20 @@ template Supply() {
     andmanyOffset++;
 
     // STEP2: udpate liq
-    component poolIndex = CheckPoolInfoIndexFE();
-    poolIndex.pool <== pool;
-    poolIndex.index <== dataPath[1][IndexOffset];
-    andmany.in[andmanyOffset] <== poolIndex.out;
-    andmanyOffset++;
-
-    var token0 = dataPath[1][Token0Offset];
-    var token1 = dataPath[1][Token1Offset];
-    var token0liq = dataPath[1][Token0LiqOffset];
-    var token1liq = dataPath[1][Token1LiqOffset];
-    var newtoken0liq = token0liq + amount0;
-    var newtoken1liq = token1liq + amount1;
-    component token0check = Check2PowerRangeFE(10);
-    token0check.in <== token0;
-    andmany.in[andmanyOffset] <== token0check.out;
-    andmanyOffset++;
-    component token1check = Check2PowerRangeFE(10);
-    token1check.in <== token1;
-    andmany.in[andmanyOffset] <== token1check.out;
-    andmanyOffset++;
-    component token0liqcheck = Check2PowerRangeFE(250);
-    token0liqcheck.in <== token0liq;
-    andmany.in[andmanyOffset] <== token0liqcheck.out;
-    andmanyOffset++;
-    component token1lliqcheck = Check2PowerRangeFE(250);
-    token1lliqcheck.in <== token1liq;
-    andmany.in[andmanyOffset] <== token1lliqcheck.out;
-    andmanyOffset++;
-    component newtoken0liqcheck = Check2PowerRangeFE(250);
-    newtoken0liqcheck.in <== newtoken0liq;
-    andmany.in[andmanyOffset] <== newtoken0liqcheck.out;
-    andmanyOffset++;
-    component newtoken1lliqcheck = Check2PowerRangeFE(250);
-    newtoken1lliqcheck.in <== newtoken1liq;
-    andmany.in[andmanyOffset] <== newtoken1lliqcheck.out;
-    andmanyOffset++;
-
+    component checkLiq = CheckAndUpdateLiqFE(0);
+    checkLiq.pool <== pool;
+    checkLiq.amount0 <== amount0;
+    checkLiq.amount1 <== amount1.out;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
-        if (i == Token0LiqOffset) {
-            newDataPath[1][i] <== newtoken0liq;
-        } else if (i == Token1LiqOffset) {
-            newDataPath[1][i] <== newtoken1liq;
-        } else {
-            newDataPath[1][i] <== dataPath[1][i];
-        }
+        checkLiq.dataPath[i] <== dataPath[1][i];
     }
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        newDataPath[1][i] <== checkLiq.newDataPath[i];
+    }
+    andmany.in[andmanyOffset] <== checkLiq.out;
+    andmanyOffset++;
 
-    // STEP3: udpate share
+    // STEP3: udpate user's share
     component shareIndex = CheckShareIndex();
     shareIndex.account <== account;
     shareIndex.pool <== pool;
@@ -139,14 +146,31 @@ template Supply() {
     andmany.in[andmanyOffset] <== shareIndex.out;
     andmanyOffset++;
 
-    var shareDiff = amount0 + amount1;
+    // share_delta = x * pool.share / pool.x
+    component deltaShare = Divide();
+    deltaShare.numerator <== amount0 * dataPath[5][LeaveStartOffset];
+    deltaShare.denominator <== dataPath[1][Token0LiqOffset];
+
+    component shareDiffCheck = BiSelect();
+    shareDiffCheck.cond <== IsPoolNotEmpty.out;
+    shareDiffCheck.in[0] <== 1;
+    shareDiffCheck.in[1] <== deltaShare.out;
+    andmany.in[andmanyOffset] <== shareDiffCheck.out;
+    andmanyOffset++;
+
+    // if pool.x = 0 ? initialization : use delta
+    component shareDiff = BiSelect();
+    shareDiff.cond <== IsPoolNotEmpty.out;
+    shareDiff.in[0] <== amount0 * precisionFactor;
+    shareDiff.in[1] <== deltaShare.result;
+
     component shareDiffRange = Check2PowerRangeFE(250);
-    shareDiffRange.in <== shareDiff;
+    shareDiffRange.in <== shareDiff.out;
     andmany.in[andmanyOffset] <== shareDiffRange.out;
     andmanyOffset++;
 
     component shareChange = ChangeValueFromTreePath();
-    shareChange.diff <== shareDiff;
+    shareChange.diff <== shareDiff.out;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         shareChange.treeData[i] <== dataPath[2][i];
     }
@@ -159,7 +183,7 @@ template Supply() {
     // STEP4: udpate balance0
     component balance0Index = CheckBalanceIndex();
     balance0Index.account <== account;
-    balance0Index.token <== token0;
+    balance0Index.token <== dataPath[1][Token0Offset];
     balance0Index.index <== dataPath[3][IndexOffset];
     andmany.in[andmanyOffset] <== balance0Index.out;
     andmanyOffset++;
@@ -178,13 +202,13 @@ template Supply() {
     // STEP5: udpate balance1
     component balance1Index = CheckBalanceIndex();
     balance1Index.account <== account;
-    balance1Index.token <== token1;
+    balance1Index.token <== dataPath[1][Token1Offset];
     balance1Index.index <== dataPath[4][IndexOffset];
     andmany.in[andmanyOffset] <== balance1Index.out;
     andmanyOffset++;
 
     component change1 = ChangeValueFromTreePath();
-    change1.diff <== -amount1;
+    change1.diff <== -amount1.out;
     for (var i = 0; i < MaxTreeDataIndex; i++) {
         change1.treeData[i] <== dataPath[4][i];
     }
@@ -194,5 +218,21 @@ template Supply() {
     andmany.in[andmanyOffset] <== change1.out;
     andmanyOffset++;
 
+
+    // check total share < 2 ^ 250
+    component totalShareRangeCheck = Check2PowerRangeFE(250);
+    totalShareRangeCheck.in <== dataPath[5][LeaveStartOffset] + shareDiff.out;
+    andmany.in[andmanyOffset] <== totalShareRangeCheck.out;
+    andmanyOffset++;
+
+    // STEP6: update pool's total share
+    for (var i = 0; i < MaxTreeDataIndex; i++) {
+        if (i == LeaveStartOffset) {
+            newDataPath[5][i] <== dataPath[5][i] + shareDiff.out;
+        } else {
+            newDataPath[5][i] <== dataPath[5][i];
+        }
+    }
+    
     out <== andmany.out;
 }

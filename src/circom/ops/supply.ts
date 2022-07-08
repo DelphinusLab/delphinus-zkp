@@ -4,6 +4,8 @@ import { L2Storage } from "../address-space";
 import { Pool } from "../address/pool";
 import { Account } from "../address/account";
 import { Command } from "../command";
+import { ShareCalcHelper } from "../shareCalc_helper";
+import { calcAmount1ToPool, isPoolEmpty } from "../poolHelper";
 
 export class SupplyCommand extends Command {
   get callerAccountIndex() {
@@ -17,14 +19,15 @@ export class SupplyCommand extends Command {
     const accountIndex = this.args[4];
     const poolIndex = this.args[5];
     const amount0 = this.args[6];
-    const amount1 = this.args[7];
+    const allowedMaxAmount1 = this.args[7];
 
     const pool = new Pool(storage, poolIndex);
     const account = new Account(storage, accountIndex);
-
+    const [tokenIndex0, tokenIndex1, liq0, liq1] = await pool.getTokenIndexAndLiq();
     // circuits: check accountIndex < 2 ^ 20
     // circuits: check poolIndex < 2 ^ 10
-    // circuits: amount1 + amount0 not overflow
+    // circuits: allowedMaxAmount1 + amount0 not overflow
+    // circuits: check allowedMaxAmount1 * liq0 >= amount0 * liq1
 
     // STEP1: udpate nonce
     // circuits: check nonce
@@ -33,19 +36,27 @@ export class SupplyCommand extends Command {
     // STEP2: udpate liquility
     // circuits: check token0 != 0 || token1 != 0
     // circuits: liq0 + amount0 doesn't overflow
-    // circuits: liq1 + amount1 doesn't overflow
-    const [tokenIndex0, tokenIndex1, _path] = await pool.getAndAddLiq(
+    // circuits: liq1 + amount1ToPool doesn't overflow
+    let amount1ToPool;
+    if(isPoolEmpty(liq0.v)) {
+        amount1ToPool = allowedMaxAmount1;
+    } else {
+        amount1ToPool = calcAmount1ToPool(amount0.v, liq0.v, liq1.v, true);
+    }
+    path.push(await pool.getAndUpdateLiqByAddition(
       amount0,
-      amount1
-    );
-    path.push(_path);
+      amount1ToPool
+    ));
 
     // STEP3: udpate share
-    // circuits: check share + amount1 + amount0 not overflow
+    // circuits: check share + allowedMaxAmount1 + amount0 not overflow
+    const shareTotal = await pool.getShareTotal();
+    const shareCalc = new ShareCalcHelper;
+    const shareDelta = shareCalc.calcSupplyShare(amount0.v, shareTotal.v, liq0.v);
     path.push(
       await account.getAndAddShare(
         poolIndex,
-        amount0.add(amount1)
+        shareDelta
       )
     );
 
@@ -59,12 +70,17 @@ export class SupplyCommand extends Command {
     );
 
     // STEP5: udpate balance1
-    // circuits: check balance1 >= amount1
+    // circuits: check balance1 >= amount1ToPool
     path.push(
       await account.getAndAddBalance(
         tokenIndex1,
-        new Field(0).sub(amount1)
+        new Field(0).sub(amount1ToPool)
       )
+    );
+
+    // STEP6: add Share Total
+    path.push(
+      await pool.getAndAddShareTotal(shareDelta)
     );
 
     return path;

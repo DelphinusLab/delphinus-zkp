@@ -11,7 +11,9 @@ Giving root hash and digest path for validation
 (2bits) Class
 
 1. b00 Balance: (20bits) account index + (10bits) token index
-2. b01 Pool: (10bits) pool index + (18bits) 0 + (2bits) poolinfo (token0index, token1index, amount0, amount1)
+2. b01 Pool: 
+    * (10bits) pool index + (18bits) 0 + (2bits) poolinfo (token0index, token1index, amount0, amount1)
+    * (10bits) pool index + (17bits) 0 + (1bit)1 + (2bits) 00 (share_total)
 3. b10 Share: (20bits) account index + (10bits) pool index
 4. b11 Account: (20bits) account index + (4bits) MetaType(0) + (6bits) info data (0 & 1 - public key, 2 - nonce, other -reserved)
 5. b11 NFT: (20bits) nft index + (4bits) MetaType(1) + (6bits) info data (0 - owner, 1 - bidder, 2 - biddingAmount, 3 - reserved)
@@ -49,11 +51,8 @@ Assue admin's account index is 0.
 - in `circom` folder, run `bash tools/setup.sh`
 - in `circom` folder, run `bash tools/compile.sh`
 
-## How to contribute
-
-- Run `node dist/tests/circom.test.js` to see how many tests would fail.
-- Implement circom/main.circom to pass those test.
-- We would continuously add more tests.
-
-## How to run unit test tool
+## How to run unit test tool for circom testing
 - Please check readme in `circom/tools/CircomTestTool` folder
+
+## How to run unit test for circom type script codes
+- in root folder, run `npm run unittest`
