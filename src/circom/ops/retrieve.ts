@@ -5,7 +5,7 @@ import { Pool } from "../address/pool";
 import { Account } from "../address/account";
 import { Command } from "../command";
 import { ShareCalcHelper } from "../shareCalc_helper";
-import { calcAmount1ToPool } from "../amount1ToPoolCalcHelper";
+import { calcAmount1ToPool } from "../poolHelper";
 
 export class RetrieveCommand extends Command {
   get callerAccountIndex() {
@@ -38,7 +38,7 @@ export class RetrieveCommand extends Command {
     // circuits: check token0 != 0 || token1 != 0
     // circuits: liq0 >= amount0
     // circuits: liq1 >= amount1ToPool
-    const amount1ToPool = calcAmount1ToPool(amount0.v, allowedMinAmount1.v, liq0.v, liq1.v, false);
+    const amount1ToPool = calcAmount1ToPool(amount0.v, liq0.v, liq1.v, false);
     path.push(await pool.getAndUpdateLiqByAddition(
       new Field(0).sub(amount0),
       new Field(0).sub(amount1ToPool)

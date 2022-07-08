@@ -5,7 +5,7 @@ import { Pool } from "../address/pool";
 import { Account } from "../address/account";
 import { Command } from "../command";
 import { ShareCalcHelper } from "../shareCalc_helper";
-import { calcAmount1ToPool } from "../amount1ToPoolCalcHelper";
+import { calcAmount1ToPool, isPoolEmpty } from "../poolHelper";
 
 export class SupplyCommand extends Command {
   get callerAccountIndex() {
@@ -37,7 +37,12 @@ export class SupplyCommand extends Command {
     // circuits: check token0 != 0 || token1 != 0
     // circuits: liq0 + amount0 doesn't overflow
     // circuits: liq1 + amount1ToPool doesn't overflow
-    const amount1ToPool = calcAmount1ToPool(amount0.v, allowedMaxAmount1.v, liq0.v, liq1.v, true);
+    let amount1ToPool;
+    if(isPoolEmpty(liq0.v)) {
+        amount1ToPool = allowedMaxAmount1;
+    } else {
+        amount1ToPool = calcAmount1ToPool(amount0.v, liq0.v, liq1.v, true);
+    }
     path.push(await pool.getAndUpdateLiqByAddition(
       amount0,
       amount1ToPool

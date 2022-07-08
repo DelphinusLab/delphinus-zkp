@@ -1,5 +1,6 @@
 import { Field } from "delphinus-curves/src/field";
 import BN from "bn.js";
+import { isPoolEmpty } from "./poolHelper";
 
 export class ShareCalcHelper {
     profitAMM(
@@ -24,11 +25,11 @@ export class ShareCalcHelper {
     calcSupplyShare(
         amountX: BN,
         shareTotal: BN,
-        liqX: BN
+        liqX: BN,
     ){
         let shareDelta;
         let amp = new BN(10 ** 15);
-        if(shareTotal.eqn(0)){
+        if(isPoolEmpty(liqX)){
             shareDelta = amountX.mul(amp);
         }else{
             shareDelta = amountX.mul(shareTotal).div(liqX);
