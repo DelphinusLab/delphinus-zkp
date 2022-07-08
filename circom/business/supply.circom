@@ -22,7 +22,7 @@ template Supply() {
     signal output newDataPath[MaxStep][MaxTreeDataIndex];
     signal output out;
 
-    component andmany = AndMany(20);
+    component andmany = AndMany(21);
     var andmanyOffset = 0;
 
     var nonce = args[1];
@@ -61,17 +61,30 @@ template Supply() {
     andmany.in[andmanyOffset] <== 1 - zeroCheck.out;
     andmanyOffset++;
 
+    // check if pool empty (pool.x = 0)
+    component IsPoolEmpty = BiSelect();
+    IsPoolEmpty.cond <== dataPath[1][Token0LiqOffset];
+    IsPoolEmpty.in[0] <== 0;
+    IsPoolEmpty.in[1] <== 1;
+
     // calc y_delta: rounding down result
     component YDelta = CalcTokenAmountY();
     YDelta.amountX <== amount0;
     YDelta.poolX <== dataPath[1][Token0LiqOffset];
     YDelta.poolY <== dataPath[1][Token1LiqOffset];
+    component YDeltaCheck = BiSelect();
+    YDeltaCheck.cond <== IsPoolEmpty.out;
+    YDeltaCheck.in[0] <== 1;
+    YDeltaCheck.in[1] <== YDelta.out;
+    andmany.in[andmanyOffset] <== YDeltaCheck.out;
+    andmanyOffset++;
+
     component amountY = BiSelect();
     amountY.cond <== YDelta.rem;
     amountY.in[0] <== YDelta.result;
     amountY.in[1] <== YDelta.result + 1;
     component amount1 = BiSelect();
-    amount1.cond <== dataPath[1][Token0LiqOffset];
+    amount1.cond <== IsPoolEmpty.out;
     amount1.in[0] <== allowedMaxAmount1;
     amount1.in[1] <== amountY.out;
 
@@ -138,17 +151,18 @@ template Supply() {
     deltaShare.numerator <== amount0 * dataPath[5][LeaveStartOffset];
     deltaShare.denominator <== dataPath[1][Token0LiqOffset];
 
-    // if totalShare = 0 ? initialization : use delta
-    component shareDiff = BiSelect();
-    shareDiff.cond <== dataPath[5][LeaveStartOffset];
-    shareDiff.in[0] <== amount0 * precisionFactor;
-    shareDiff.in[1] <== deltaShare.result;
     component shareDiffCheck = BiSelect();
-    shareDiffCheck.cond <== dataPath[5][LeaveStartOffset];
+    shareDiffCheck.cond <== IsPoolEmpty.out;
     shareDiffCheck.in[0] <== 1;
     shareDiffCheck.in[1] <== deltaShare.out;
     andmany.in[andmanyOffset] <== shareDiffCheck.out;
     andmanyOffset++;
+
+    // if pool.x = 0 ? initialization : use delta
+    component shareDiff = BiSelect();
+    shareDiff.cond <== IsPoolEmpty.out;
+    shareDiff.in[0] <== amount0 * precisionFactor;
+    shareDiff.in[1] <== deltaShare.result;
 
     component shareDiffRange = Check2PowerRangeFE(250);
     shareDiffRange.in <== shareDiff.out;
