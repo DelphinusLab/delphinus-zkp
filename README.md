@@ -51,8 +51,7 @@ Assue admin's account index is 0.
 - in `circom` folder, run `bash tools/setup.sh`
 - in `circom` folder, run `bash tools/compile.sh`
 
-## How to run unit test tool for circom testing
-- Please check readme in `circom/tools/CircomTestTool` folder
+## How to run unit test
+- Run `npm run unittest`
+- For more circom tests details, please check readme in `circom/tools/CircomTestTool` folder
 
-## How to run unit test for circom type script codes
-- in root folder, run `npm run unittest`
