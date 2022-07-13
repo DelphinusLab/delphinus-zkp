@@ -13,6 +13,7 @@ if [ ! -f pot23_final.ptau ]
 fi
 
 ## Run the shell script to run all tests under CircomTestTool tests directory
-## Haven't done
+cd tools/CircomTestTool
+bash unit_test.sh
 
 echo "Circom unittests finished"
