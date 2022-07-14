@@ -7,11 +7,12 @@ import { preTest, CreateResultFile } from "./unitTestSingleOp";
 
 const storage = new L2Storage(true);
 const config = fs.readJsonSync(process.argv[2]);
-export const option = process.argv[3];
+const filename = process.argv[3];
+export const option = process.argv[4];
 
 const date = new Date();
 const time = `${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`;
-const unitTestRoot = path.join(__dirname, "..", "..", "..", "..", "circom", "unit_tests", `Unit_Test_at_${time}`);
+const unitTestRoot = path.join(__dirname, "..", "..", "..", "..", "circom", "unit_tests", `${filename}_test_at_${time}`);
 const circomRoot = path.join(__dirname, "..", "..", "..", "..","circom")
 
 //generate keys:
