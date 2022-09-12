@@ -127,7 +127,7 @@ Run `bash setup20.sh 23` if pot23_0000ptau，pot23_0001.ptau, pot23_final.ptau a
 - Change `config.json` to the json files that with errors in `unit_test.sh` if you want to test them. (All kinds of configs with error are in `examples` folder)
 
 ### 4. using rapidsnark to generate proof fater(option): 
-- Install `rapidsnark` by runing `bash install_rapidsnark_linux.sh` under `delphinus-lerna` folder. 
+- Install `rapidsnark` by runing `bash install_rapidsnark_linux.sh` under `zkcross-lerna` folder. 
 - Then, you can run `bash unit_test.sh --rapidsnark` or `bash unit_test.sh -rs` to use rapidsnark to generate proof and should see all passed results. This command will use rapidsnark instead of snarkjs to generate proof.
 
 ### 5. How to check results
