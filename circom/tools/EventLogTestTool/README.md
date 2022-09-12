@@ -5,7 +5,7 @@
 - In `zkp/circom/tools/EventLogTestTool/` folder, Run `bash eventLog_test.sh` to test config.json with correct paras only.
 
 ### 3. using rapidsnark to generate proof fater(option): 
-- Install `rapidsnark` by runing `bash install_rapidsnark_linux.sh` under `delphinus-lerna` folder. 
+- Install `rapidsnark` by runing `bash install_rapidsnark_linux.sh` under `zkcross-lerna` folder. 
 - Then, you can run `bash eventLog_test.sh --rapidsnark` or `bash eventLog_test.sh -rs` to use rapidsnark to generate proof and should see all passed results. This command will use rapidsnark instead of snarkjs to generate proof.
 
 ### 4. How to check results
