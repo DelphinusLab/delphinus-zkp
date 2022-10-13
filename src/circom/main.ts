@@ -46,6 +46,7 @@ export async function runZkp(
 
   await writeInput(input, rid);
 
+  console.log("Begin to do run.sh");
   await new Promise((resolve, reject) =>
     exec(
       "bash tools/run.sh",
@@ -55,12 +56,14 @@ export async function runZkp(
       (error, stdout, stderr) => {
         if (error) {
           reject(error);
+          return;
         }
         resolve(stdout);
       }
     )
   );
 
+  console.log("Begin to do proof.sh");
   await new Promise((resolve, reject) =>
     exec(
       "bash tools/proof.sh",
@@ -70,6 +73,7 @@ export async function runZkp(
       (error, stdout, stderr) => {
         if (error) {
           reject(error);
+          return;
         }
         resolve(stdout);
       }
