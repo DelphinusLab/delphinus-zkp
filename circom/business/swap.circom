@@ -34,7 +34,7 @@ template CalculateSwapNewLiq() {
     poolLiqOut <== getAmountOutput.out;
 
     component amountInputIsZero = IsZero();
-    amountInputIsZero.in <== poolLiqIn;
+    amountInputIsZero.in <== poolLiqOut;
     andmany.in[andmanyOffset] <== 1 - amountInputIsZero.out;
     andmanyOffset++;
 
