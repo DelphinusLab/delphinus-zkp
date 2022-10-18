@@ -33,9 +33,9 @@ template CalculateSwapNewLiq() {
     getAmountOutput.cond <== reverse;
     poolLiqOut <== getAmountOutput.out;
 
-    component amountInputIsZero = IsZero();
-    amountInputIsZero.in <== poolLiqIn;
-    andmany.in[andmanyOffset] <== 1 - amountInputIsZero.out;
+    component amountOutputIsZero = IsZero();
+    amountOutputIsZero.in <== poolLiqOut;
+    andmany.in[andmanyOffset] <== 1 - amountOutputIsZero.out;
     andmanyOffset++;
 
     component token0liqcheck = Check2PowerRangeFE(99);
